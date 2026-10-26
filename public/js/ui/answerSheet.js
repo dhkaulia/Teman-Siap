@@ -37,6 +37,8 @@ export class AnswerSheet {
     mascotState = null,
     buttonText = 'Lanjut',
     onContinue = null,
+    secondaryButtonText = null,
+    onSecondary = null,
     stage = 'tunas'
   } = {}) {
     this.type = type === 'belum_pas' || type === 'gentle' ? 'belum_pas' : 'success';
@@ -45,6 +47,8 @@ export class AnswerSheet {
     this.mascotState = mascotState || (this.type === 'belum_pas' ? 'think' : 'cheer');
     this.buttonText = buttonText;
     this.onContinue = onContinue;
+    this.secondaryButtonText = secondaryButtonText;
+    this.onSecondary = onSecondary;
     this.stage = stage;
     this._el = null;
     this._prevActive = typeof document !== 'undefined' ? document.activeElement : null;
@@ -83,6 +87,11 @@ export class AnswerSheet {
           <button type="button" class="${btnClass}" id="answerSheetContinueBtn">
             <span>${esc(this.buttonText)} →</span>
           </button>
+          ${this.secondaryButtonText ? `
+            <button type="button" class="btn-chunky btn-ghost btn-thumb mt-2" id="answerSheetSecondaryBtn">
+              <span>${esc(this.secondaryButtonText)}</span>
+            </button>
+          ` : ''}
         </div>
       </div>
     `;
@@ -100,6 +109,18 @@ export class AnswerSheet {
     // Event binding
     const continueBtn = overlay.querySelector('#answerSheetContinueBtn');
     continueBtn.addEventListener('click', () => this._handleContinue());
+
+    if (this.secondaryButtonText) {
+      const secBtn = overlay.querySelector('#answerSheetSecondaryBtn');
+      if (secBtn) {
+        secBtn.addEventListener('click', () => {
+          this.close();
+          if (typeof this.onSecondary === 'function') {
+            this.onSecondary();
+          }
+        });
+      }
+    }
 
     this._onKeyDown = (e) => {
       if (e.key === 'Escape') {

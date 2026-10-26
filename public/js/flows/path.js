@@ -19,6 +19,13 @@ import { createGoalFlow } from './goalFlow.js';
 import { createPlanFlow } from './planFlow.js';
 import { createCoupleFlow } from './coupleFlow.js';
 import { AnswerSheet } from '../ui/answerSheet.js';
+import { createLessonFlow } from './lessonPlayer.js';
+import {
+  LESSON_NAMING_FEELINGS,
+  LESSON_URGE_SURFING,
+  LESSON_GOTTMAN_COMPLAINT,
+  getLessonById
+} from './lessons.js';
 
 export const PATH_UNITS = [
   {
@@ -436,7 +443,7 @@ function createMicroLessonFlow(node, onDone) {
  * @param {Function} onDone
  * @returns {object} Flow object
  */
-export function createFlowForNode(node, onDone) {
+export function createFlowForNode(node, onDone, store) {
   switch (node.flowType) {
     case 'checkin':
       return createCheckinFlow(onDone);
@@ -454,7 +461,18 @@ export function createFlowForNode(node, onDone) {
       return createPlanFlow(onDone);
     case 'couple':
       return createCoupleFlow(node.convoId || 'c-security', onDone);
-    default:
+    case 'lesson-self':
+      return createLessonFlow(LESSON_NAMING_FEELINGS, onDone, store);
+    case 'lesson-money':
+      return createLessonFlow(LESSON_URGE_SURFING, onDone, store);
+    case 'lesson-vision':
+      return createLessonFlow(LESSON_GOTTMAN_COMPLAINT, onDone, store);
+    default: {
+      const lesson = getLessonById(node.id) || getLessonById(node.flowType);
+      if (lesson) {
+        return createLessonFlow(lesson, onDone, store);
+      }
       return createMicroLessonFlow(node, onDone);
+    }
   }
 }

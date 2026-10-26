@@ -150,3 +150,20 @@ export function triggerHapticTap() {
   }
   return false;
 }
+
+/**
+ * Triggers gentle celebration haptic feedback pattern
+ * @returns {boolean}
+ */
+export function triggerHapticSuccess() {
+  if (!isHapticsEnabled()) return false;
+  if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+    try {
+      navigator.vibrate([10, 30, 15]);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  return false;
+}

@@ -95,6 +95,8 @@ describe('Static File Server & Module Loading', () => {
     await check('/js/flows/planFlow.js', 'text/javascript');
     await check('/js/flows/coupleFlow.js', 'text/javascript');
     await check('/js/flows/path.js', 'text/javascript');
+    await check('/js/flows/lessons.js', 'text/javascript');
+    await check('/js/flows/lessonPlayer.js', 'text/javascript');
     await check('/js/ui/choiceTiles.js', 'text/javascript');
     await check('/js/ui/bodyMap.js', 'text/javascript');
     await check('/js/ui/breather.js', 'text/javascript');
@@ -111,6 +113,7 @@ describe('Static File Server & Module Loading', () => {
     await check('/dev/components.html', 'text/html');
     await check('/dev/styleguide.html', 'text/html');
     await check('/dev/mascot.html', 'text/html');
+    await check('/dev/lessons.html', 'text/html');
     await check('/content.js', 'text/javascript');
     await check('/support.js', 'text/javascript');
     await check('/sw.js', 'text/javascript');

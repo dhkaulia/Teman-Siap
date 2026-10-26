@@ -538,9 +538,24 @@ class SessionRunner {
   }
 
   exit() {
-    // Exit asks nothing, saves nothing, clears session immediately
+    // If flow defines custom onExit (e.g. lesson player "Simpan dan keluar?" dialog), delegate to it
+    if (this._state && this._state.flow && typeof this._state.flow.onExit === 'function') {
+      this._state.flow.onExit(this);
+      return;
+    }
+    this.forceExit();
+  }
+
+  forceExit() {
+    // Discard session and unmount immediately
     this._state = sessionReducer(this._state, { type: 'CANCEL_SESSION' });
     this._clearPersistence();
+    this._unmountOverlay();
+  }
+
+  pauseAndExit() {
+    // Save current progress to persistence and close overlay
+    this._persist();
     this._unmountOverlay();
   }
 
