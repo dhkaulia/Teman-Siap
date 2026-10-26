@@ -4,10 +4,13 @@
  */
 import { SUPPORT_DATA } from '../../support.js';
 import { DEV_MODE, esc, today } from '../ui/utils.js';
+import { renderMascot, getMascotStage, getTotalPractices } from '../ui/mascot.js';
 
 export function renderSelf(store) {
   const d = store.d;
   const support = typeof SUPPORT_DATA !== 'undefined' ? SUPPORT_DATA : null;
+  const totalPractices = getTotalPractices(d);
+  const mascotStage = getMascotStage(totalPractices);
 
   return `
     <div class="card-title-row">
@@ -17,6 +20,18 @@ export function renderSelf(store) {
       </div>
     </div>
     <p class="mute">Teman Siap tidak memberi nilai atau label "kelayakan menikah". Setiap latihan adalah proses belajar mandiri.</p>
+
+    <!-- Mascot Growth Companion Card -->
+    <div class="card mb-3" style="display: flex; align-items: center; gap: var(--space-3);">
+      <div style="flex-shrink: 0;">
+        ${renderMascot('cheer', 72, { stage: mascotStage.id, label: `Tunas ${mascotStage.name}` })}
+      </div>
+      <div>
+        <span class="card-tag tunas">Fase: ${esc(mascotStage.name)}</span>
+        <h3 class="mt-1 mb-1">Teman Belajar: Tunas</h3>
+        <p class="mute text-xs mb-0">${esc(mascotStage.desc)} (${totalPractices} latihan selesai)</p>
+      </div>
+    </div>
 
     <!-- Habit Log Summary -->
     <div class="card">

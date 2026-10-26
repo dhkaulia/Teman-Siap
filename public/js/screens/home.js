@@ -11,6 +11,7 @@
  */
 
 import { esc } from '../ui/utils.js';
+import { renderMascot, getMascotStage, getTotalPractices } from '../ui/mascot.js';
 
 /**
  * Transparent rule-based action suggestion
@@ -103,6 +104,8 @@ export function renderHome(store) {
   const d = store.d;
   const s = getSuggestedAction(d);
   const weeklyCount = getWeeklyPracticeCount(d);
+  const totalPractices = getTotalPractices(d);
+  const mascotStage = getMascotStage(totalPractices);
 
   // 4 Soft Journey Nodes (Check status without readiness scores or percentages)
   const isNode1Done = Boolean((d.checkins && d.checkins.length > 0) || (d.pauses && d.pauses.length > 0));
@@ -153,7 +156,10 @@ export function renderHome(store) {
     <div class="home-greeting-row">
       <div>
         <h1 class="home-greeting-title">Selamat datang.</h1>
-        <p class="mute home-greeting-sub">${esc(d.stage || 'Persiapan Bersama')}</p>
+        <p class="mute home-greeting-sub">${esc(d.stage || 'Persiapan Bersama')} • ${esc(mascotStage.name)}</p>
+      </div>
+      <div class="home-mascot-chip" title="Tunas: ${esc(mascotStage.name)}">
+        ${renderMascot(weeklyCount > 0 ? 'wave' : 'idle', 44, { stage: mascotStage.id, label: `Tunas (${mascotStage.name})`, inlineStyle: false })}
       </div>
     </div>
 

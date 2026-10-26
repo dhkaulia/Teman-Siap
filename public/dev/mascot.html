@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Teman Siap — Tunas Mascot & Illustration Kit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/screens.css">
+  <style>
+    body.showcase-body {
+      background-color: #0b1211;
+      color: #E2E8F0;
+      font-family: var(--font-sans);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    .showcase-header {
+      background: #111C1A;
+      border-bottom: 2px solid #233432;
+      padding: 14px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .showcase-title {
+      font-family: var(--font-display);
+      font-size: 1.125rem;
+      font-weight: 800;
+      color: #F0FDF4;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .showcase-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .showcase-btn {
+      background: #1B2927;
+      color: #E2E8F0;
+      border: 1px solid #324A45;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: background 150ms ease;
+    }
+
+    .showcase-btn:hover {
+      background: #253935;
+    }
+
+    .showcase-btn.active {
+      background: var(--teal, #1B5E59);
+      border-color: var(--teal-light, #DCFCE7);
+      color: #FFFFFF;
+    }
+
+    .showcase-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 24px;
+      padding: 24px 12px 64px 12px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* 360px Device Frame */
+    .mockup-360 {
+      width: 360px;
+      min-width: 360px;
+      max-width: 360px;
+      border-radius: 28px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      background: var(--bg-canvas);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mockup-top-bar {
+      background: #091110;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      color: #94A3B8;
+    }
+
+    .mockup-screen {
+      padding: 16px;
+      background: var(--bg-canvas);
+      color: var(--ink-primary);
+      overflow-y: auto;
+      max-height: 84vh;
+    }
+
+    .mascot-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 10px;
+      margin-bottom: 16px;
+    }
+
+    .mascot-card {
+      background: var(--bg-card);
+      border: var(--border-width) solid var(--border-card);
+      border-radius: var(--radius-md);
+      padding: 12px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .mascot-card.featured {
+      grid-column: span 2;
+      padding: 18px 12px;
+    }
+
+    .mascot-card-title {
+      font-family: var(--font-display);
+      font-size: 0.8125rem;
+      font-weight: 800;
+      margin-top: 6px;
+      margin-bottom: 2px;
+      color: var(--ink-primary);
+    }
+
+    .mascot-card-desc {
+      font-size: 0.6875rem;
+      color: var(--ink-secondary);
+      line-height: 1.25;
+    }
+
+    /* Spot Illustrations Grid */
+    .spot-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+      margin-bottom: 16px;
+    }
+
+    .spot-card {
+      background: var(--bg-card);
+      border: var(--border-width) solid var(--border-card);
+      border-radius: var(--radius-md);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .spot-card-title {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      font-weight: 800;
+      margin-top: 6px;
+      margin-bottom: 2px;
+    }
+
+    /* Stage selector pills */
+    .stage-pill-group {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      margin-bottom: 12px;
+    }
+
+    .stage-pill {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: var(--radius-pill);
+      border: 1.5px solid var(--border-card);
+      background: var(--bg-card);
+      color: var(--ink-primary);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .stage-pill.selected {
+      background: var(--tunas);
+      color: #FFFFFF;
+      border-color: var(--tunas-dark);
+    }
+
+    /* Size comparison row */
+    .size-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      padding: 12px 0;
+      background: var(--bg-card);
+      border: var(--border-width) solid var(--border-card);
+      border-radius: var(--radius-md);
+      margin-bottom: 16px;
+    }
+
+    .size-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      color: var(--ink-secondary);
+    }
+  </style>
+</head>
+<body class="showcase-body">
+
+  <!-- Showcase Top Toolbar -->
+  <header class="showcase-header">
+    <div class="showcase-title">
+      <span>🌱 Tunas: Mascot & Illustration Kit</span>
+      <span style="font-size: 0.6875rem; background: #14532D; color: #86EFAC; padding: 2px 8px; border-radius: 9999px;">
+        Inline SVG &lt; 4KB
+      </span>
+    </div>
+    <div class="showcase-controls">
+      <button id="themeToggleBtn" class="showcase-btn" type="button">
+        <span id="themeToggleIcon">🌓</span> Ganti Mode Terang/Gelap
+      </button>
+      <button id="motionToggleBtn" class="showcase-btn" type="button" aria-pressed="false">
+        <span>⚡</span> Kurangi Gerakan (Static)
+      </button>
+      <a href="/dev/styleguide.html" class="showcase-btn">🎨 Styleguide</a>
+      <a href="/" class="showcase-btn">🏠 Ke App</a>
+    </div>
+  </header>
+
+  <main class="showcase-container">
+
+    <!-- ========================================================
+         360px MOBILE VIEWPORT
+         ======================================================== -->
+    <article id="mockupFrame" class="mockup-360 theme-light" aria-label="Pratinjau Maskot Tunas 360px">
+      <div class="mockup-top-bar">
+        <span id="mockupThemeLabel">☀️ Mode Terang (Light)</span>
+        <span>360 × 740 px</span>
+      </div>
+
+      <div class="mockup-screen">
+        <!-- Hero Introduction -->
+        <div class="card mb-3" style="border-radius: var(--radius-lg);">
+          <div class="card-title-row">
+            <span class="card-tag tunas">Karakter Asli</span>
+            <span class="mute text-xs">Teman Tumbuh</span>
+          </div>
+          <h1 class="mt-1 mb-1" style="font-family: var(--font-display); font-size: 1.375rem; font-weight: 800;">
+            Halo, Aku Tunas! 🌱
+          </h1>
+          <p class="mute text-xs mb-0">
+            Karakter bibit hangat tanpa gender dan netral budaya. Daunku bertumbuh saat kamu rutin berlatih, bukan dari saldo uang atau streak.
+          </p>
+        </div>
+
+        <!-- Growth Stage Selector -->
+        <div class="card mb-3" style="border-radius: var(--radius-lg);">
+          <h2 class="text-sm font-bold mb-1" style="font-family: var(--font-display);">
+            Pilih Fase Pertumbuhan (Tied to Practice):
+          </h2>
+          <div class="stage-pill-group" role="tablist">
+            <button class="stage-pill selected" data-stage="tunas" type="button">1. Tunas (0–2)</button>
+            <button class="stage-pill" data-stage="2 daun" type="button">2. 2 Daun (3–7)</button>
+            <button class="stage-pill" data-stage="4 daun" type="button">3. 4 Daun (8–14)</button>
+            <button class="stage-pill" data-stage="berbunga" type="button">4. Berbunga (15+)</button>
+          </div>
+          <div id="stageDescription" class="mute text-xs">
+            Tunas awal yang siap bertumbuh di setiap sesi latihanmu.
+          </div>
+        </div>
+
+        <!-- 1. The 7 Mascot States -->
+        <section class="card mb-3" style="border-radius: var(--radius-lg);">
+          <h2 class="text-sm font-bold mb-1" style="font-family: var(--font-display);">
+            7 Status Ekspresi Tunas (Loop &lt; 3s)
+          </h2>
+          <p class="mute text-xs mb-2">
+            Animasi CSS transforms/SMIL ringan (&lt; 4KB) dengan fallback static pada prefers-reduced-motion.
+          </p>
+
+          <div class="mascot-grid">
+            <!-- Featured: Hero Wave (160px) -->
+            <div class="mascot-card featured">
+              <div id="mascotHeroWave"></div>
+              <div class="mascot-card-title">wave (Menyapa)</div>
+              <div class="mascot-card-desc">Lambaian tangan ramah & sambutan awal sesi</div>
+            </div>
+
+            <!-- Idle -->
+            <div class="mascot-card">
+              <div id="mascotIdle"></div>
+              <div class="mascot-card-title">idle</div>
+              <div class="mascot-card-desc">Napas santai & daun bergoyang</div>
+            </div>
+
+            <!-- Cheer -->
+            <div class="mascot-card">
+              <div id="mascotCheer"></div>
+              <div class="mascot-card-title">cheer</div>
+              <div class="mascot-card-desc">Lompatan gembira selesai langkah</div>
+            </div>
+
+            <!-- Think -->
+            <div class="mascot-card">
+              <div id="mascotThink"></div>
+              <div class="mascot-card-title">think</div>
+              <div class="mascot-card-desc">Menopang dagu & membaca sadar</div>
+            </div>
+
+            <!-- Calm -->
+            <div class="mascot-card">
+              <div id="mascotCalm"></div>
+              <div class="mascot-card-title">calm</div>
+              <div class="mascot-card-desc">Mata terpejam saat napas 4-4-6</div>
+            </div>
+
+            <!-- Hug -->
+            <div class="mascot-card">
+              <div id="mascotHug"></div>
+              <div class="mascot-card-title">hug</div>
+              <div class="mascot-card-desc">Pelukan hangat usai emosi berat</div>
+            </div>
+
+            <!-- Sleepy -->
+            <div class="mascot-card">
+              <div id="mascotSleepy"></div>
+              <div class="mascot-card-title">sleepy</div>
+              <div class="mascot-card-desc">"Selamat datang kembali" usai jeda</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. Scalability Check (48px, 96px, 160px) -->
+        <section class="card mb-3" style="border-radius: var(--radius-lg);">
+          <h2 class="text-sm font-bold mb-1" style="font-family: var(--font-display);">
+            Keterbacaan Ukuran (48px – 160px)
+          </h2>
+          <p class="mute text-xs mb-2">Mata besar dan siluet tajam tetap jelas di layar kecil:</p>
+
+          <div class="size-row">
+            <div class="size-item">
+              <div id="mascotSize48"></div>
+              <span>48px (Chip)</span>
+            </div>
+            <div class="size-item">
+              <div id="mascotSize96"></div>
+              <span>96px (Kartu)</span>
+            </div>
+            <div class="size-item">
+              <div id="mascotSize160"></div>
+              <span>160px (Hero)</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. 8 Spot Illustrations -->
+        <section class="card mb-3" style="border-radius: var(--radius-lg);">
+          <div class="card-title-row">
+            <h2 class="text-sm font-bold" style="font-family: var(--font-display);">
+              8 Ilustrasi Titik (Spot Illustrations)
+            </h2>
+            <span class="card-tag saffron">CSS Vars</span>
+          </div>
+          <p class="mute text-xs mb-2">
+            Menggunakan warna tema semantik via CSS custom properties. Otomatis menyesuaikan tema gelap.
+          </p>
+
+          <div class="spot-grid">
+            <div class="spot-card">
+              <div id="spotEmosi"></div>
+              <div class="spot-card-title">emosi</div>
+              <div class="mascot-card-desc">Daun hati & gelombang kesadaran tubuh</div>
+            </div>
+
+            <div class="spot-card">
+              <div id="spotUang"></div>
+              <div class="spot-card-title">uang</div>
+              <div class="mascot-card-desc">Koin emas bertunas tanpa kecemasan</div>
+            </div>
+
+            <div class="spot-card">
+              <div id="spotKita"></div>
+              <div class="spot-card-title">kita</div>
+              <div class="mascot-card-desc">Dua tangkai saling bersandar setara</div>
+            </div>
+
+            <div class="spot-card">
+              <div id="spotTabungan"></div>
+              <div class="spot-card-title">tabungan</div>
+              <div class="mascot-card-desc">Stoples tabungan dengan bibit bertumbuh</div>
+            </div>
+
+            <div class="spot-card">
+              <div id="spotJeda"></div>
+              <div class="spot-card-title">jeda</div>
+              <div class="mascot-card-desc">Jam pasir jeda 10 menit & ombak sadar</div>
+            </div>
+
+            <div class="spot-card">
+              <div id="spotNapas"></div>
+              <div class="spot-card-title">napas</div>
+              <div class="mascot-card-desc">Aliran udara sirkular & daun paru-paru</div>
+            </div>
+
+            <div class="spot-card">
+              <div id="spotPercakapan"></div>
+              <div class="spot-card-title">percakapan</div>
+              <div class="mascot-card-desc">Balon dialog giliran berdua satu ponsel</div>
+            </div>
+
+            <div class="spot-card">
+              <div id="spotSelesai"></div>
+              <div class="spot-card-title">selesai</div>
+              <div class="mascot-card-desc">Segel apresiasi, centang & ranting daun</div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </article>
+
+  </main>
+
+  <script type="module">
+    import {
+      renderMascot,
+      renderSpotIllustration,
+      getMascotStage
+    } from '../js/ui/mascot.js';
+
+    let currentStage = 'tunas';
+    let isDark = false;
+    let isReducedMotion = false;
+
+    const stageDescriptions = {
+      'tunas': 'Tunas kecil yang siap bertumbuh di setiap sesi latihan (0–2 latihan).',
+      '2 daun': 'Dua daun pertama yang bertumbuh dari langkah awal belajarmu (3–7 latihan).',
+      '4 daun': 'Empat daun lebat yang tumbuh dari dedikasi dan konsistensimu (8–14 latihan).',
+      'berbunga': 'Tunas telah mekar berbunga berkat konsistensi latihanmu (15+ latihan)!'
+    };
+
+    function renderAll() {
+      // 1. Render all 7 mascot states
+      document.getElementById('mascotHeroWave').innerHTML = renderMascot('wave', 140, { stage: currentStage, label: 'Tunas menyapa hangat' });
+      document.getElementById('mascotIdle').innerHTML = renderMascot('idle', 90, { stage: currentStage, label: 'Tunas santai' });
+      document.getElementById('mascotCheer').innerHTML = renderMascot('cheer', 90, { stage: currentStage, label: 'Tunas selebrasi' });
+      document.getElementById('mascotThink').innerHTML = renderMascot('think', 90, { stage: currentStage, label: 'Tunas berpikir' });
+      document.getElementById('mascotCalm').innerHTML = renderMascot('calm', 90, { stage: currentStage, label: 'Tunas bernapas tenang' });
+      document.getElementById('mascotHug').innerHTML = renderMascot('hug', 90, { stage: currentStage, label: 'Tunas memeluk hangat' });
+      document.getElementById('mascotSleepy').innerHTML = renderMascot('sleepy', 90, { stage: currentStage, label: 'Tunas menyambut santai' });
+
+      // 2. Render size scalability
+      document.getElementById('mascotSize48').innerHTML = renderMascot('idle', 48, { stage: currentStage });
+      document.getElementById('mascotSize96').innerHTML = renderMascot('idle', 96, { stage: currentStage });
+      document.getElementById('mascotSize160').innerHTML = renderMascot('idle', 140, { stage: currentStage });
+
+      // 3. Render 8 spot illustrations
+      document.getElementById('spotEmosi').innerHTML = renderSpotIllustration('emosi', 54, { label: 'Ilustrasi Emosi' });
+      document.getElementById('spotUang').innerHTML = renderSpotIllustration('uang', 54, { label: 'Ilustrasi Uang' });
+      document.getElementById('spotKita').innerHTML = renderSpotIllustration('kita', 54, { label: 'Ilustrasi Kita' });
+      document.getElementById('spotTabungan').innerHTML = renderSpotIllustration('tabungan', 54, { label: 'Ilustrasi Tabungan' });
+      document.getElementById('spotJeda').innerHTML = renderSpotIllustration('jeda', 54, { label: 'Ilustrasi Jeda' });
+      document.getElementById('spotNapas').innerHTML = renderSpotIllustration('napas', 54, { label: 'Ilustrasi Napas' });
+      document.getElementById('spotPercakapan').innerHTML = renderSpotIllustration('percakapan', 54, { label: 'Ilustrasi Percakapan' });
+      document.getElementById('spotSelesai').innerHTML = renderSpotIllustration('selesai', 54, { label: 'Ilustrasi Selesai' });
+    }
+
+    // Stage Selector Handling
+    document.querySelectorAll('.stage-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.stage-pill').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        currentStage = btn.dataset.stage;
+        document.getElementById('stageDescription').textContent = stageDescriptions[currentStage] || '';
+        renderAll();
+      });
+    });
+
+    // Theme Toggle
+    const mockupFrame = document.getElementById('mockupFrame');
+    const mockupThemeLabel = document.getElementById('mockupThemeLabel');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const themeToggleIcon = document.getElementById('themeToggleIcon');
+
+    themeToggleBtn.addEventListener('click', () => {
+      isDark = !isDark;
+      if (isDark) {
+        mockupFrame.classList.remove('theme-light');
+        mockupFrame.classList.add('theme-dark');
+        mockupThemeLabel.textContent = '🌙 Mode Gelap (Dark)';
+        themeToggleIcon.textContent = '☀️';
+      } else {
+        mockupFrame.classList.remove('theme-dark');
+        mockupFrame.classList.add('theme-light');
+        mockupThemeLabel.textContent = '☀️ Mode Terang (Light)';
+        themeToggleIcon.textContent = '🌓';
+      }
+    });
+
+    // Motion Toggle (Prefers-reduced-motion simulation)
+    const motionToggleBtn = document.getElementById('motionToggleBtn');
+    motionToggleBtn.addEventListener('click', () => {
+      isReducedMotion = !isReducedMotion;
+      motionToggleBtn.setAttribute('aria-pressed', isReducedMotion ? 'true' : 'false');
+      motionToggleBtn.classList.toggle('active', isReducedMotion);
+      motionToggleBtn.innerHTML = isReducedMotion
+        ? '<span>⏸️</span> Mode Statis Aktif'
+        : '<span>⚡</span> Kurangi Gerakan (Static)';
+
+      const styleId = 'simulated-reduced-motion-style';
+      let styleTag = document.getElementById(styleId);
+      if (isReducedMotion) {
+        if (!styleTag) {
+          styleTag = document.createElement('style');
+          styleTag.id = styleId;
+          styleTag.innerHTML = `
+            .mockup-screen .tunas-svg *,
+            .mockup-screen .tunas-svg {
+              animation: none !important;
+              transition: none !important;
+            }
+          `;
+          document.head.appendChild(styleTag);
+        }
+      } else {
+        if (styleTag) styleTag.remove();
+      }
+    });
+
+    // Initial render
+    renderAll();
+  </script>
+</body>
+</html>
