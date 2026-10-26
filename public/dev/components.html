@@ -4,6 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Teman Siap — UI Components Showcase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/tokens.css">
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/components.css">
@@ -20,6 +23,7 @@
       </div>
       <div class="header-controls">
         <a href="/" class="secondary btn-action-sm nowrap mr-2">← Ke App</a>
+        <a href="/dev/mascot.html" class="secondary btn-action-sm nowrap mr-2">🌱 Maskot</a>
         <button id="themeToggle" class="icon-btn" aria-label="Ganti tema">
           <span id="themeIcon">🌓</span>
         </button>
@@ -31,17 +35,52 @@
         <span class="card-tag saffron">Desain Sistem</span>
         <h1 class="mt-1 mb-1">Komponen UI Teman Siap</h1>
         <p class="mute text-sm">
-          Komponen modular bebas dependensi, ramah sentuhan (min 48px), navigasi keyboard & pembaca layar (screen reader).
+          Komponen modular bebas dependensi, ramah sentuhan (min 48px, primary 56px), navigasi keyboard & pembaca layar (screen reader).
         </p>
       </div>
 
-      <!-- 1. ChoiceTiles -->
+      <!-- 0. Playful Buttons (Primary/Secondary/Ghost/Soft + Disabled without Red) -->
+      <section class="card mb-4" aria-labelledby="headingButtons">
+        <div class="card-title-row">
+          <h2 id="headingButtons" class="text-md">0. Sistem Tombol Taktil</h2>
+          <span class="card-tag tunas">Chunky 56px</span>
+        </div>
+        <p class="mute text-sm mb-3">
+          Bayangan bawah 4px solid dengan animasi tekan fisik di bawah 100ms. Status dinonaktifkan (disabled) jelas tanpa menggunakan warna merah.
+        </p>
+
+        <div class="flex flex-col gap-2 mb-3">
+          <button type="button" class="btn-chunky primary btn-thumb" id="demoBtnPrimary">
+            <span>Primary (56px Thumb Zone)</span>
+          </button>
+
+          <button type="button" class="btn-chunky secondary btn-thumb" id="demoBtnSecondary">
+            <span>Secondary Button</span>
+          </button>
+
+          <button type="button" class="btn-chunky btn-soft btn-thumb" id="demoBtnSoft">
+            <span>Soft Tunas Variant</span>
+          </button>
+
+          <button type="button" class="btn-chunky btn-ghost btn-thumb" id="demoBtnGhost">
+            <span>Ghost Variant</span>
+          </button>
+
+          <button type="button" class="btn-chunky primary btn-thumb" disabled id="demoBtnDisabled">
+            <span>Disabled State (Abu-abu, Tanpa Merah)</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 1. ChoiceTiles v2 -->
       <section class="card mb-4" aria-labelledby="headingChoiceTiles">
         <div class="card-title-row">
-          <h2 id="headingChoiceTiles" class="text-md">1. ChoiceTiles</h2>
-          <span class="card-tag">Single & Multi</span>
+          <h2 id="headingChoiceTiles" class="text-md">1. ChoiceTiles v2</h2>
+          <span class="card-tag">Pop & Shape Cues</span>
         </div>
-        <p class="mute text-sm mb-2">Pilihan besar dengan ikon, label, hint, warna aktif, dan ikon centang (✓).</p>
+        <p class="mute text-sm mb-2">
+          Kartu pilihan besar dengan animasi pop saat disentuh, ikon centang sirkular jelas, serta isyarat warna DAN bentuk.
+        </p>
         
         <h3 class="text-sm font-bold mt-2 mb-1">Mode Tunggal (Radio):</h3>
         <div id="choiceTilesSingleDemo"></div>
@@ -52,10 +91,134 @@
         <div class="mute text-xs mt-1" id="multiChoiceResult">Pilihan: istirahat</div>
       </section>
 
-      <!-- 2. BodyMap -->
+      <!-- 2. AnswerSheet (Mascot + Message + Continue) -->
+      <section class="card mb-4" aria-labelledby="headingAnswerSheet">
+        <div class="card-title-row">
+          <h2 id="headingAnswerSheet" class="text-md">2. AnswerSheet</h2>
+          <span class="card-tag tunas">Ulasan Langkah</span>
+        </div>
+        <p class="mute text-sm mb-3">
+          Lembar bawah yang meluncur naik setelah tiap langkah dengan maskot Tunas dan tombol Lanjut 56px.
+          <strong>Tidak ada status salah untuk emosi atau uang.</strong> Untuk pertanyaan wawasan, status "belum pas" memakai warna coral lembut dan penjelasan hangat (tanpa merah / bel).
+        </p>
+
+        <div class="flex flex-col gap-2">
+          <button type="button" class="btn-chunky primary btn-thumb" id="triggerSuccessAnswerSheetBtn">
+            <span>Uji AnswerSheet Sukses ("Mantap!") 🎉</span>
+          </button>
+          <button type="button" class="btn-chunky btn-coral btn-thumb" id="triggerGentleAnswerSheetBtn">
+            <span>Uji AnswerSheet "Belum Pas" (Coral Lembut) 🧡</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 3. ProgressBar (Chunky with Shine & Segments) -->
+      <section class="card mb-4" aria-labelledby="headingProgressBar">
+        <div class="card-title-row">
+          <h2 id="headingProgressBar" class="text-md">3. ProgressBar</h2>
+          <span class="card-tag">Chunky & Segmen</span>
+        </div>
+        <p class="mute text-sm mb-3">
+          Bilah kemajuan 14px membulat dengan pantulan kilau putih lembut, pengisian mulus, dan opsi segmen multi-bagian.
+        </p>
+
+        <div class="mb-3">
+          <div class="text-xs font-bold mb-1">Bilah Kontinu dengan Kilau:</div>
+          <div id="continuousProgressBarDemo"></div>
+        </div>
+
+        <div class="mb-3">
+          <div class="text-xs font-bold mb-1">Bilah Tersegmentasi (Pelajaran Multi-Bagian):</div>
+          <div id="segmentedProgressBarDemo"></div>
+        </div>
+
+        <div class="flex gap-2">
+          <button type="button" class="btn-chunky secondary w-full" id="prevProgressBtn">← Mundur</button>
+          <button type="button" class="btn-chunky primary w-full" id="nextProgressBtn">Maju Langkah →</button>
+        </div>
+      </section>
+
+      <!-- 4. Confetti / Sparkle -->
+      <section class="card mb-4" aria-labelledby="headingConfetti">
+        <div class="card-title-row">
+          <h2 id="headingConfetti" class="text-md">4. Efek Selebrasi (Confetti)</h2>
+          <span class="card-tag saffron">600ms Durasi</span>
+        </div>
+        <p class="mute text-sm mb-3">
+          Partikel kecil 600ms, maksimal 1x per sesi, dinonaktifkan di reduced-motion dan toggle pengaturan.
+        </p>
+
+        <div class="flex flex-col gap-2 mb-2">
+          <button type="button" class="btn-chunky primary btn-thumb" id="triggerConfettiBtn">
+            <span>Picu Konfeti 600ms 🎊</span>
+          </button>
+        </div>
+
+        <label class="flex items-center gap-2 mt-2 cursor-pointer text-sm">
+          <input type="checkbox" id="celebrationToggle" checked>
+          <span><b>Aktifkan Efek Perayaan (Pengaturan)</b></span>
+        </label>
+        <div class="mute text-xs mt-1" id="confettiStatus">Status: Siap dipicu</div>
+      </section>
+
+      <!-- 5. Sound and Haptics -->
+      <section class="card mb-4" aria-labelledby="headingFeedback">
+        <div class="card-title-row">
+          <h2 id="headingFeedback" class="text-md">5. Suara & Getaran (Haptics)</h2>
+          <span class="card-tag">WebAudio & Vibrate</span>
+        </div>
+        <p class="mute text-sm mb-3">
+          Suara lembut sintesis WebAudio murni (tanpa berkas audio) dan getar 10ms untuk sentuhan. <strong>Default NON-AKTIF</strong> hingga diaktifkan pengguna.
+        </p>
+
+        <div class="card mb-3" style="background: var(--bg-canvas);">
+          <label class="flex items-center gap-2 mb-2 cursor-pointer text-sm">
+            <input type="checkbox" id="soundToggle">
+            <span><b>Aktifkan Suara Ketukan & Selesai</b></span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer text-sm">
+            <input type="checkbox" id="hapticsToggle">
+            <span><b>Aktifkan Getaran Sentuh (10ms)</b></span>
+          </label>
+        </div>
+
+        <div class="flex gap-2">
+          <button type="button" class="btn-chunky secondary w-full" id="testTapFeedbackBtn">
+            <span>Ketuk Biasa (Tap) 🎵</span>
+          </button>
+          <button type="button" class="btn-chunky primary w-full" id="testSuccessFeedbackBtn">
+            <span>Ketuk Sukses (Chime) ✨</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 6. Toast / Gentle Bubble System -->
+      <section class="card mb-4" aria-labelledby="headingToast">
+        <div class="card-title-row">
+          <h2 id="headingToast" class="text-md">6. Notifikasi Toast Lembut</h2>
+          <span class="card-tag tunas">Pill Mengambang</span>
+        </div>
+        <p class="mute text-sm mb-3">
+          Pesan konfirmasi mengambang yang ramah, menghilang otomatis, dan terbaca screen reader (aria-live="polite").
+        </p>
+
+        <div class="flex flex-col gap-2">
+          <button type="button" class="btn-chunky primary btn-thumb" id="toastSuccessBtn">
+            <span>Toast Sukses: "Tersimpan dengan tenang ✓"</span>
+          </button>
+          <button type="button" class="btn-chunky secondary btn-thumb" id="toastInfoBtn">
+            <span>Toast Info: "Menyimpan catatan offline 🌱"</span>
+          </button>
+          <button type="button" class="btn-chunky btn-coral btn-thumb" id="toastGentleBtn">
+            <span>Toast Lembut: "Tarik napas sejenak, kamu aman 🧡"</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 7. BodyMap (Existing) -->
       <section class="card mb-4" aria-labelledby="headingBodyMap">
         <div class="card-title-row">
-          <h2 id="headingBodyMap" class="text-md">2. BodyMap</h2>
+          <h2 id="headingBodyMap" class="text-md">7. BodyMap</h2>
           <span class="card-tag saffron">Somatik</span>
         </div>
         <p class="mute text-sm mb-2">Peta tubuh SVG interaktif untuk mengenali lokasi ketegangan fisik saat emosi hadir.</p>
@@ -63,57 +226,57 @@
         <div class="mute text-xs mt-2 text-center" id="bodyMapResult">Sensasi terpilih: (belum ada)</div>
       </section>
 
-      <!-- 3. Breather -->
+      <!-- 8. Breather (Existing) -->
       <section class="card mb-4" aria-labelledby="headingBreather">
         <div class="card-title-row">
-          <h2 id="headingBreather" class="text-md">3. Breather</h2>
+          <h2 id="headingBreather" class="text-md">8. Breather</h2>
           <span class="card-tag">Regulasi 4-4-6</span>
         </div>
-        <p class="mute text-sm mb-2">Animasi lingkaran napas berbasis CSS transform murni (tanpa reflow layout). Mendukung jeda & reduced motion.</p>
+        <p class="mute text-sm mb-2">Animasi lingkaran napas berbasis CSS transform murni. Mendukung jeda & reduced motion.</p>
         <div id="breatherDemo"></div>
       </section>
 
-      <!-- 4. Wave -->
+      <!-- 9. Wave (Existing) -->
       <section class="card mb-4" aria-labelledby="headingWave">
         <div class="card-title-row">
-          <h2 id="headingWave" class="text-md">4. Wave (Urge Surfing)</h2>
+          <h2 id="headingWave" class="text-md">9. Wave (Urge Surfing)</h2>
           <span class="card-tag saffron">Intensitas 0-10</span>
         </div>
-        <p class="mute text-sm mb-2">Gelombang dorongan belanja. Geser vertikal untuk mengubah intensitas, atau putar animasi ombak.</p>
+        <p class="mute text-sm mb-2">Gelombang dorongan belanja. Geser vertikal untuk mengubah intensitas.</p>
         <div id="waveDemo"></div>
         <div class="flex gap-2 mt-2">
           <button type="button" class="saffron-btn w-full" id="wavePlayBtn">Simulasikan Gelombang (4s) 🌊</button>
         </div>
       </section>
 
-      <!-- 5. Keypad -->
+      <!-- 10. Keypad (Existing) -->
       <section class="card mb-4" aria-labelledby="headingKeypad">
         <div class="card-title-row">
-          <h2 id="headingKeypad" class="text-md">5. Keypad</h2>
+          <h2 id="headingKeypad" class="text-md">10. Keypad</h2>
           <span class="card-tag">Format Rupiah</span>
         </div>
-        <p class="mute text-sm mb-2">Papan angka mandiri dalam aplikasi. Tidak memicu popup keyboard OS seluler.</p>
+        <p class="mute text-sm mb-2">Papan angka mandiri dalam aplikasi tanpa popup keyboard OS.</p>
         <div id="keypadDemo"></div>
         <div class="mute text-xs mt-2 text-center" id="keypadResult">Nilai numerik: 0</div>
       </section>
 
-      <!-- 6. BottomSheet -->
+      <!-- 11. BottomSheet (Existing) -->
       <section class="card mb-4" aria-labelledby="headingBottomSheet">
         <div class="card-title-row">
-          <h2 id="headingBottomSheet" class="text-md">6. BottomSheet</h2>
-          <span class="card-tag">Modal Geser</span>
+          <h2 id="headingBottomSheet" class="text-md">11. BottomSheet</h2>
+          <span class="card-tag">Modal Standar</span>
         </div>
-        <p class="mute text-sm mb-3">Panel geser bawah dengan pegangan drag, swipe-down, backdrop tap, dan focus trap.</p>
-        <button type="button" class="primary w-full" id="openBottomSheetBtn">Buka Lembar Bawah (Bottom Sheet) 🚀</button>
+        <p class="mute text-sm mb-3">Panel geser bawah dengan pegangan drag dan focus trap.</p>
+        <button type="button" class="primary w-full" id="openBottomSheetBtn">Buka Bottom Sheet Standar 🚀</button>
       </section>
 
-      <!-- 7. Bubble -->
+      <!-- 12. Bubble (Existing) -->
       <section class="card mb-4" aria-labelledby="headingBubble">
         <div class="card-title-row">
-          <h2 id="headingBubble" class="text-md">7. Bubble</h2>
+          <h2 id="headingBubble" class="text-md">12. Bubble</h2>
           <span class="card-tag plum">Refleksi</span>
         </div>
-        <p class="mute text-sm mb-3">Gelembung pesan refleksi tenang untuk panduan, catatan pribadi, dan respon pasangan.</p>
+        <p class="mute text-sm mb-3">Gelembung pesan refleksi tenang untuk panduan dan respon pasangan.</p>
         <div id="bubbleDemo"></div>
       </section>
     </main>
@@ -127,6 +290,19 @@
     import { Keypad } from '../js/ui/keypad.js';
     import { BottomSheet } from '../js/ui/bottomSheet.js';
     import { Bubble } from '../js/ui/bubble.js';
+    import { AnswerSheet } from '../js/ui/answerSheet.js';
+    import { ProgressBar } from '../js/ui/progressBar.js';
+    import { triggerCelebration, isCelebrationEnabled, setCelebrationEnabled, resetSessionCelebration } from '../js/ui/confetti.js';
+    import { playTapSound, playSuccessSound, triggerHapticTap, isSoundEnabled, setSoundEnabled, isHapticsEnabled, setHapticsEnabled } from '../js/ui/feedback.js';
+    import { showToast } from '../js/ui/toast.js';
+
+    // 0. Button feedback binding
+    document.querySelectorAll('#demoBtnPrimary, #demoBtnSecondary, #demoBtnSoft, #demoBtnGhost').forEach(btn => {
+      btn.addEventListener('click', () => {
+        playTapSound();
+        triggerHapticTap();
+      });
+    });
 
     // 1. ChoiceTiles Single
     const singleTiles = new ChoiceTiles({
@@ -139,6 +315,8 @@
       selected: 'tenang',
       multiple: false,
       onChange: (val) => {
+        playTapSound();
+        triggerHapticTap();
         document.getElementById('singleChoiceResult').textContent = `Pilihan: ${val}`;
       }
     });
@@ -154,66 +332,174 @@
       selected: ['istirahat'],
       multiple: true,
       onChange: (val) => {
+        playTapSound();
+        triggerHapticTap();
         document.getElementById('multiChoiceResult').textContent = `Pilihan: ${val.join(', ') || '(kosong)'}`;
       }
     });
 
-    // 2. BodyMap
-    const bodyMap = new BodyMap({
-      container: '#bodyMapDemo',
-      selected: ['chest'],
-      onChange: (arr) => {
-        document.getElementById('bodyMapResult').textContent = `Sensasi terpilih: ${arr.join(', ') || '(belum ada)'}`;
-      }
-    });
-
-    // 3. Breather
-    const breather = new Breather({
-      container: '#breatherDemo',
-      totalCycles: 2,
-      onComplete: () => {
-        console.log('Breathing complete!');
-      }
-    });
-
-    // 4. Wave
-    const wave = new Wave({
-      container: '#waveDemo',
-      value: 6,
-      onChange: (v) => {
-        console.log('Wave intensity:', v);
-      }
-    });
-
-    document.getElementById('wavePlayBtn').onclick = () => {
-      wave.play(4000);
+    // 2. AnswerSheet Demos
+    document.getElementById('triggerSuccessAnswerSheetBtn').onclick = () => {
+      playSuccessSound();
+      triggerHapticTap();
+      AnswerSheet.show({
+        type: 'success',
+        message: 'Mantap, kamu menamai perasaanmu dengan jujur.',
+        buttonText: 'Lanjut ke Langkah Berikutnya',
+        onContinue: () => {
+          showToast('Melanjutkan ke langkah berikutnya', { type: 'success' });
+        }
+      });
     };
 
-    // 5. Keypad
-    const keypad = new Keypad({
-      container: '#keypadDemo',
-      initialValue: 35000,
-      onChange: (v) => {
-        document.getElementById('keypadResult').textContent = `Nilai numerik: ${v}`;
+    document.getElementById('triggerGentleAnswerSheetBtn').onclick = () => {
+      playTapSound();
+      triggerHapticTap();
+      AnswerSheet.show({
+        type: 'belum_pas',
+        message: 'Jawabanmu belum pas, tapi ini bagian dari belajar.',
+        explanation: 'Dalam hukum perkawinan Indonesia, perjanjian pranikah disahkan sebelum atau saat perkawinan dilangsungkan.',
+        buttonText: 'Pahami & Lanjutkan',
+        onContinue: () => {
+          showToast('Pengetahuan baru dipahami 🧡', { type: 'gentle' });
+        }
+      });
+    };
+
+    // 3. ProgressBar Demos
+    let progressStep = 2;
+    const totalSteps = 4;
+
+    const continuousBar = new ProgressBar({
+      container: '#continuousProgressBarDemo',
+      current: progressStep,
+      total: totalSteps,
+      color: 'var(--tunas)',
+      showLabel: true
+    });
+
+    const segmentedBar = new ProgressBar({
+      container: '#segmentedProgressBarDemo',
+      current: progressStep,
+      total: totalSteps,
+      segments: 4,
+      color: 'var(--teal)',
+      showLabel: true
+    });
+
+    document.getElementById('nextProgressBtn').onclick = () => {
+      if (progressStep < totalSteps) progressStep++;
+      continuousBar.setProgress(progressStep, totalSteps);
+      segmentedBar.setProgress(progressStep, totalSteps);
+      playTapSound();
+      triggerHapticTap();
+    };
+
+    document.getElementById('prevProgressBtn').onclick = () => {
+      if (progressStep > 0) progressStep--;
+      continuousBar.setProgress(progressStep, totalSteps);
+      segmentedBar.setProgress(progressStep, totalSteps);
+      playTapSound();
+      triggerHapticTap();
+    };
+
+    // 4. Confetti Demo
+    let celebrationSessionCount = 0;
+    const celebrationToggle = document.getElementById('celebrationToggle');
+    celebrationToggle.checked = isCelebrationEnabled();
+    celebrationToggle.onchange = () => {
+      setCelebrationEnabled(celebrationToggle.checked);
+      document.getElementById('confettiStatus').textContent = celebrationToggle.checked
+        ? 'Status: Efek perayaan aktif'
+        : 'Status: Efek perayaan dinonaktifkan di pengaturan';
+    };
+
+    document.getElementById('triggerConfettiBtn').onclick = () => {
+      celebrationSessionCount++;
+      const sessionId = `demo_session_${celebrationSessionCount}`;
+      const fired = triggerCelebration({ sessionId });
+      if (fired) {
+        playSuccessSound();
+        triggerHapticTap();
+        document.getElementById('confettiStatus').textContent = 'Status: Konfeti 600ms berhasil meluncur! ✨';
+      } else {
+        document.getElementById('confettiStatus').textContent = 'Status: Dilewati (efek perayaan nonaktif / reduced-motion)';
+      }
+    };
+
+    // 5. Sound and Haptics Settings Demo
+    const soundToggle = document.getElementById('soundToggle');
+    const hapticsToggle = document.getElementById('hapticsToggle');
+
+    soundToggle.checked = isSoundEnabled();
+    hapticsToggle.checked = isHapticsEnabled();
+
+    soundToggle.onchange = () => {
+      setSoundEnabled(soundToggle.checked);
+      if (soundToggle.checked) playTapSound();
+    };
+
+    hapticsToggle.onchange = () => {
+      setHapticsEnabled(hapticsToggle.checked);
+      if (hapticsToggle.checked) triggerHapticTap();
+    };
+
+    document.getElementById('testTapFeedbackBtn').onclick = () => {
+      const s = playTapSound();
+      const h = triggerHapticTap();
+      showToast(`Tap: Suara ${s ? 'ON' : 'OFF'}, Getar ${h ? 'ON' : 'OFF'}`, { type: 'info' });
+    };
+
+    document.getElementById('testSuccessFeedbackBtn').onclick = () => {
+      const s = playSuccessSound();
+      const h = triggerHapticTap();
+      showToast(`Sukses: Suara ${s ? 'ON' : 'OFF'}, Getar ${h ? 'ON' : 'OFF'}`, { type: 'success' });
+    };
+
+    // 6. Toast Demos
+    document.getElementById('toastSuccessBtn').onclick = () => {
+      showToast('Tersimpan dengan tenang', { type: 'success' });
+    };
+    document.getElementById('toastInfoBtn').onclick = () => {
+      showToast('Menyimpan catatan offline', { type: 'info', icon: '🌱' });
+    };
+    document.getElementById('toastGentleBtn').onclick = () => {
+      showToast('Tarik napas sejenak, kamu aman', { type: 'gentle', icon: '🧡' });
+    };
+
+    // 7. BodyMap
+    new BodyMap({
+      container: '#bodyMapDemo',
+      onChange: (regions) => {
+        document.getElementById('bodyMapResult').textContent = `Sensasi terpilih: ${regions.join(', ') || '(belum ada)'}`;
       }
     });
 
-    // 6. BottomSheet
+    // 8. Breather
+    new Breather({ container: '#breatherDemo' });
+
+    // 9. Wave
+    const wave = new Wave({ container: '#waveDemo' });
+    document.getElementById('wavePlayBtn').onclick = () => wave.playSimulatedWave(4000);
+
+    // 10. Keypad
+    const keypad = new Keypad({
+      container: '#keypadDemo',
+      onChange: (val) => {
+        document.getElementById('keypadResult').textContent = `Nilai numerik: Rp ${Number(val || 0).toLocaleString('id-ID')}`;
+      }
+    });
+
+    // 11. BottomSheet Standard
     const bottomSheet = new BottomSheet();
     document.getElementById('openBottomSheetBtn').onclick = () => {
       bottomSheet.open({
         title: 'Konfirmasi Jeda Belanja',
         content: `
           <p class="mute mb-3">Luangkan waktu 10 menit sebelum memutuskan transaksi ini. Kamu memegang kendali penuh atas keputusanmu.</p>
-          <div class="card card-border-saffron mb-3">
-            <div class="font-bold mb-1">Sudut Pandang Seimbang:</div>
-            <div class="text-sm">"Keinginan belanja ini hanya sensasi sementara di otak. Menunggu 10 menit tidak membuat barang ini hilang."</div>
-          </div>
-          <button type="button" class="primary w-full" id="sheetOkBtn">Saya Mengerti & Siap Menunggu</button>
+          <button type="button" class="btn-chunky primary btn-thumb" id="sheetOkBtn">Saya Mengerti & Siap Menunggu</button>
         `,
-        onClose: () => {
-          console.log('Bottom sheet closed');
-        }
+        onClose: () => {}
       });
 
       setTimeout(() => {
@@ -222,9 +508,8 @@
       }, 50);
     };
 
-    // 7. Bubble
+    // 12. Bubble Demo
     const bubbleDemoContainer = document.getElementById('bubbleDemo');
-
     new Bubble({
       container: bubbleDemoContainer,
       sender: 'Teman Siap',
@@ -233,30 +518,8 @@
       text: 'Selamat sore! Apakah ada hal yang membuat dadamu sesak hari ini?',
       timestamp: '16:45',
       actions: [
-        { id: 'act-breath', label: 'Latihan Napas 1 Menit', primary: true },
-        { id: 'act-later', label: 'Hanya Ingin Diam', primary: false }
-      ],
-      onAction: (actionId) => {
-        alert(`Tindakan dipilih: ${actionId}`);
-      }
-    });
-
-    new Bubble({
-      container: bubbleDemoContainer,
-      sender: 'Refleksi Pribadi',
-      role: 'user',
-      icon: '👤',
-      text: 'Tadi sempat cemas memikirkan biaya persiapan pernikahan, tapi setelah tarik napas rasanya lebih lega.',
-      timestamp: '16:48'
-    });
-
-    new Bubble({
-      container: bubbleDemoContainer,
-      sender: 'Partner B',
-      role: 'partner',
-      icon: '🤝',
-      text: 'Terima kasih sudah berbagi secara jujur. Aku setuju kita bicarakan pos anggaran keluarga pelan-pelan.',
-      timestamp: '16:50'
+        { id: 'act-breath', label: 'Latihan Napas 1 Menit', primary: true }
+      ]
     });
 
     // Theme Toggle

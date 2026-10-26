@@ -102,6 +102,11 @@ describe('Static File Server & Module Loading', () => {
     await check('/js/ui/bottomSheet.js', 'text/javascript');
     await check('/js/ui/bubble.js', 'text/javascript');
     await check('/js/ui/mascot.js', 'text/javascript');
+    await check('/js/ui/answerSheet.js', 'text/javascript');
+    await check('/js/ui/progressBar.js', 'text/javascript');
+    await check('/js/ui/confetti.js', 'text/javascript');
+    await check('/js/ui/feedback.js', 'text/javascript');
+    await check('/js/ui/toast.js', 'text/javascript');
     await check('/dev/components.html', 'text/html');
     await check('/dev/styleguide.html', 'text/html');
     await check('/dev/mascot.html', 'text/html');

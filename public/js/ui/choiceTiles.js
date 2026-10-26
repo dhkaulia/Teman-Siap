@@ -82,10 +82,14 @@ export class ChoiceTiles {
   toggle(val) {
     if (this.multiple) {
       if (this.selected.has(val)) this.selected.delete(val);
-      else this.selected.add(val);
+      else {
+        this.selected.add(val);
+        this._lastSelectedVal = val;
+      }
     } else {
       this.selected.clear();
       this.selected.add(val);
+      this._lastSelectedVal = val;
     }
     this._updateUI();
     if (typeof this.onChange === 'function') {
@@ -96,10 +100,17 @@ export class ChoiceTiles {
   _updateUI() {
     this.container.querySelectorAll('.choice-tile').forEach(t => {
       const isChecked = this.selected.has(t.dataset.value);
+      const wasSelected = t.classList.contains('selected');
       t.classList.toggle('selected', isChecked);
       t.setAttribute('aria-checked', String(isChecked));
       const checkEl = t.querySelector('.choice-tile-check');
       if (checkEl) checkEl.textContent = isChecked ? '✓' : '';
+      if (isChecked && !wasSelected) {
+        t.classList.remove('pop-select');
+        // trigger animation
+        void t.offsetWidth;
+        t.classList.add('pop-select');
+      }
     });
   }
 
