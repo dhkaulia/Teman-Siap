@@ -29,6 +29,7 @@ import { sessionRunner } from '../session.js';
 import { AnswerSheet } from '../ui/answerSheet.js';
 import { triggerCelebration } from '../ui/confetti.js';
 import { playTapSound, triggerHapticTap } from '../ui/feedback.js';
+import { getSeeds, calculateRitme } from '../rewards.js';
 
 export { PATH_UNITS, getAllPathNodes, getNodeById, isNodeCompleted, getSuggestedNode, getNodeState };
 
@@ -83,6 +84,9 @@ export function renderHome(store) {
   const mascotStage = getMascotStage(totalPractices);
   const suggestedNode = getSuggestedNode(d);
   const suggestedId = suggestedNode ? suggestedNode.id : '';
+  const enableRitme = d.enableRitme !== false;
+  const enableRewards = d.enableRewards !== false;
+  const seeds = getSeeds(d);
 
   // Determine if mascot waves today
   let isWaveDay = false;
@@ -100,13 +104,21 @@ export function renderHome(store) {
   const S_OFFSETS = ['offset-center', 'offset-right', 'offset-center', 'offset-left', 'offset-center', 'offset-right'];
 
   return `
-    <!-- Sticky Top Bar: Weekly Practice Count & Tunas Growth Stage -->
+    <!-- Sticky Top Bar: Weekly Practice Count, Seeds & Tunas Growth Stage -->
     <header class="path-sticky-header" id="pathStickyHeader">
       <div class="path-sticky-content">
-        <div class="path-weekly-pill" role="status" aria-label="Latihan minggu ini: ${weeklyCount} kali">
-          <span class="path-pill-icon" aria-hidden="true">🌿</span>
-          <span class="path-pill-text">Minggu ini: <b>${weeklyCount} kali</b></span>
-        </div>
+        ${enableRitme ? `
+          <div class="path-weekly-pill" role="status" aria-label="Latihan minggu ini: ${weeklyCount} kali">
+            <span class="path-pill-icon" aria-hidden="true">🌿</span>
+            <span class="path-pill-text">Minggu ini: <b>${weeklyCount} kali</b></span>
+          </div>
+        ` : ''}
+        ${enableRewards ? `
+          <div class="path-seeds-pill" aria-label="Benih terkumpul: ${seeds} benih">
+            <span class="path-pill-icon" aria-hidden="true">🌱</span>
+            <span class="path-pill-text"><b>${seeds}</b> Benih</span>
+          </div>
+        ` : ''}
         <div class="path-mascot-pill" aria-label="Pertumbuhan Tunas: ${esc(mascotStage.name)}">
           <span class="path-mascot-avatar" aria-hidden="true">
             ${renderMascot('idle', 26, { stage: mascotStage.id, inlineStyle: false })}
@@ -130,14 +142,16 @@ export function renderHome(store) {
       </div>
 
       <!-- Weekly Encouragement Banner (No streaks, zero negative framing) -->
-      <div class="weekly-practice-banner mb-3" role="status">
-        <span class="weekly-icon" aria-hidden="true">🌱</span>
-        <span class="weekly-text">
-          ${weeklyCount > 0
-            ? `Minggu ini kamu sudah berlatih <b>${weeklyCount} kali</b>.`
-            : 'Minggu ini kamu sudah berlatih <b>0 kali</b>. Luangkan satu langkah santai hari ini.'}
-        </span>
-      </div>
+      ${enableRitme ? `
+        <div class="weekly-practice-banner mb-3" role="status">
+          <span class="weekly-icon" aria-hidden="true">🌱</span>
+          <span class="weekly-text">
+            ${weeklyCount > 0
+              ? `Minggu ini kamu sudah berlatih <b>${weeklyCount} kali</b>.`
+              : 'Minggu ini kamu sudah berlatih <b>0 kali</b>. Luangkan satu langkah santai hari ini.'}
+          </span>
+        </div>
+      ` : ''}
 
       <!-- Curriculum Units & Serpentine S-Path Nodes -->
       <div class="curriculum-path-list">

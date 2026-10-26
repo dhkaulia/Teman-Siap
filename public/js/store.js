@@ -7,9 +7,9 @@ import { visibleTo } from './flows/coupleFlow.js';
 
 export { visibleTo };
 
-export const CURRENT_STORE_VERSION = 4;
+export const CURRENT_STORE_VERSION = 5;
 export const STORAGE_KEY = 'temansiap_state';
-export const LEGACY_KEYS = ['temansiap.v4', 'temansiap.v3', 'temansiap.v2', 'temansiap.v1'];
+export const LEGACY_KEYS = ['temansiap.v5', 'temansiap.v4', 'temansiap.v3', 'temansiap.v2', 'temansiap.v1'];
 
 export function createInitialState() {
   return {
@@ -28,7 +28,22 @@ export function createInitialState() {
     currentPerspective: 'A',
     faithPerspective: false, // Default off: neutral universal values
     onboardingStep: 1,
-    onboardingComplete: false
+    onboardingComplete: false,
+
+    // Reward & Ritme System (Anti-Pressure)
+    seeds: 0,
+    seedTransactions: [],
+    weeklyGoal: 3, // Santai 2, Biasa 3, Semangat 5
+    enableRitme: true, // Settings toggle: can be disabled completely
+    enableRewards: true, // Settings toggle: can be disabled completely
+    inventory: ['pot-clay', 'outfit-default', 'bg-default'],
+    equippedCosmetics: {
+      pot: 'pot-clay',
+      outfit: 'outfit-default',
+      background: 'bg-default'
+    },
+    practices: [],
+    completedPathNodes: []
   };
 }
 
@@ -102,6 +117,25 @@ export function migrate(savedData, targetVersion = CURRENT_STORE_VERSION) {
 
   // Perspective defaults to 'A'
   migrated.currentPerspective = savedData.currentPerspective === 'B' ? 'B' : 'A';
+
+  // Reward & Ritme System defaults
+  migrated.seeds = Math.max(0, Number(savedData.seeds) || 0);
+  migrated.seedTransactions = Array.isArray(savedData.seedTransactions) ? savedData.seedTransactions : [];
+  migrated.weeklyGoal = [2, 3, 5].includes(Number(savedData.weeklyGoal)) ? Number(savedData.weeklyGoal) : 3;
+  migrated.enableRitme = savedData.enableRitme !== undefined ? Boolean(savedData.enableRitme) : true;
+  migrated.enableRewards = savedData.enableRewards !== undefined ? Boolean(savedData.enableRewards) : true;
+  migrated.inventory = Array.isArray(savedData.inventory) && savedData.inventory.length
+    ? savedData.inventory
+    : ['pot-clay', 'outfit-default', 'bg-default'];
+  migrated.equippedCosmetics = savedData.equippedCosmetics && typeof savedData.equippedCosmetics === 'object'
+    ? {
+        pot: savedData.equippedCosmetics.pot || 'pot-clay',
+        outfit: savedData.equippedCosmetics.outfit || 'outfit-default',
+        background: savedData.equippedCosmetics.background || 'bg-default'
+      }
+    : { pot: 'pot-clay', outfit: 'outfit-default', background: 'bg-default' };
+  migrated.practices = Array.isArray(savedData.practices) ? savedData.practices : [];
+  migrated.completedPathNodes = Array.isArray(savedData.completedPathNodes) ? savedData.completedPathNodes : [];
 
   // Onboarding completion status and progress persistence
   if (savedData.onboardingComplete !== undefined) {
@@ -256,6 +290,41 @@ class Store {
     return this.set(state => ({
       ...state,
       faithPerspective: Boolean(faithPerspective)
+    }));
+  }
+
+  setWeeklyGoal(weeklyGoal) {
+    const val = [2, 3, 5].includes(Number(weeklyGoal)) ? Number(weeklyGoal) : 3;
+    return this.set(state => ({
+      ...state,
+      weeklyGoal: val
+    }));
+  }
+
+  setEnableRitme(enableRitme) {
+    return this.set(state => ({
+      ...state,
+      enableRitme: Boolean(enableRitme)
+    }));
+  }
+
+  setEnableRewards(enableRewards) {
+    return this.set(state => ({
+      ...state,
+      enableRewards: Boolean(enableRewards)
+    }));
+  }
+
+  recordPractice(practice) {
+    return this.set(state => ({
+      ...state,
+      practices: [
+        ...(state.practices || []),
+        {
+          at: Date.now(),
+          ...practice
+        }
+      ]
     }));
   }
 

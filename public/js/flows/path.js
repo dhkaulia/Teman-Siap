@@ -26,6 +26,7 @@ import {
   LESSON_GOTTMAN_COMPLAINT,
   getLessonById
 } from './lessons.js';
+import { awardSeeds } from '../rewards.js';
 
 export const PATH_UNITS = [
   {
@@ -386,6 +387,15 @@ export function markNodeCompleted(nodeId, store) {
   }
   if (!store.d.completedPathNodes.includes(nodeId)) {
     store.d.completedPathNodes.push(nodeId);
+    if (!Array.isArray(store.d.practices)) {
+      store.d.practices = [];
+    }
+    store.d.practices.push({
+      at: Date.now(),
+      type: 'path-node',
+      id: nodeId
+    });
+    awardSeeds(store, 1, `Menyelesaikan langkah: ${nodeId}`);
     store.save();
   }
 }

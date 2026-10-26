@@ -18,6 +18,7 @@ const APP_SHELL_FILES = [
   '/css/screens.css',
   '/js/main.js',
   '/js/store.js',
+  '/js/rewards.js',
   '/js/session.js',
   '/js/screens/home.js',
   '/js/screens/emosi.js',

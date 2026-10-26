@@ -14,6 +14,7 @@
 import { ChoiceTiles } from '../ui/choiceTiles.js';
 import { Breather } from '../ui/breather.js';
 import { esc } from '../ui/utils.js';
+import { WEEKLY_GOAL_OPTIONS } from '../rewards.js';
 
 const STAGE_OPTIONS = [
   {
@@ -203,6 +204,8 @@ export function renderOnboarding(store) {
   // Step 5: Warm Closing Line & Pointer to Home (No email prompt)
   // -------------------------------------------------------------
   if (step === 5) {
+    const currentGoal = Number(store.d.weeklyGoal) || 3;
+
     return `
       <div class="card onboard-hero text-center mb-3">
         <div class="onboard-icon" aria-hidden="true">✨</div>
@@ -213,6 +216,35 @@ export function renderOnboarding(store) {
         <p class="mute onboard-desc text-left mb-4">
           Terima kasih sudah meluangkan waktu sejenak untuk dirimu hari ini. Bersiap untuk masa depan tidak harus buru-buru atau sempurna. Cukup satu langkah kecil yang bermakna setiap harinya.
         </p>
+
+        <!-- Weekly Goal Selector (No dropdowns) -->
+        <div class="weekly-goal-card text-left mb-4">
+          <span class="card-tag saffron mb-1">Target Ritme Mingguan</span>
+          <h3 class="mt-1 mb-1">Berapa kali kamu ingin berlatih dalam sepekan?</h3>
+          <p class="mute text-xs mb-3">
+            Pilih ritme yang paling nyaman untukmu saat ini. Kamu dapat mengubahnya kapan saja di Ruang Saya.
+          </p>
+          <div class="weekly-goal-options" role="radiogroup" aria-label="Target ritme mingguan">
+            ${WEEKLY_GOAL_OPTIONS.map(opt => {
+              const isSelected = currentGoal === opt.value;
+              return `
+                <button type="button"
+                        class="weekly-goal-option ${isSelected ? 'active' : ''}"
+                        data-goal-val="${opt.value}"
+                        role="radio"
+                        aria-checked="${isSelected}">
+                  <div class="flex items-center justify-between w-full">
+                    <div>
+                      <div class="weekly-goal-label"><b>${esc(opt.label)}</b></div>
+                      <div class="mute text-xs">${esc(opt.hint)}</div>
+                    </div>
+                    <div class="goal-radio-circle" aria-hidden="true">${isSelected ? '✓' : ''}</div>
+                  </div>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </div>
 
         <div class="neutral-guidance-box text-left mb-4">
           🔒 <b>Catatan Privasi:</b> Seluruh refleksi dan catatanmu disimpan aman di perangkatmu sendiri. Kami tidak meminta email atau kata sandi; akun sinkronisasi cloud bersifat opsional dan baru hadir nanti.
@@ -366,6 +398,14 @@ export function bindOnboarding(container, store, navigate, rerender) {
   // Bind Step 5: Warm Closing Line & Enter Home
   // -------------------------------------------------------------
   else if (step === 5) {
+    container.querySelectorAll('.weekly-goal-option').forEach(btn => {
+      btn.onclick = () => {
+        const val = Number(btn.dataset.goalVal);
+        store.set({ weeklyGoal: val });
+        rerender();
+      };
+    });
+
     const enterHomeBtn = container.querySelector('#onboardEnterHomeBtn');
     if (enterHomeBtn) {
       enterHomeBtn.onclick = () => {

@@ -1934,6 +1934,235 @@
   margin-top: var(--space-4);
 }
 
+/* -------------------------------------------------------------
+ * Reward System & Gentle Weekly Ritme Styles
+ * ------------------------------------------------------------- */
+
+/* Sticky Top Bar Seeds Pill */
+.path-seeds-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background-color: var(--tunas-light, #E8F5E9);
+  color: var(--tunas-dark, #1B5E20);
+  border: 1px solid var(--tunas, #4CAF50);
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Weekly Goal Options (No dropdowns) */
+.weekly-goal-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+}
+
+.weekly-goal-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.weekly-goal-option {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  background-color: var(--bg-canvas);
+  border: 2px solid var(--border-card);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  cursor: pointer;
+  width: 100%;
+  color: var(--ink-primary);
+  transition: border-color 150ms ease, background-color 150ms ease;
+  min-height: 48px;
+}
+
+.weekly-goal-option:hover {
+  border-color: var(--teal);
+}
+
+.weekly-goal-option.active {
+  border-color: var(--teal);
+  background-color: var(--teal-light);
+  box-shadow: 0 0 0 1px var(--teal);
+}
+
+.weekly-goal-label {
+  font-size: 0.95rem;
+  color: var(--ink-primary);
+}
+
+.goal-radio-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--border-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--teal);
+  background: var(--bg-card);
+  flex-shrink: 0;
+  margin-left: var(--space-3);
+}
+
+.weekly-goal-option.active .goal-radio-circle {
+  border-color: var(--teal);
+  background-color: var(--teal);
+  color: #fff;
+}
+
+/* Kebun Saya (Milestones Grid) */
+.kebun-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-3);
+}
+
+.kebun-milestone-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-card);
+  background-color: var(--bg-card);
+  transition: transform 150ms ease;
+}
+
+.kebun-milestone-card.unlocked {
+  border-color: var(--tunas);
+  background: linear-gradient(180deg, var(--bg-card) 0%, var(--tunas-light) 100%);
+}
+
+.kebun-milestone-card.locked {
+  opacity: 0.65;
+  background-color: var(--bg-canvas);
+}
+
+.milestone-icon {
+  font-size: 2rem;
+  line-height: 1;
+  margin-bottom: var(--space-2);
+}
+
+.milestone-title {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+  color: var(--ink-primary);
+}
+
+.milestone-desc {
+  font-size: 0.78rem;
+  color: var(--ink-secondary);
+  line-height: 1.3;
+  margin-bottom: var(--space-2);
+  flex-grow: 1;
+}
+
+.milestone-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.milestone-badge.unlocked {
+  background-color: var(--tunas);
+  color: #fff;
+}
+
+.milestone-badge.locked {
+  background-color: var(--border-card);
+  color: var(--ink-secondary);
+}
+
+/* Cosmetics Catalog Grid */
+.cosmetics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-3);
+}
+
+.cosmetic-item-card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-card);
+  background-color: var(--bg-card);
+}
+
+.cosmetic-item-card.is-equipped {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 1px var(--teal);
+}
+
+.cosmetic-icon-wrap {
+  font-size: 2.2rem;
+  text-align: center;
+  margin-bottom: var(--space-2);
+}
+
+.cosmetic-name {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--ink-primary);
+  margin-bottom: 4px;
+}
+
+.cosmetic-desc {
+  font-size: 0.75rem;
+  color: var(--ink-secondary);
+  line-height: 1.3;
+  margin-bottom: var(--space-3);
+  flex-grow: 1;
+}
+
+.cosmetic-action-row {
+  margin-top: auto;
+}
+
+.cosmetic-price-pill {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--tunas-dark);
+  margin-bottom: 6px;
+}
+
+/* Ritme Status Box */
+.ritme-status-box {
+  background-color: var(--bg-canvas);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  border: 1px solid var(--border-card);
+  margin-bottom: var(--space-3);
+}
+
+.ritme-libur-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--teal-light);
+  color: var(--teal-dark);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+
 
 
 
