@@ -3,6 +3,10 @@
  * Versioned store with pure migrate() function for testing.
  */
 
+import { visibleTo } from './flows/coupleFlow.js';
+
+export { visibleTo };
+
 export const CURRENT_STORE_VERSION = 4;
 export const STORAGE_KEY = 'temansiap_state';
 export const LEGACY_KEYS = ['temansiap.v4', 'temansiap.v3', 'temansiap.v2', 'temansiap.v1'];
@@ -17,6 +21,7 @@ export function createInitialState() {
     goal: null, // Zero fake data: null until user creates one
     plans: [],  // Zero fake data: empty until user creates or adopts one
     pauses: [],
+    coupleConversations: {}, // Structured turn-based couple conversations
     partnerA: {},
     partnerB: {},
     sharedNotes: {},
@@ -62,6 +67,35 @@ export function migrate(savedData, targetVersion = CURRENT_STORE_VERSION) {
   migrated.partnerB = savedData.partnerB && typeof savedData.partnerB === 'object' ? savedData.partnerB : {};
   migrated.sharedNotes = savedData.sharedNotes && typeof savedData.sharedNotes === 'object' ? savedData.sharedNotes : {};
   
+  migrated.coupleConversations = savedData.coupleConversations && typeof savedData.coupleConversations === 'object'
+    ? savedData.coupleConversations
+    : {};
+
+  // Migrate any legacy partner answers if coupleConversations lacks them
+  const legacyIds = new Set([
+    ...Object.keys(migrated.partnerA),
+    ...Object.keys(migrated.partnerB)
+  ]);
+  for (const cId of legacyIds) {
+    if (!migrated.coupleConversations[cId]) {
+      const pA = migrated.partnerA[cId] || {};
+      const pB = migrated.partnerB[cId] || {};
+      migrated.coupleConversations[cId] = {
+        convoId: cId,
+        completedAt: pA.updatedAt || pB.updatedAt || Date.now(),
+        participants: {
+          A: { answer: pA.answer || '', shared: Boolean(pA.consentShare), updatedAt: pA.updatedAt || Date.now() },
+          B: { answer: pB.answer || '', shared: Boolean(pB.consentShare), updatedAt: pB.updatedAt || Date.now() }
+        },
+        agreement: {
+          nextStep: (migrated.sharedNotes && migrated.sharedNotes[cId]) || '',
+          reviewDate: null
+        },
+        status: (pA.answer || pB.answer) ? 'completed' : 'not_started'
+      };
+    }
+  }
+
   // Faith perspective defaults to false
   migrated.faithPerspective = Boolean(savedData.faithPerspective);
 
@@ -150,6 +184,38 @@ class Store {
       ...state,
       plans: [...(state.plans || []), plan]
     }));
+  }
+
+  saveCoupleConversation(convoId, convoData) {
+    return this.set(state => {
+      const pA = convoData.participants?.A || {};
+      const pB = convoData.participants?.B || {};
+      const agreement = convoData.agreement || {};
+      return {
+        ...state,
+        coupleConversations: {
+          ...(state.coupleConversations || {}),
+          [convoId]: convoData
+        },
+        // Keep legacy fields in sync for backward compatibility
+        partnerA: {
+          ...(state.partnerA || {}),
+          [convoId]: { answer: pA.answer || '', consentShare: Boolean(pA.shared), updatedAt: Date.now() }
+        },
+        partnerB: {
+          ...(state.partnerB || {}),
+          [convoId]: { answer: pB.answer || '', consentShare: Boolean(pB.shared), updatedAt: Date.now() }
+        },
+        sharedNotes: {
+          ...(state.sharedNotes || {}),
+          [convoId]: agreement.nextStep || ''
+        }
+      };
+    });
+  }
+
+  getCoupleConversation(convoId) {
+    return this.d.coupleConversations?.[convoId] || null;
   }
 
   setPartnerAnswer(perspective, convoId, answer, consentShare) {

@@ -623,5 +623,306 @@
   border-bottom: none;
 }
 
+/* -------------------------------------------------------------
+ * Turn-Based Couple Flow & Kita Hub Styles
+ * ----------------------------------------------------------- */
+.choice-tiles-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.choice-tile {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-sm);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+  min-height: 58px;
+  width: 100%;
+}
+
+.choice-tile .tile-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.choice-tile .tile-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.choice-tile .tile-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ink-primary);
+}
+
+.choice-tile .tile-hint {
+  font-size: 0.8rem;
+  color: var(--ink-secondary);
+  line-height: 1.35;
+}
+
+.choice-tile.selected {
+  border-color: var(--plum);
+  background: rgba(94, 53, 115, 0.06);
+}
+
+.choice-tile.selected .tile-label {
+  color: var(--plum);
+}
+
+/* Flip Cards (Step 5 Reveal) */
+.flip-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+}
+
+@media (min-width: 440px) {
+  .flip-cards-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.flip-card {
+  perspective: 1000px;
+  min-height: 180px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  min-height: 180px;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.flip-card.flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-height: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  box-sizing: border-box;
+}
+
+.flip-card-front {
+  background: var(--bg-card);
+  border: 2px dashed var(--plum);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.flip-card-back {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  transform: rotateY(180deg);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.flip-icon {
+  font-size: 2.2rem;
+  line-height: 1;
+  margin-bottom: var(--space-2);
+}
+
+.flip-title {
+  font-weight: 700;
+  font-size: 0.98rem;
+  color: var(--plum);
+  margin-bottom: 4px;
+}
+
+.flip-hint {
+  font-size: 0.8rem;
+  color: var(--ink-secondary);
+  margin: 0;
+}
+
+.flip-content {
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--ink-primary);
+  margin-top: var(--space-2);
+  white-space: pre-wrap;
+}
+
+/* Handover Screen */
+.handover-visual {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.handover-countdown-box {
+  min-height: 24px;
+}
+
+/* Safety Trigger & Exit Screen */
+.safety-exit-row {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-3);
+}
+
+.safety-trigger-link {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--ink-secondary);
+  border: none;
+  background: transparent;
+  min-height: 48px;
+  min-width: 48px;
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.safety-trigger-link:hover,
+.safety-trigger-link:focus {
+  color: var(--plum);
+}
+
+.safety-screen-card {
+  border: 2px solid var(--plum);
+}
+
+.safety-actions-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.support-hotline-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.support-hotline-item {
+  background: var(--bg-canvas);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+/* Remote Invite ("Segera Hadir") */
+.remote-invite-card {
+  border: 1px dashed #DCD0E1;
+  background: var(--bg-card);
+}
+
+.remote-invite-badge-info {
+  background: var(--bg-canvas);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  margin: var(--space-2) 0;
+}
+
+.spec-code-box {
+  background: #1E1E2E;
+  color: #CDD6F4;
+  font-family: Consolas, monospace;
+  font-size: 0.74rem;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+  line-height: 1.45;
+  white-space: pre;
+}
+
+/* Discussion Stepper */
+.discuss-counter {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--plum);
+}
+
+.discuss-question-card {
+  background: var(--bg-canvas);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  border: 1px solid var(--border-card);
+  min-height: 100px;
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.discuss-q-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.discuss-q-text {
+  font-size: 0.98rem;
+  line-height: 1.5;
+  font-weight: 600;
+  color: var(--ink-primary);
+}
+
+.discuss-nav-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.neutral-guidance-box {
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--ink-primary);
+}
+
+.step-rule-list {
+  padding-left: 20px;
+  margin: var(--space-2) 0;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--ink-secondary);
+}
+
+.step-rule-list li {
+  margin-bottom: var(--space-1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flip-card-inner {
+    transition: none !important;
+  }
+}
+
+
 
 

@@ -11,6 +11,8 @@ import { createExpenseFlow } from './flows/expenseFlow.js';
 import { createUrgeFlow } from './flows/urgeFlow.js';
 import { createGoalFlow } from './flows/goalFlow.js';
 import { createPlanFlow } from './flows/planFlow.js';
+import { createCoupleFlow } from './flows/coupleFlow.js';
+import { CONTENT } from '../content.js';
 
 import { renderOnboarding, bindOnboarding } from './screens/onboarding.js';
 import { renderHome, bindHome } from './screens/home.js';
@@ -167,6 +169,11 @@ export function boot() {
   sessionRunner.registerFlow(createUrgeFlow(store.d.faithPerspective));
   sessionRunner.registerFlow(createGoalFlow());
   sessionRunner.registerFlow(createPlanFlow());
+
+  // Register couple conversation flows
+  CONTENT.conversations.forEach(c => {
+    sessionRunner.registerFlow(createCoupleFlow(c, store));
+  });
 
   setupKeyboardProtection();
   setupThemeToggle();
