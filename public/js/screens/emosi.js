@@ -1,373 +1,122 @@
 /**
- * Screen: Emosi & Regulasi (Me)
- * Emotion check-in + Self-regulation exercises (Breathing 4-4-6, Grounding 5-4-3-2-1, TIPP)
- * Zero shame, plain language, evidence-conscious.
+ * Screen: Emosi (Me)
+ * Calm hero "Lagi terasa apa hari ini?" + single button "Cek perasaan (30 detik)"
+ * Short list of exercises as large rows. Zero forms on this screen.
  */
-import { CONTENT } from '../../content.js';
-import { esc } from '../ui/utils.js';
 import { sessionRunner } from '../session.js';
 import { createCheckinFlow } from '../flows/checkinFlow.js';
-
-let emotionSubView = 'checkin'; // 'checkin' | 'practice'
-let selectedEmotion = null;
-let selectedSensations = [];
-let activeExerciseId = null;
-let breathingInterval = null;
+import { createBreathingFlow } from '../flows/breathingFlow.js';
+import { createGroundingFlow } from '../flows/groundingFlow.js';
 
 export function cleanupEmosi() {
-  if (breathingInterval) {
-    clearInterval(breathingInterval);
-    breathingInterval = null;
-  }
+  // Screen has no background timers
 }
 
-export function setEmotionSubView(subView) {
-  cleanupEmosi();
-  emotionSubView = subView || 'checkin';
+export function setEmotionSubView() {
+  // Replaced with flow-driven session runner
 }
 
 export function renderEmotions(store) {
-  return `
-    <div class="card-title-row">
-      <div>
-        <span class="card-tag">Pilar Diri</span>
-        <h1 class="mt-1 mb-1">Emosi & Regulasi</h1>
-      </div>
-    </div>
-    <p class="mute">Emosi adalah pengalaman sementara, bukan kegagalan diri. Kenali perasaanmu tanpa menghakimi.</p>
+  const d = store.d;
+  const recentCheckin = d.checkins && d.checkins.length ? d.checkins[d.checkins.length - 1] : null;
 
-    <!-- Sub-Navigation -->
-    <div class="sub-nav" role="tablist">
-      <button type="button" class="${emotionSubView === 'checkin' ? 'active' : ''}" id="emoTabCheckin">
-        1. Cek Perasaan
-      </button>
-      <button type="button" class="${emotionSubView === 'practice' ? 'active' : ''}" id="emoTabPractice">
-        2. Latihan Mandiri
+  return `
+    <!-- Calm Hero -->
+    <div class="card emosi-hero">
+      <div class="emosi-hero-badge">🌱 Ruang Diri</div>
+      <h1 class="emosi-hero-title">Lagi terasa apa hari ini?</h1>
+      <p class="mute emosi-hero-desc">Kenali sinyal tubuh dan beri ruang untuk perasaanmu tanpa menghakimi.</p>
+      <button type="button" class="primary w-full emosi-start-btn" id="startCheckinBtn">
+        Cek perasaan (30 detik) →
       </button>
     </div>
 
-    ${emotionSubView === 'checkin' ? renderEmotionCheckin(store) : renderEmotionPractice(store)}
-  `;
-}
-
-function renderEmotionCheckin(store) {
-  const faith = store.d.faithPerspective;
-
-  if (!selectedEmotion) {
-    return `
-      <!-- Option: Guided Step-by-Step Flow -->
-      <div class="card card-border-saffron mb-3">
+    <!-- Recent Emotion Snapshot (only if entered) -->
+    ${recentCheckin ? `
+      <div class="card mt-3">
         <div class="card-title-row">
-          <h3>Panduan Cek Emosi Terpandu</h3>
-          <span class="card-tag saffron">Fokus Penuh</span>
+          <h2 class="text-sm font-bold text-ink-primary mb-0">Kondisi Terakhirmu</h2>
+          <span class="mute text-xs">${new Date(recentCheckin.at).toLocaleDateString('id-ID', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
         </div>
-        <p class="mute">Latihan terpandu satu layar per langkah dengan keheningan penuh dan tanpa distraksi.</p>
-        <button type="button" class="saffron-btn w-full" id="startCheckinFlowBtn">
-          Mulai Panduan Terpandu (1 Menit) 🧘
-        </button>
-      </div>
-
-      <div class="card">
-        <div class="card-title-row">
-          <h3>Apa yang paling kamu rasakan saat ini?</h3>
-          <span class="card-tag">Sadar & Beri Nama</span>
-        </div>
-        <p class="mute">Pilih satu yang paling mendekati kondisimu:</p>
-
-        <div class="chip-grid">
-          ${CONTENT.emotions.map(e => `
-            <button type="button" class="chip" data-emo-select="${esc(e.label)}">
-              <span class="chip-icon">${e.icon}</span>
-              <div class="chip-col">
-                <span class="chip-label">${esc(e.label)}</span>
-                <span class="chip-hint">${faith && e.faithHint ? esc(e.faithHint) : esc(e.hint)}</span>
-              </div>
-            </button>
-          `).join('')}
-        </div>
-
-        <details class="clinical-note mt-3">
-          <summary>Pelajari prinsip di balik latihan ini</summary>
-          <p>Latihan ini berakar pada keterampilan 'Observe & Describe' dari Dialectical Behavior Therapy (DBT). Memberi nama emosi mengaktifkan korteks prefrontal otak dan meredakan reaksi impulsif amigdala.</p>
-        </details>
-      </div>
-    `;
-  }
-
-  return `
-    <div class="card">
-      <div class="card-title-row">
-        <h3>Memahami: ${esc(selectedEmotion)}</h3>
-        <button type="button" class="secondary btn-action-sm" id="cancelEmoSelectBtn">
-          Ganti Emosi
-        </button>
-      </div>
-
-      <label>Di bagian tubuh mana sensasi ini terasa? (Boleh pilih beberapa):</label>
-      <div class="pill-list">
-        ${CONTENT.bodySensations.map(bs => `
-          <button type="button" class="pill-item ${selectedSensations.includes(bs) ? 'active' : ''}" data-sensation-toggle="${esc(bs)}">
-            ${esc(bs)}
-          </button>
-        `).join('')}
-      </div>
-
-      <label for="checkinNeedSelect">Apa yang paling akan membantumu saat ini?</label>
-      <select id="checkinNeedSelect">
-        <option value="">-- Boleh dilewati jika belum yakin --</option>
-        ${CONTENT.needs.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('')}
-      </select>
-
-      <label for="checkinNoteArea">Catatan pribadi (hanya di browsermu):</label>
-      <textarea id="checkinNoteArea" placeholder="Tuliskan apa yang ada di pikiranmu dengan bebas..."></textarea>
-
-      <div class="sticky-bottom-action">
-        <button type="button" class="primary w-full" id="saveEmotionCheckinBtn">
-          Simpan Cek Emosi Ini ✨
-        </button>
-      </div>
-    </div>
-  `;
-}
-
-function renderEmotionPractice(store) {
-  const faith = store.d.faithPerspective;
-
-  if (activeExerciseId === 'ex-breath') {
-    const ex = CONTENT.exercises.find(x => x.id === 'ex-breath');
-    const title = faith && ex.faithTitle ? ex.faithTitle : ex.title;
-
-    return `
-      <div class="card">
-        <div class="card-title-row">
-          <h3>${esc(title)}</h3>
-          <button type="button" class="secondary btn-action-sm" id="exitExerciseBtn">
-            ✕ Tutup Latihan
-          </button>
-        </div>
-        <p class="mute">Tarik 4 detik, tahan 4 detik, hembuskan perlahan 6 detik. Berhenti kapan saja jika tidak nyaman.</p>
-
-        <div class="breather-container">
-          <div class="breather-circle" id="breathCircle">Mulai</div>
-          <div class="breather-instruction" id="breathInstruction">Tekan tombol di bawah untuk mulai</div>
-          <div class="mute text-sm" id="breathCounter">1 menit latihan santai</div>
-        </div>
-
-        <div class="btn-group">
-          <button type="button" class="primary w-full" id="startBreathingBtn">Mulai Napas 1 Menit</button>
-        </div>
-
-        <details class="clinical-note mt-3">
-          <summary>Pelajari prinsip di balik latihan ini</summary>
-          <p>${esc(ex.clinicalDetail)}</p>
-        </details>
-      </div>
-    `;
-  }
-
-  return `
-    <div class="card">
-      <div class="card-title-row">
-        <h3>Pilih Latihan Singkat</h3>
-        <span class="card-tag saffron">Bisa Diulang Kapan Saja</span>
-      </div>
-      <p class="mute">Latihan terbukti secara psikologis untuk meredakan gelisah tanpa obat:</p>
-
-      ${CONTENT.exercises.map(x => {
-        const title = faith && x.faithTitle ? x.faithTitle : x.title;
-        return `
-          <div class="exercise-item-card">
-            <div class="card-title-row mb-1">
-              <span class="font-bold text-ink-primary">${esc(title)}</span>
-              <span class="card-tag">${esc(x.duration)}</span>
-            </div>
-            <p class="mute text-sm mb-2">${esc(x.description)}</p>
-            
-            ${x.id === 'ex-breath' ? `
-              <button type="button" class="primary w-full" data-start-ex="${esc(x.id)}">
-                Buka Latihan Napas Interaktif →
-              </button>
-            ` : `
-              <ol class="exercise-steps-ol">
-                ${x.steps.map(s => `<li>${esc(s)}</li>`).join('')}
-              </ol>
-            `}
-
-            <details class="clinical-note mt-2">
-              <summary>Pelajari prinsip ilmiahnya</summary>
-              <p>${esc(x.clinicalDetail)}</p>
-            </details>
+        <div class="recent-emotion-box">
+          <span class="recent-emotion-icon" aria-hidden="true">🌱</span>
+          <div>
+            <div class="font-bold text-sm">${recentCheckin.emotion}</div>
+            ${recentCheckin.need ? `<div class="mute text-xs">Kebutuhan: ${recentCheckin.need}</div>` : ''}
           </div>
-        `;
-      }).join('')}
+        </div>
+      </div>
+    ` : ''}
+
+    <!-- Exercise Rows (Large rows, min 48px targets) -->
+    <div class="card mt-3">
+      <h2 class="text-sm font-bold text-ink-primary mb-3">Latihan Mandiri</h2>
+
+      <div class="exercise-rows">
+        <!-- Row 1: Napas Tenang 4-4-6 -->
+        <button type="button" class="exercise-row" id="startBreathingBtn" aria-label="Buka Latihan Napas Tenang 4-4-6">
+          <span class="exercise-icon" aria-hidden="true">🌬️</span>
+          <div class="exercise-row-content">
+            <div class="exercise-row-title">Latihan Napas Tenang (4-4-6)</div>
+            <div class="exercise-row-desc">5 siklus napas rileks untuk menenangkan detak jantung</div>
+          </div>
+          <span class="exercise-row-arrow" aria-hidden="true">→</span>
+        </button>
+
+        <!-- Row 2: Grounding 5-4-3-2-1 -->
+        <button type="button" class="exercise-row" id="startGroundingBtn" aria-label="Buka Teknik Grounding 5-4-3-2-1">
+          <span class="exercise-icon" aria-hidden="true">👁️</span>
+          <div class="exercise-row-content">
+            <div class="exercise-row-title">Teknik Grounding (5-4-3-2-1)</div>
+            <div class="exercise-row-desc">5 langkah indra untuk kembali ke momen saat ini</div>
+          </div>
+          <span class="exercise-row-arrow" aria-hidden="true">→</span>
+        </button>
+      </div>
+
+      <!-- Accordion: Latihan Lain -->
+      <details class="other-exercises-accordion mt-3">
+        <summary class="other-exercises-summary">Latihan Lain (Teknik Khusus)</summary>
+        <div class="other-exercises-panel">
+          <div class="font-bold text-sm mb-1 text-ink-primary">Basuh Wajah dengan Air Dingin (TIPP)</div>
+          <p class="mute text-xs mb-2">
+            Membasuh wajah dengan air dingin atau kompres dingin di sekitar mata selama 15–30 detik memicu refleks penyelam alami tubuh untuk meredakan emosi intens seketika.
+          </p>
+          <div class="warning-alert-box">
+            ⚠️ Hentikan jika terasa tidak nyaman atau kamu punya kondisi jantung.
+          </div>
+        </div>
+      </details>
     </div>
   `;
 }
 
 export function bindEmotions(container, store, navigate, rerender) {
-  const tabCheckin = container.querySelector('#emoTabCheckin');
-  const tabPractice = container.querySelector('#emoTabPractice');
-  if (tabCheckin) {
-    tabCheckin.onclick = () => {
-      cleanupEmosi();
-      emotionSubView = 'checkin';
-      activeExerciseId = null;
-      rerender();
-    };
-  }
-  if (tabPractice) {
-    tabPractice.onclick = () => {
-      cleanupEmosi();
-      emotionSubView = 'practice';
-      rerender();
-    };
-  }
-
-  // Full-screen session runner trigger
-  const startFlowBtn = container.querySelector('#startCheckinFlowBtn');
-  if (startFlowBtn) {
-    startFlowBtn.onclick = () => {
-      sessionRunner.start(createCheckinFlow(store.d.faithPerspective), {}, () => {
-        rerender();
+  const startCheckinBtn = container.querySelector('#startCheckinBtn');
+  if (startCheckinBtn) {
+    startCheckinBtn.onclick = () => {
+      const flow = createCheckinFlow(store.d.faithPerspective, (exerciseAction) => {
+        if (exerciseAction === 'launch-breathing') {
+          sessionRunner.start(createBreathingFlow(() => rerender()));
+        } else if (exerciseAction === 'launch-grounding') {
+          sessionRunner.start(createGroundingFlow(() => rerender()));
+        }
       });
+      sessionRunner.start(flow, {}, () => rerender());
     };
   }
 
-  container.querySelectorAll('[data-emo-select]').forEach(btn => {
-    btn.onclick = () => {
-      selectedEmotion = btn.dataset.emoSelect;
-      rerender();
-    };
-  });
-
-  const cancelBtn = container.querySelector('#cancelEmoSelectBtn');
-  if (cancelBtn) {
-    cancelBtn.onclick = () => {
-      selectedEmotion = null;
-      selectedSensations = [];
-      rerender();
+  const startBreathingBtn = container.querySelector('#startBreathingBtn');
+  if (startBreathingBtn) {
+    startBreathingBtn.onclick = () => {
+      sessionRunner.start(createBreathingFlow(() => rerender()));
     };
   }
 
-  container.querySelectorAll('[data-sensation-toggle]').forEach(btn => {
-    btn.onclick = () => {
-      const s = btn.dataset.sensationToggle;
-      if (selectedSensations.includes(s)) {
-        selectedSensations = selectedSensations.filter(x => x !== s);
-      } else {
-        selectedSensations.push(s);
-      }
-      rerender();
-    };
-  });
-
-  const saveBtn = container.querySelector('#saveEmotionCheckinBtn');
-  if (saveBtn) {
-    saveBtn.onclick = () => {
-      const needSel = container.querySelector('#checkinNeedSelect');
-      const noteArea = container.querySelector('#checkinNoteArea');
-      const need = needSel ? needSel.value : '';
-      const note = noteArea ? noteArea.value.trim() : '';
-
-      store.addCheckin({
-        emotion: selectedEmotion,
-        sensations: selectedSensations,
-        need,
-        note,
-        at: Date.now()
-      });
-
-      selectedEmotion = null;
-      selectedSensations = [];
-      alert('Catatan emosimu berhasil disimpan. Terima kasih telah meluangkan waktu untuk dirimu.');
-      rerender();
-    };
-  }
-
-  container.querySelectorAll('[data-start-ex]').forEach(btn => {
-    btn.onclick = () => {
-      activeExerciseId = btn.dataset.startEx;
-      rerender();
-    };
-  });
-
-  const exitExBtn = container.querySelector('#exitExerciseBtn');
-  if (exitExBtn) {
-    exitExBtn.onclick = () => {
-      cleanupEmosi();
-      activeExerciseId = null;
-      rerender();
-    };
-  }
-
-  // Interactive Breathing Logic
-  const breathBtn = container.querySelector('#startBreathingBtn');
-  if (breathBtn) {
-    breathBtn.onclick = () => {
-      if (breathingInterval) {
-        cleanupEmosi();
-        const circle = container.querySelector('#breathCircle');
-        const instruction = container.querySelector('#breathInstruction');
-        if (circle) {
-          circle.className = 'breather-circle';
-          circle.textContent = 'Mulai';
-        }
-        if (instruction) instruction.textContent = 'Latihan dihentikan.';
-        breathBtn.textContent = 'Mulai Napas 1 Menit';
-        return;
-      }
-
-      breathBtn.textContent = 'Hentikan Latihan';
-      let secondsLeft = 60;
-      let phase = 0;
-      let phaseTime = 0;
-
-      const circle = container.querySelector('#breathCircle');
-      const instruction = container.querySelector('#breathInstruction');
-      const counter = container.querySelector('#breathCounter');
-
-      const applyPhase = () => {
-        if (!circle || !instruction) return;
-        if (phase === 0) {
-          circle.className = 'breather-circle inhale';
-          circle.textContent = 'Tarik';
-          instruction.textContent = 'Tarik napas perlahan lewat hidung...';
-          phaseTime = 4;
-        } else if (phase === 1) {
-          circle.className = 'breather-circle hold';
-          circle.textContent = 'Tahan';
-          instruction.textContent = 'Tahan napas santai dan rileks...';
-          phaseTime = 4;
-        } else {
-          circle.className = 'breather-circle exhale';
-          circle.textContent = 'Hembus';
-          instruction.textContent = 'Hembuskan perlahan lewat mulut...';
-          phaseTime = 6;
-        }
-      };
-
-      applyPhase();
-
-      breathingInterval = setInterval(() => {
-        secondsLeft--;
-        phaseTime--;
-        if (counter) counter.textContent = `Sisa waktu: ${secondsLeft} detik`;
-
-        if (phaseTime <= 0) {
-          phase = (phase + 1) % 3;
-          applyPhase();
-        }
-
-        if (secondsLeft <= 0) {
-          cleanupEmosi();
-          if (circle) {
-            circle.className = 'breather-circle';
-            circle.textContent = 'Selesai';
-          }
-          if (instruction) instruction.textContent = 'Bagus sekali. Rasakan ketenangan di tubuhmu.';
-          breathBtn.textContent = 'Mulai Lagi';
-        }
-      }, 1000);
+  const startGroundingBtn = container.querySelector('#startGroundingBtn');
+  if (startGroundingBtn) {
+    startGroundingBtn.onclick = () => {
+      sessionRunner.start(createGroundingFlow(() => rerender()));
     };
   }
 }

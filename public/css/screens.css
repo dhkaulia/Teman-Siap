@@ -413,3 +413,167 @@
   color: var(--ink-muted);
 }
 
+/* Emosi Screen Redesign */
+.emosi-hero {
+  text-align: center;
+  padding: var(--space-5) var(--space-3);
+  margin-top: var(--space-1);
+}
+
+.emosi-hero-badge {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--teal-dark);
+  background: var(--teal-light);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  margin-bottom: var(--space-2);
+}
+
+.emosi-hero-title {
+  font-size: 1.55rem;
+  margin-bottom: var(--space-2);
+}
+
+.emosi-hero-desc {
+  font-size: 0.95rem;
+  margin-bottom: var(--space-4);
+}
+
+.emosi-start-btn {
+  min-height: 52px;
+  font-size: 1.05rem;
+}
+
+.exercise-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.exercise-row {
+  width: 100%;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.exercise-row:hover, .exercise-row:focus-visible {
+  border-color: var(--teal);
+  background: var(--bg-canvas);
+}
+
+.exercise-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.exercise-row-content {
+  flex: 1;
+}
+
+.exercise-row-title {
+  font-weight: 700;
+  font-size: 0.96rem;
+  color: var(--ink-primary);
+  margin-bottom: 2px;
+}
+
+.exercise-row-desc {
+  font-size: 0.82rem;
+  color: var(--ink-muted);
+}
+
+.exercise-row-arrow {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--teal);
+}
+
+.other-exercises-accordion {
+  border-top: 1px solid var(--border-card);
+  padding-top: var(--space-3);
+}
+
+.other-exercises-summary {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--ink-secondary);
+  cursor: pointer;
+  padding: var(--space-1) 0;
+}
+
+.other-exercises-panel {
+  padding-top: var(--space-2);
+}
+
+.warning-alert-box {
+  background: #FEF3C7;
+  border: 1px solid #F59E0B;
+  color: #92400E;
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+/* Grounding Flow Layout */
+.grounding-step-wrap {
+  text-align: center;
+  padding: var(--space-4) var(--space-2);
+}
+
+.grounding-icon {
+  font-size: 3.5rem;
+  margin-bottom: var(--space-3);
+}
+
+.grounding-count {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--teal);
+  margin-bottom: var(--space-1);
+}
+
+.grounding-text {
+  font-size: 1.1rem;
+  line-height: 1.5;
+  color: var(--ink-primary);
+  margin-bottom: var(--space-5);
+}
+
+/* Checkin Flow Step Layouts */
+.choice-tiles-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+.choice-tiles-2col .choice-tile {
+  min-height: 56px;
+  padding: var(--space-2) var(--space-3);
+}
+
+.choice-tiles-2col .choice-tile-main {
+  gap: var(--space-2);
+}
+
+.choice-tiles-2col .choice-tile-icon {
+  font-size: 1.25rem;
+}
+
+.choice-tiles-2col .choice-tile-label {
+  font-size: 0.9rem;
+}
+
+

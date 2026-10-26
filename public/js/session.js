@@ -238,8 +238,15 @@ class SessionRunner {
     overlay.querySelector('#sessionExitBtn').onclick = () => this.exit();
   }
 
+  setOverlayTint(color) {
+    if (this._overlayEl) {
+      this._overlayEl.style.backgroundColor = color || 'var(--bg-canvas)';
+    }
+  }
+
   _unmountOverlay() {
     if (this._overlayEl) {
+      this._overlayEl.style.backgroundColor = '';
       this._overlayEl.remove();
       this._overlayEl = null;
     }
@@ -290,8 +297,14 @@ class SessionRunner {
 
     // 4. Footer Rendering (Next + Optional Skip Link)
     const footerEl = this._overlayEl.querySelector('#sessionFooter');
+    if (step.hideFooter) {
+      footerEl.style.display = 'none';
+      return;
+    }
+    footerEl.style.display = 'flex';
+
     const isLastStep = stepIndex === totalSteps - 1;
-    const nextLabel = isLastStep ? (flow.completeLabel || 'Selesai ✨') : 'Lanjut →';
+    const nextLabel = step.nextLabel || (isLastStep ? (flow.completeLabel || 'Selesai ✨') : 'Lanjut →');
 
     footerEl.innerHTML = `
       ${step.optional ? `<button type="button" class="session-skip-link" id="sessionSkipLink">Lewati langkah ini</button>` : ''}
@@ -379,7 +392,8 @@ class SessionRunner {
       }
 
       case 'custom': {
-        contentHTML = typeof step.renderCustom === 'function' ? step.renderCustom(answers) : '';
+        if (typeof step.renderCustom === 'function') contentHTML = step.renderCustom(answers, this);
+        else if (typeof step.render === 'function') contentHTML = step.render(answers, this);
         break;
       }
 
@@ -387,10 +401,14 @@ class SessionRunner {
         contentHTML = `<p class="mute">Langkah tanpa tipe input.</p>`;
     }
 
+    if (step.noCard) {
+      return contentHTML;
+    }
+
     return `
       <div class="card mb-3">
-        <span class="card-tag saffron">${esc(step.tag || 'Langkah Refleksi')}</span>
-        <h2 class="mt-2 mb-1">${esc(step.title)}</h2>
+        ${step.tag ? `<span class="card-tag saffron">${esc(step.tag)}</span>` : ''}
+        ${step.title ? `<h2 class="mt-2 mb-1">${esc(step.title)}</h2>` : ''}
         ${step.subtitle ? `<p class="mute mb-3">${esc(step.subtitle)}</p>` : ''}
         ${contentHTML}
         ${step.clinicalDetail ? `
@@ -404,6 +422,13 @@ class SessionRunner {
   }
 
   _bindStepInputs(container, step) {
+    if (typeof step.bind === 'function') {
+      step.bind(container, this._state.answers, this);
+    }
+    if (typeof step.bindCustom === 'function') {
+      step.bindCustom(container, this._state.answers, this);
+    }
+
     switch (step.type) {
       case 'choice': {
         container.querySelectorAll('[data-choice]').forEach(btn => {

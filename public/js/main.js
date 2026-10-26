@@ -5,6 +5,8 @@
 import { store } from './store.js';
 import { sessionRunner } from './session.js';
 import { createCheckinFlow } from './flows/checkinFlow.js';
+import { createBreathingFlow } from './flows/breathingFlow.js';
+import { createGroundingFlow } from './flows/groundingFlow.js';
 import { createExpenseFlow } from './flows/expenseFlow.js';
 import { createGoalFlow } from './flows/goalFlow.js';
 
@@ -157,6 +159,8 @@ export function boot() {
 
   // Register all declarative flows with session runner
   sessionRunner.registerFlow(createCheckinFlow(store.d.faithPerspective));
+  sessionRunner.registerFlow(createBreathingFlow());
+  sessionRunner.registerFlow(createGroundingFlow());
   sessionRunner.registerFlow(createExpenseFlow());
   sessionRunner.registerFlow(createGoalFlow());
 
