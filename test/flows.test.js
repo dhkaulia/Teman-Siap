@@ -4,6 +4,10 @@ import assert from 'node:assert/strict';
 import { createCheckinFlow } from '../public/js/flows/checkinFlow.js';
 import { createBreathingFlow } from '../public/js/flows/breathingFlow.js';
 import { createGroundingFlow } from '../public/js/flows/groundingFlow.js';
+import { createExpenseFlow } from '../public/js/flows/expenseFlow.js';
+import { createUrgeFlow } from '../public/js/flows/urgeFlow.js';
+import { createGoalFlow } from '../public/js/flows/goalFlow.js';
+import { createPlanFlow } from '../public/js/flows/planFlow.js';
 import { sessionReducer } from '../public/js/session.js';
 import { createInitialState } from '../public/js/store.js';
 
@@ -102,5 +106,116 @@ describe('Grounding Session Flow Requirements', () => {
     assert.equal(grounding.steps.length, 5);
     const ids = grounding.steps.map(s => s.id);
     assert.deepEqual(ids, ['look', 'touch', 'hear', 'smell', 'taste']);
+  });
+});
+
+describe('Quick Log Expense Flow Requirements', () => {
+  it('defines 3-step quick log: amount, category with last-used first, and optional reflection', () => {
+    const mockStore = {
+      d: {
+        expenses: [
+          { amount: 25000, category: 'Transportasi & Bensin', at: 1000 },
+          { amount: 50000, category: 'Hiburan & Kesenangan Pribadi', at: 2000 }
+        ]
+      },
+      addExpense(e) {}
+    };
+
+    const flow = createExpenseFlow(mockStore);
+    assert.equal(flow.id, 'expense');
+    assert.equal(flow.steps.length, 3);
+    assert.equal(flow.steps[0].id, 'amount');
+    assert.equal(flow.steps[1].id, 'category');
+    assert.equal(flow.steps[2].id, 'reflect');
+  });
+});
+
+describe('Urge Surfing Flow Requirements', () => {
+  const urge = createUrgeFlow(false);
+
+  it('defines 3 steps: wave intensity, 10-min timer with stored timestamp, and acceptable decisions', () => {
+    assert.equal(urge.id, 'urge');
+    assert.equal(urge.steps.length, 3);
+    assert.equal(urge.steps[0].id, 'startIntensity');
+    assert.equal(urge.steps[1].id, 'surfing');
+    assert.equal(urge.steps[2].id, 'decision');
+  });
+
+  it('logs starting and ending intensity without shame on completion', () => {
+    const mockStore = {
+      paused: null,
+      addPause(p) { this.paused = p; }
+    };
+
+    urge.onComplete({
+      startIntensity: 8,
+      endIntensity: 3,
+      decision: 'Tunggu lagi'
+    }, mockStore);
+
+    assert.ok(mockStore.paused);
+    assert.equal(mockStore.paused.startIntensity, 8);
+    assert.equal(mockStore.paused.endIntensity, 3);
+    assert.equal(mockStore.paused.decision, 'Tunggu lagi');
+  });
+});
+
+describe('Goal Creation Flow Requirements', () => {
+  const goalFlow = createGoalFlow();
+
+  it('defines 3-step goal flow: name, target amount, optional date', () => {
+    assert.equal(goalFlow.id, 'goal');
+    assert.equal(goalFlow.steps.length, 3);
+    assert.equal(goalFlow.steps[0].id, 'name');
+    assert.equal(goalFlow.steps[1].id, 'target');
+    assert.equal(goalFlow.steps[2].id, 'date');
+    assert.equal(goalFlow.steps[2].optional, true);
+  });
+
+  it('sets goal with initial saved 0 and never marks missed dates as failed', () => {
+    const mockStore = {
+      goal: null,
+      setGoal(g) { this.goal = g; }
+    };
+
+    goalFlow.onComplete({
+      name: 'Rumah Impian',
+      target: 20000000,
+      date: '2027-12'
+    }, mockStore);
+
+    assert.ok(mockStore.goal);
+    assert.equal(mockStore.goal.name, 'Rumah Impian');
+    assert.equal(mockStore.goal.target, 20000000);
+    assert.equal(mockStore.goal.saved, 0);
+    assert.equal(mockStore.goal.targetDate, '2027-12');
+  });
+});
+
+describe('If-Then Plan Flow Requirements', () => {
+  const planFlow = createPlanFlow();
+
+  it('builds sentence "Jika [tile] maka [tile]" using presets and custom fallback', () => {
+    assert.equal(planFlow.id, 'plan');
+    assert.equal(planFlow.steps.length, 3);
+    assert.equal(planFlow.steps[0].id, 'trigger');
+    assert.equal(planFlow.steps[1].id, 'action');
+    assert.equal(planFlow.steps[2].id, 'preview');
+  });
+
+  it('saves implementation intention to store on completion', () => {
+    const mockStore = {
+      plan: null,
+      addPlan(p) { this.plan = p; }
+    };
+
+    planFlow.onComplete({
+      trigger: 'stres kerjaan',
+      action: 'minum air hangat & jeda 10 menit'
+    }, mockStore);
+
+    assert.ok(mockStore.plan);
+    assert.equal(mockStore.plan.i, 'stres kerjaan');
+    assert.equal(mockStore.plan.t, 'minum air hangat & jeda 10 menit');
   });
 });

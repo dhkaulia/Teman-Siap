@@ -8,7 +8,9 @@ import { createCheckinFlow } from './flows/checkinFlow.js';
 import { createBreathingFlow } from './flows/breathingFlow.js';
 import { createGroundingFlow } from './flows/groundingFlow.js';
 import { createExpenseFlow } from './flows/expenseFlow.js';
+import { createUrgeFlow } from './flows/urgeFlow.js';
 import { createGoalFlow } from './flows/goalFlow.js';
+import { createPlanFlow } from './flows/planFlow.js';
 
 import { renderOnboarding, bindOnboarding } from './screens/onboarding.js';
 import { renderHome, bindHome } from './screens/home.js';
@@ -161,8 +163,10 @@ export function boot() {
   sessionRunner.registerFlow(createCheckinFlow(store.d.faithPerspective));
   sessionRunner.registerFlow(createBreathingFlow());
   sessionRunner.registerFlow(createGroundingFlow());
-  sessionRunner.registerFlow(createExpenseFlow());
+  sessionRunner.registerFlow(createExpenseFlow(store));
+  sessionRunner.registerFlow(createUrgeFlow(store.d.faithPerspective));
   sessionRunner.registerFlow(createGoalFlow());
+  sessionRunner.registerFlow(createPlanFlow());
 
   setupKeyboardProtection();
   setupThemeToggle();

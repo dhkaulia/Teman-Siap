@@ -22,9 +22,9 @@
   --ink-muted: #627673;
   --ink-on-color: #FFFFFF;
   
-  --danger: #B91C1C;
-  --danger-light: #FEE2E2;
-  --danger-border: #FCA5A5;
+  --danger: #5E3573;
+  --danger-light: #F4EDF6;
+  --danger-border: #DCD0E1;
 
   /* Typography Stacks */
   --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
@@ -73,9 +73,9 @@
     --ink-secondary: #9EABA9;
     --ink-muted: #7A8C8A;
     
-    --danger: #EF4444;
-    --danger-light: #351A1A;
-    --danger-border: #7F1D1D;
+    --danger: #B396B9;
+    --danger-light: #2D2130;
+    --danger-border: #4D3852;
     
     --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.2);
     --shadow-elevation: 0 8px 24px rgba(0, 0, 0, 0.35);
@@ -96,9 +96,9 @@ body.theme-dark {
   --ink-primary: #F0F6F5;
   --ink-secondary: #9EABA9;
   --ink-muted: #7A8C8A;
-  --danger: #EF4444;
-  --danger-light: #351A1A;
-  --danger-border: #7F1D1D;
+  --danger: #B396B9;
+  --danger-light: #2D2130;
+  --danger-border: #4D3852;
 }
 
 body.theme-light {
@@ -115,7 +115,7 @@ body.theme-light {
   --ink-primary: #12211F;
   --ink-secondary: #485D5A;
   --ink-muted: #627673;
-  --danger: #B91C1C;
-  --danger-light: #FEE2E2;
-  --danger-border: #FCA5A5;
+  --danger: #5E3573;
+  --danger-light: #F4EDF6;
+  --danger-border: #DCD0E1;
 }

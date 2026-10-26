@@ -1,505 +1,265 @@
 /**
  * Screen: Keuangan Sadar (My Money)
- * Log expenses + Urge surfing (ACT & CBT) + Savings Goals (zero fake data) + If-Then Plans
+ * Calm hub + short flows:
+ * - One large number "Tercatat bulan ini" with caption "Dari catatanmu, bukan saldo bank"
+ * - Empty state when no data: "Belum ada catatan. Mulai dari satu."
+ * - Big "+ Catat" button fixed in the thumb zone
+ * - Three rows below: Tujuan tabungan, Jeda belanja, Rencana jika-maka
+ * Acceptance: One-thumb logging, timer survives screen lock & reload, no red colors, amounts formatted as Rupiah.
  */
-import { CONTENT } from '../../content.js';
-import { esc, idr, today, monthKey } from '../ui/utils.js';
 import { sessionRunner } from '../session.js';
 import { createExpenseFlow } from '../flows/expenseFlow.js';
+import { createUrgeFlow } from '../flows/urgeFlow.js';
 import { createGoalFlow } from '../flows/goalFlow.js';
-
-let moneySubView = 'log'; // 'log' | 'urge' | 'goals'
-let showNewGoalForm = false;
-let activeReframeIndex = 0;
-let activeTimer = null;
-let timerSeconds = 600;
+import { createPlanFlow } from '../flows/planFlow.js';
+import { BottomSheet } from '../ui/bottomSheet.js';
+import { Keypad } from '../ui/keypad.js';
+import { esc, idr, monthKey, today } from '../ui/utils.js';
 
 export function cleanupUang() {
-  if (activeTimer) {
-    clearInterval(activeTimer);
-    activeTimer = null;
-  }
+  // Hub has no background timers
 }
 
-export function setMoneySubView(subView) {
-  cleanupUang();
-  moneySubView = subView || 'log';
+export function setMoneySubView() {
+  // Replaced with flow-driven session runner
 }
 
 export function renderMoney(store) {
   const d = store.d;
-  const currentMonthExpenses = (d.expenses || []).filter(e => e.date && e.date.startsWith(monthKey()));
+  const currentMonthKey = monthKey();
+  const currentMonthExpenses = (d.expenses || []).filter(e => e.date && e.date.startsWith(currentMonthKey));
   const totalSpent = currentMonthExpenses.reduce((acc, e) => acc + (Number(e.amount) || 0), 0);
+  const goal = d.goal;
+  const plans = d.plans || [];
 
   return `
-    <div class="card-title-row">
+    <div class="card-title-row mb-1">
       <div>
         <span class="card-tag">Pilar Finansial</span>
         <h1 class="mt-1 mb-1">Keuangan Sadar</h1>
       </div>
     </div>
-    <p class="mute">Hadapi angka dengan tenang tanpa rasa malu. Kenali pemicu belanja dan bangun kebiasaan "cukup".</p>
+    <p class="mute text-sm mb-3">Melihat angka dengan tenang tanpa rasa malu. Membangun kebiasaan cukup dan saling terbuka.</p>
 
-    <!-- Sub-Navigation -->
-    <div class="sub-nav" role="tablist">
-      <button type="button" class="${moneySubView === 'log' ? 'active' : ''}" id="moneyTabLog">
-        1. Catat Pengeluaran
-      </button>
-      <button type="button" class="${moneySubView === 'urge' ? 'active' : ''}" id="moneyTabUrge">
-        2. Jeda Belanja
-      </button>
-      <button type="button" class="${moneySubView === 'goals' ? 'active' : ''}" id="moneyTabGoals">
-        3. Tabungan & Rencana
-      </button>
-    </div>
-
-    <!-- Monthly Summary Bar -->
-    <div class="card mt-1">
+    <!-- Monthly Summary Hub Card -->
+    <div class="card mt-1 mb-3">
       <div class="card-title-row">
-        <h3>Ringkasan Bulan Ini</h3>
+        <h2 class="text-xs font-bold text-ink-primary mb-0">Tercatat Bulan Ini</h2>
         <span class="card-tag">${new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</span>
       </div>
-      <div class="month-amount-display">
-        ${idr(totalSpent)}
-      </div>
-      <p class="mute mb-0">
-        ${currentMonthExpenses.length ? `Tercatat ${currentMonthExpenses.length} transaksi mandiri.` : 'Belum ada pengeluaran yang dicatat bulan ini.'}
-        <br><span class="month-note">*Catatan mandiri untuk pemahaman diri, bukan saldo mutasi bank.</span>
-      </p>
-    </div>
 
-    ${moneySubView === 'log' ? renderMoneyLog(store) : 
-      moneySubView === 'urge' ? renderMoneyUrge(store) : renderMoneyGoals(store)}
-  `;
-}
-
-function renderMoneyLog(store) {
-  return `
-    <!-- Guided Flow Option -->
-    <div class="card card-border-saffron mb-3">
-      <div class="card-title-row">
-        <h3>Panduan Catat Pengeluaran</h3>
-        <span class="card-tag saffron">Satu per Langkah</span>
-      </div>
-      <p class="mute">Fokus mencatat tanpa rasa bersalah melalui panduan layar demi layar.</p>
-      <button type="button" class="saffron-btn w-full" id="startExpenseFlowBtn">
-        Mulai Catat Terpandu 🪙
-      </button>
-    </div>
-
-    <div class="card">
-      <div class="card-title-row">
-        <h3>Catat Pengeluaran Sadar</h3>
-        <span class="card-tag">Sadar & Pahami</span>
-      </div>
-      <p class="mute">Mencatat bukan untuk menghukum diri, tapi melihat hubungan emosi dengan belanja.</p>
-
-      <label for="expAmountInput">Jumlah Nominal (Rp) *</label>
-      <input type="number" id="expAmountInput" inputmode="numeric" pattern="[0-9]*" placeholder="Contoh: 35000" min="1">
-
-      <label for="expCatSelect">Kategori</label>
-      <select id="expCatSelect">
-        ${CONTENT.categories.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('')}
-      </select>
-
-      <label for="expDateInput">Tanggal</label>
-      <input type="date" id="expDateInput" value="${today()}">
-
-      <label for="expTagSelect">Pengeluaran ini paling tepat disebut:</label>
-      <select id="expTagSelect">
-        ${CONTENT.expenseTags.map(t => `<option value="${esc(t.id)}">${esc(t.label)}</option>`).join('')}
-      </select>
-
-      <label for="expNoteInput">Catatan Barang (Boleh dilewati):</label>
-      <input type="text" id="expNoteInput" placeholder="Misal: Es kopi saat stres deadline">
-
-      <div class="sticky-bottom-action">
-        <button type="button" class="primary w-full" id="saveExpenseBtn">
-          Simpan Pengeluaran Sadar ✨
-        </button>
-      </div>
-
-      <details class="clinical-note mt-4">
-        <summary>Pelajari prinsip di balik pencatatan ini</summary>
-        <p>Pendekatan ini mengatasi 'Ostrich Effect' (kebiasaan menghindari kenyataan finansial karena takut stres). Dengan menandai pemicu emosi (antecedents), kamu memisahkan kebutuhan nyata dari belanja pelarian.</p>
-      </details>
-    </div>
-  `;
-}
-
-function renderMoneyUrge(store) {
-  const faith = store.d.faithPerspective;
-  const reframe = CONTENT.cognitiveReframes[activeReframeIndex];
-  const reframeText = faith && reframe.counterPerspectiveFaith ? reframe.counterPerspectiveFaith : reframe.counterPerspective;
-
-  return `
-    <div class="urge-surf-box">
-      <div class="card-title-row">
-        <h3 class="text-teal-dark">🌊 Berselancar Dorongan (Urge Surfing)</h3>
-        <span class="card-tag saffron">Jeda Sadar</span>
-      </div>
-      <p class="mute">
-        Ada barang yang sangat ingin kamu beli sekarang? Nafsu belanja terasa seperti ombak—ia akan memuncak selama 10 menit lalu mereda. Luangkan jeda sebelum memutuskan.
-      </p>
-
-      <div class="wave-graphic" aria-hidden="true">
-        <svg viewBox="0 0 500 60" preserveAspectRatio="none">
-          <path d="M0,30 C150,60 250,0 500,30 L500,60 L0,60 Z" fill="rgba(27, 94, 89, 0.15)"></path>
-          <path d="M0,35 C120,10 320,55 500,35 L500,60 L0,60 Z" fill="rgba(217, 119, 6, 0.2)"></path>
-        </svg>
-      </div>
-
-      <div class="intensity-slider-wrap">
-        <div class="intensity-header">
-          <span>Seberapa kuat dorongan belanjamu? (1–10):</span>
-          <span id="sliderIntensityLabel" class="text-saffron">5 / 10 (Sedang)</span>
+      ${currentMonthExpenses.length ? `
+        <div class="month-amount-display">
+          ${idr(totalSpent)}
         </div>
-        <input type="range" class="slider-range" id="urgeSlider" min="1" max="10" value="5">
-      </div>
-
-      <div class="timer-display" id="urgeTimerDisplay">10:00</div>
-
-      <div class="btn-group">
-        <button type="button" class="primary" id="startUrgeTimerBtn">Mulai Jeda 10 Menit ⏳</button>
-        <button type="button" class="secondary" id="resetUrgeTimerBtn">Reset</button>
-      </div>
-
-      <!-- CBT Restructuring Card -->
-      <div class="reframe-card">
-        <div class="reframe-tag">
-          💡 Sudut Pandang Seimbang
-        </div>
-        <div class="reframe-thought" id="reframeThought">${esc(reframe.impulseThought)}</div>
-        <div class="reframe-answer" id="reframeAnswer">${esc(reframeText)}</div>
-        <div class="text-right mt-2">
-          <button type="button" class="secondary btn-action-sm" id="nextReframeBtn">
-            Lihat Contoh Lain ↻
-          </button>
-        </div>
-      </div>
-
-      <details class="clinical-note mt-3">
-        <summary>Pelajari prinsip di balik jeda ini</summary>
-        <p>Berdasarkan teknik 'Urge Surfing' dari Acceptance & Commitment Therapy (ACT) dan Restrukturisasi Kognitif (CBT). Kamu melatih otak bahwa dorongan kuat tidak harus selalu diikuti dengan tindakan membeli.</p>
-      </details>
-    </div>
-  `;
-}
-
-function renderMoneyGoals(store) {
-  const d = store.d;
-  const goal = d.goal;
-
-  return `
-    <!-- Goal Section: Empty state with single button if no goal entered -->
-    <div class="card">
-      <div class="card-title-row">
-        <h3>Tujuan Tabungan Bersama</h3>
-        <span class="card-tag saffron">${d.faithPerspective ? 'Masa Depan Sakinah' : 'Masa Depan'}</span>
-      </div>
-
-      ${goal ? `
-        <div class="card-title-row mt-1 mb-1">
-          <span class="font-bold text-lg">${esc(goal.name)}</span>
-          <span class="font-medium text-teal">${idr(goal.saved)} / ${idr(goal.target)}</span>
-        </div>
-
-        <div class="bar-track">
-          <div class="bar-fill" data-progress="${Math.min(100, Math.round((goal.saved / (goal.target || 1)) * 100))}"></div>
-        </div>
-        <div class="mute text-right text-sm mb-3">
-          Tercapai ${Math.min(100, Math.round((goal.saved / (goal.target || 1)) * 100))}%
-        </div>
-
-        <label for="addSaveInput">Tambah tabungan hari ini:</label>
-        <div class="flex gap-2">
-          <input type="number" id="addSaveInput" inputmode="numeric" pattern="[0-9]*" placeholder="Nominal (Rp)" min="1" class="mb-0">
-          <button type="button" class="saffron-btn nowrap" id="addSaveBtn">+ Tabung</button>
-        </div>
-      ` : (showNewGoalForm ? `
-        <div class="mt-2">
-          <label for="newGoalNameInput">Nama Tujuan Tabungan:</label>
-          <input type="text" id="newGoalNameInput" placeholder="Misal: Dana Cadangan / Tempat Tinggal Mandiri">
-
-          <label for="newGoalTargetInput">Target Nominal (Rp):</label>
-          <input type="number" id="newGoalTargetInput" inputmode="numeric" pattern="[0-9]*" placeholder="Misal: 5000000" min="1">
-
-          <div class="btn-group">
-            <button type="button" class="primary" id="saveNewGoalBtn">Simpan Tujuan Tabungan</button>
-            <button type="button" class="secondary" id="cancelGoalFormBtn">Batal</button>
-          </div>
-        </div>
+        <p class="mute text-xs mb-1">Tercatat ${currentMonthExpenses.length} transaksi mandiri bulan ini.</p>
+        <div class="month-note">Dari catatanmu, bukan saldo bank</div>
       ` : `
-        <div class="empty-goal-box">
-          <p class="mute mb-3">Belum ada tujuan tabungan yang kamu buat.</p>
-          <button type="button" class="primary w-full" id="openGoalFormBtn">
-            Buat tujuan pertama
-          </button>
+        <div class="month-amount-display">
+          Rp 0
         </div>
-      `)}
+        <p class="mute text-sm mb-1 font-medium">Belum ada catatan. Mulai dari satu.</p>
+        <div class="month-note">Dari catatanmu, bukan saldo bank</div>
+      `}
     </div>
 
-    <!-- If-Then Plans Section -->
-    <div class="card">
-      <div class="card-title-row">
-        <h3>Rencana Jika-Maka Pribadi</h3>
-        <span class="card-tag">Otomatisasi Respon</span>
+    <!-- Three Rows: Tujuan Tabungan, Jeda Belanja, Rencana Jika-Maka -->
+    <div class="exercise-rows mb-4">
+      <!-- Row 1: Tujuan Tabungan -->
+      <div class="exercise-row" id="hubGoalRow" role="button" tabindex="0" aria-label="Tujuan Tabungan">
+        <span class="exercise-icon" aria-hidden="true">🛡️</span>
+        <div class="exercise-row-content">
+          <div class="flex justify-between items-center">
+            <div class="exercise-row-title">Tujuan Tabungan</div>
+            ${goal ? `<span class="text-xs font-bold text-teal">${idr(goal.saved)} / ${idr(goal.target)}</span>` : ''}
+          </div>
+          ${goal ? `
+            <div class="bar-track mt-1 mb-1">
+              <div class="bar-fill" data-progress="${Math.min(100, Math.round((goal.saved / (goal.target || 1)) * 100))}"></div>
+            </div>
+            <div class="flex justify-between items-center text-xs mute">
+              <span>${esc(goal.name)}</span>
+              <span>Tercapai ${Math.min(100, Math.round((goal.saved / (goal.target || 1)) * 100))}%</span>
+            </div>
+          ` : `
+            <div class="exercise-row-desc">Belum ada tujuan tabungan aktif. Ketuk untuk membuat tujuan pertama.</div>
+          `}
+        </div>
+        <span class="exercise-row-arrow" aria-hidden="true">${goal ? '+' : '→'}</span>
       </div>
-      <p class="mute">Membantu otak mengambil tindakan sehat secara otomatis saat situasi godaan muncul.</p>
 
-      ${d.plans && d.plans.length ? `
-        <div class="mb-3">
-          ${d.plans.map(p => `
+      <!-- Row 2: Jeda Belanja (Urge Surfing) -->
+      <div class="exercise-row" id="hubUrgeRow" role="button" tabindex="0" aria-label="Jeda Belanja (Urge Surfing)">
+        <span class="exercise-icon" aria-hidden="true">🌊</span>
+        <div class="exercise-row-content">
+          <div class="exercise-row-title">Jeda Belanja (Urge Surfing)</div>
+          <div class="exercise-row-desc">Tunda dorongan belanja 10 menit untuk menjernihkan pikiran</div>
+        </div>
+        <span class="exercise-row-arrow" aria-hidden="true">→</span>
+      </div>
+
+      <!-- Row 3: Rencana Jika-Maka -->
+      <div class="exercise-row" id="hubPlanRow" role="button" tabindex="0" aria-label="Rencana Jika-Maka">
+        <span class="exercise-icon" aria-hidden="true">💡</span>
+        <div class="exercise-row-content">
+          <div class="exercise-row-title">Rencana Jika-Maka</div>
+          <div class="exercise-row-desc">${plans.length ? `${plans.length} rencana aktif untuk otomatisasi respon sehat` : 'Susun rencana otomatis saat godaan belanja muncul'}</div>
+        </div>
+        <span class="exercise-row-arrow" aria-hidden="true">→</span>
+      </div>
+    </div>
+
+    <!-- Active If-Then Plans List (if any) -->
+    ${plans.length ? `
+      <div class="card mb-4">
+        <div class="card-title-row mb-2">
+          <h3 class="text-sm font-bold text-ink-primary mb-0">Rencana Jika-Maka Aktif</h3>
+          <button type="button" class="secondary btn-action-sm" id="addNewPlanBtn">+ Tambah</button>
+        </div>
+        <div class="flex flex-col gap-2">
+          ${plans.map((p, idx) => `
             <div class="plan-item">
-              <b>Jika:</b> ${esc(p.i)}<br>
-              <b>Maka saya akan:</b> ${esc(p.t)}
+              <div class="text-sm font-medium"><b>Jika</b> ${esc(p.i)}, <b>maka</b> ${esc(p.t)}</div>
             </div>
           `).join('')}
         </div>
-      ` : `
-        <p class="mute text-subtle">Belum ada rencana jika-maka.</p>
-      `}
-
-      <div class="border-t pt-3">
-        <label for="planTriggerInput">Jika saya...</label>
-        <input type="text" id="planTriggerInput" placeholder="misal: ingin belanja karena lelah kerja">
-
-        <label for="planActionInput">Maka saya akan...</label>
-        <input type="text" id="planActionInput" placeholder="misal: cuci muka dan minum air hangat dulu">
-
-        <button type="button" class="secondary w-full mb-3" id="saveCustomPlanBtn">
-          + Simpan Rencana Jika-Maka
-        </button>
-
-        <details>
-          <summary class="font-medium text-teal cursor-pointer text-sm">
-            Lihat contoh situasi siap pakai
-          </summary>
-          <div class="mt-2">
-            ${CONTENT.presetPlans.map((pp, idx) => `
-              <div class="plan-preset-row">
-                <span><b>Jika</b> ${esc(pp.i)}, <b>maka</b> ${esc(pp.t)}</span>
-                <button type="button" class="secondary btn-action-sm nowrap" data-adopt-plan="${idx}">
-                  Gunakan
-                </button>
-              </div>
-            `).join('')}
-          </div>
-        </details>
       </div>
+    ` : ''}
+
+    <!-- Recent Conscious Expenses List (if any) -->
+    ${currentMonthExpenses.length ? `
+      <div class="card mb-5">
+        <div class="card-title-row mb-1">
+          <h3 class="text-sm font-bold text-ink-primary mb-0">Catatan Terakhir</h3>
+          <span class="text-xs mute">${currentMonthExpenses.length} catatan</span>
+        </div>
+        <div class="flex flex-col">
+          ${currentMonthExpenses.slice(-5).reverse().map(exp => `
+            <div class="recent-expense-row">
+              <div>
+                <div class="font-medium text-sm text-ink-primary">${esc(exp.category)}</div>
+                <div class="mute text-xs">${esc(exp.date)}${exp.note ? ' • ' + esc(exp.note) : ''}</div>
+              </div>
+              <div class="font-bold text-teal text-sm">${idr(exp.amount)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+
+    <!-- Fixed Big "+ Catat" Button in Thumb Zone -->
+    <div class="sticky-bottom-action">
+      <button type="button" class="primary w-full btn-lg font-bold" id="openQuickLogBtn">
+        + Catat Pengeluaran
+      </button>
     </div>
   `;
 }
 
 export function bindMoney(container, store, navigate, rerender) {
-  // Update progress bar widths without inline style in templates
+  // Render progress bar widths cleanly
   container.querySelectorAll('.bar-fill[data-progress]').forEach(el => {
     el.style.width = `${el.dataset.progress}%`;
   });
 
-  const tabLog = container.querySelector('#moneyTabLog');
-  const tabUrge = container.querySelector('#moneyTabUrge');
-  const tabGoals = container.querySelector('#moneyTabGoals');
-  if (tabLog) tabLog.onclick = () => { cleanupUang(); moneySubView = 'log'; rerender(); };
-  if (tabUrge) tabUrge.onclick = () => { cleanupUang(); moneySubView = 'urge'; rerender(); };
-  if (tabGoals) tabGoals.onclick = () => { cleanupUang(); moneySubView = 'goals'; rerender(); };
-
-  // Full-screen session runner trigger for expense
-  const startExpBtn = container.querySelector('#startExpenseFlowBtn');
-  if (startExpBtn) {
-    startExpBtn.onclick = () => {
-      sessionRunner.start(createExpenseFlow(), {}, () => {
-        rerender();
-      });
+  // Big "+ Catat" thumb-zone button
+  const quickLogBtn = container.querySelector('#openQuickLogBtn');
+  if (quickLogBtn) {
+    quickLogBtn.onclick = () => {
+      sessionRunner.start(createExpenseFlow(store, () => rerender()));
     };
   }
 
-  // Save Expense
-  const saveExpBtn = container.querySelector('#saveExpenseBtn');
-  if (saveExpBtn) {
-    saveExpBtn.onclick = () => {
-      const amountVal = container.querySelector('#expAmountInput').value;
-      const amount = Number(amountVal);
-      if (!amount || amount <= 0) {
-        alert('Masukkan nominal belanja yang valid (lebih dari 0).');
-        return;
-      }
-      const category = container.querySelector('#expCatSelect').value;
-      const date = container.querySelector('#expDateInput').value || today();
-      const tag = container.querySelector('#expTagSelect').value;
-      const note = container.querySelector('#expNoteInput').value.trim();
-
-      store.addExpense({ amount, category, date, tag, note, at: Date.now() });
-      alert('Pengeluaran berhasil dicatat secara sadar.');
-      rerender();
-    };
-  }
-
-  // Urge Surfing Slider & Timer
-  const slider = container.querySelector('#urgeSlider');
-  const sliderLabel = container.querySelector('#sliderIntensityLabel');
-  if (slider && sliderLabel) {
-    slider.oninput = () => {
-      const v = Number(slider.value);
-      let t = 'Sedang';
-      if (v <= 3) t = 'Ringan';
-      else if (v <= 6) t = 'Sedang';
-      else if (v <= 8) t = 'Cukup Kuat';
-      else t = 'Sangat Menggebu-gebu';
-      sliderLabel.textContent = `${v} / 10 (${t})`;
-    };
-  }
-
-  const nextReframeBtn = container.querySelector('#nextReframeBtn');
-  if (nextReframeBtn) {
-    nextReframeBtn.onclick = () => {
-      activeReframeIndex = (activeReframeIndex + 1) % CONTENT.cognitiveReframes.length;
-      const ref = CONTENT.cognitiveReframes[activeReframeIndex];
-      const faith = store.d.faithPerspective;
-      const thEl = container.querySelector('#reframeThought');
-      const ansEl = container.querySelector('#reframeAnswer');
-      if (thEl) thEl.textContent = ref.impulseThought;
-      if (ansEl) ansEl.textContent = faith && ref.counterPerspectiveFaith ? ref.counterPerspectiveFaith : ref.counterPerspective;
-    };
-  }
-
-  const startTimerBtn = container.querySelector('#startUrgeTimerBtn');
-  const resetTimerBtn = container.querySelector('#resetUrgeTimerBtn');
-  const timerDisplay = container.querySelector('#urgeTimerDisplay');
-
-  if (startTimerBtn) {
-    startTimerBtn.onclick = () => {
-      if (activeTimer) {
-        clearInterval(activeTimer);
-        activeTimer = null;
-        startTimerBtn.textContent = 'Lanjutkan Jeda ⏳';
-        return;
-      }
-
-      startTimerBtn.textContent = 'Jeda Berjalan (Hentikan)';
-      activeTimer = setInterval(() => {
-        timerSeconds--;
-        const m = Math.floor(timerSeconds / 60);
-        const s = String(timerSeconds % 60).padStart(2, '0');
-        if (timerDisplay) timerDisplay.textContent = `${m}:${s}`;
-
-        if (timerSeconds <= 0) {
-          clearInterval(activeTimer);
-          activeTimer = null;
-          timerSeconds = 600;
-          if (timerDisplay) timerDisplay.textContent = '10:00';
-          startTimerBtn.textContent = 'Mulai Jeda 10 Menit ⏳';
-
-          store.addPause({
-            intensity: slider ? slider.value : 5,
-            helped: true,
-            at: Date.now()
-          });
-          alert('10 menit jeda selesai! Luar biasa telah memberi ruang bagi dirimu. Keputusan tetap di tanganmu dengan pikiran yang lebih tenang.');
-          rerender();
-        }
-      }, 1000);
-    };
-  }
-
-  if (resetTimerBtn) {
-    resetTimerBtn.onclick = () => {
-      clearInterval(activeTimer);
-      activeTimer = null;
-      timerSeconds = 600;
-      if (timerDisplay) timerDisplay.textContent = '10:00';
-      if (startTimerBtn) startTimerBtn.textContent = 'Mulai Jeda 10 Menit ⏳';
-    };
-  }
-
-  // Goal Creation & Top-up
-  const openGoalBtn = container.querySelector('#openGoalFormBtn');
-  if (openGoalBtn) {
-    openGoalBtn.onclick = () => {
-      showNewGoalForm = true;
-      rerender();
-    };
-  }
-
-  const cancelGoalBtn = container.querySelector('#cancelGoalFormBtn');
-  if (cancelGoalBtn) {
-    cancelGoalBtn.onclick = () => {
-      showNewGoalForm = false;
-      rerender();
-    };
-  }
-
-  const saveGoalBtn = container.querySelector('#saveNewGoalBtn');
-  if (saveGoalBtn) {
-    saveGoalBtn.onclick = () => {
-      const name = container.querySelector('#newGoalNameInput').value.trim();
-      const target = Number(container.querySelector('#newGoalTargetInput').value);
-      if (!name || !target || target <= 0) {
-        alert('Harap isi nama tujuan dan nominal target.');
-        return;
-      }
-      store.setGoal({ name, target, saved: 0 });
-      showNewGoalForm = false;
-      alert(`Tujuan tabungan "${name}" berhasil dibuat!`);
-      rerender();
-    };
-  }
-
-  const addSaveBtn = container.querySelector('#addSaveBtn');
-  if (addSaveBtn) {
-    addSaveBtn.onclick = () => {
-      const val = Number(container.querySelector('#addSaveInput').value);
-      if (!val || val <= 0) {
-        alert('Masukkan nominal tabungan yang valid.');
-        return;
-      }
+  // Row 1: Goal Row
+  const goalRow = container.querySelector('#hubGoalRow');
+  if (goalRow) {
+    goalRow.onclick = () => {
       const currentGoal = store.d.goal;
-      if (!currentGoal) return;
+      if (!currentGoal) {
+        // Create new goal flow
+        sessionRunner.start(createGoalFlow(() => rerender()));
+      } else {
+        // Open quick top-up bottom sheet
+        const sheet = new BottomSheet();
+        sheet.open({
+          title: `+ Tabung untuk ${currentGoal.name}`,
+          content: `
+            <div class="card card-border-teal p-2 mb-3">
+              <div class="flex justify-between items-center text-xs mute mb-1">
+                <span>Terkumpul:</span>
+                <span>Target:</span>
+              </div>
+              <div class="flex justify-between items-center font-bold text-teal">
+                <span>${idr(currentGoal.saved)}</span>
+                <span>${idr(currentGoal.target)}</span>
+              </div>
+            </div>
+            <label class="text-sm font-medium">Masukkan nominal tabungan tambahan:</label>
+            <div id="topupKeypadMount"></div>
+            <button type="button" class="primary w-full mt-3 btn-lg font-bold" id="confirmTopupBtn">
+              Simpan Tabungan ✨
+            </button>
+          `,
+          onClose: () => {}
+        });
 
-      store.setGoal({
-        ...currentGoal,
-        saved: currentGoal.saved + val
-      });
+        setTimeout(() => {
+          let topupAmt = 50000;
+          const mountEl = document.getElementById('topupKeypadMount');
+          if (mountEl) {
+            new Keypad({
+              container: mountEl,
+              initialValue: 50000,
+              onChange: (v) => { topupAmt = v; }
+            });
+          }
 
-      store.addExpense({
-        amount: val,
-        category: 'Tabungan Dana Cadangan',
-        date: today(),
-        tag: 'planned',
-        note: 'Menabung untuk ' + currentGoal.name,
-        at: Date.now()
-      });
-
-      alert(`Berhasil menambahkan ${idr(val)} ke tabungan ${currentGoal.name}!`);
-      rerender();
+          const confirmBtn = document.getElementById('confirmTopupBtn');
+          if (confirmBtn) {
+            confirmBtn.onclick = () => {
+              if (topupAmt > 0) {
+                store.setGoal({
+                  ...currentGoal,
+                  saved: currentGoal.saved + topupAmt
+                });
+                store.addExpense({
+                  amount: topupAmt,
+                  category: 'Tabungan Dana Cadangan',
+                  date: today(),
+                  tag: 'planned',
+                  note: 'Menabung untuk ' + currentGoal.name,
+                  at: Date.now()
+                });
+              }
+              sheet.close();
+              rerender();
+            };
+          }
+        }, 50);
+      }
     };
   }
 
-  // If-then plan creation
-  const savePlanBtn = container.querySelector('#saveCustomPlanBtn');
-  if (savePlanBtn) {
-    savePlanBtn.onclick = () => {
-      const i = container.querySelector('#planTriggerInput').value.trim();
-      const t = container.querySelector('#planActionInput').value.trim();
-      if (!i || !t) {
-        alert('Harap isi pemicu ("Jika...") dan tindakannya ("Maka...").');
-        return;
-      }
-      store.addPlan({ i, t, at: Date.now() });
-      alert('Rencana Jika-Maka berhasil disimpan!');
-      rerender();
+  // Row 2: Urge Surfing Row
+  const urgeRow = container.querySelector('#hubUrgeRow');
+  if (urgeRow) {
+    urgeRow.onclick = () => {
+      sessionRunner.start(createUrgeFlow(store.d.faithPerspective, () => rerender()));
     };
   }
 
-  container.querySelectorAll('[data-adopt-plan]').forEach(btn => {
-    btn.onclick = () => {
-      const idx = Number(btn.dataset.adoptPlan);
-      const pp = CONTENT.presetPlans[idx];
-      if (pp) {
-        store.addPlan({ i: pp.i, t: pp.t, at: Date.now() });
-        alert('Rencana berhasil diadopsi ke daftar pribadimu!');
-        rerender();
-      }
+  // Row 3: Plan Row
+  const planRow = container.querySelector('#hubPlanRow');
+  if (planRow) {
+    planRow.onclick = () => {
+      sessionRunner.start(createPlanFlow(() => rerender()));
     };
-  });
+  }
+
+  const addPlanBtn = container.querySelector('#addNewPlanBtn');
+  if (addPlanBtn) {
+    addPlanBtn.onclick = () => {
+      sessionRunner.start(createPlanFlow(() => rerender()));
+    };
+  }
 }
