@@ -2,11 +2,20 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { getSuggestedAction, getWeeklyPracticeCount, renderHome } from '../public/js/screens/home.js';
+import {
+  PATH_UNITS,
+  getAllPathNodes,
+  getNodeById,
+  isNodeCompleted,
+  getSuggestedNode,
+  getNodeState,
+  createFlowForNode
+} from '../public/js/flows/path.js';
 import { renderOnboarding } from '../public/js/screens/onboarding.js';
 import { createInitialState, migrate } from '../public/js/store.js';
 
 describe('Home Screen & getSuggestedAction Rule-Based Logic', () => {
-  it('suggests emotion check-in when user has no check-ins yet', () => {
+  it('suggests first check-in node when user has no check-ins yet', () => {
     const state = {
       checkins: [],
       expenses: [],
@@ -14,68 +23,67 @@ describe('Home Screen & getSuggestedAction Rule-Based Logic', () => {
     };
 
     const action = getSuggestedAction(state);
-    assert.equal(action.tab, 'emo');
-    assert.equal(action.subView, 'checkin');
-    assert.equal(action.title, 'Sapa perasaanmu 1 menit');
+    assert.equal(action.nodeId, 'node-self-checkin');
+    assert.ok(action.title.toLowerCase().includes('perasaan'));
+    assert.ok(action.btnText.includes('1 menit') || action.btnText.includes('Mulai'));
   });
 
-  it('suggests conscious expense log when checkin exists but no expenses yet', () => {
+  it('suggests breathing practice when checkin exists but no breathing pause yet', () => {
     const state = {
       checkins: [{ emotion: 'Tenang', at: Date.now() }],
+      pauses: [],
       expenses: [],
       coupleConversations: {}
     };
 
     const action = getSuggestedAction(state);
-    assert.equal(action.tab, 'money');
-    assert.equal(action.subView, 'log');
-    assert.equal(action.title, 'Catat satu pengeluaran sadar');
+    assert.equal(action.nodeId, 'node-self-breath');
+    assert.ok(action.title.includes('Napas'));
   });
 
-  it('suggests couple conversation when checkin & expenses exist but no conversation completed yet', () => {
+  it('suggests grounding practice when checkin & breath pause exist', () => {
     const state = {
       checkins: [{ emotion: 'Tenang', at: Date.now() }],
-      expenses: [{ amount: 50000, category: 'Makanan', at: Date.now() }],
-      coupleConversations: {},
-      partnerA: {}
+      pauses: [{ at: Date.now() }],
+      expenses: []
     };
 
     const action = getSuggestedAction(state);
-    assert.equal(action.tab, 'us');
-    assert.equal(action.title, 'Percakapan: Arti Rasa Aman');
+    assert.equal(action.nodeId, 'node-self-grounding');
+    assert.ok(action.title.includes('Jangkar'));
   });
 
-  it('suggests urge surfing pause when checkin, expense, and couple conversation exist', () => {
+  it('suggests next curriculum node when earlier nodes are marked completed', () => {
     const state = {
-      checkins: [{ emotion: 'Tenang', at: Date.now() }],
-      expenses: [{ amount: 50000, category: 'Makanan', at: Date.now() }],
-      coupleConversations: {
-        'c-security': { convoId: 'c-security', completedAt: Date.now(), status: 'completed' }
-      }
+      completedPathNodes: ['node-self-checkin', 'node-self-breath', 'node-self-grounding', 'node-self-lesson', 'node-self-bonus']
     };
 
     const action = getSuggestedAction(state);
-    assert.equal(action.tab, 'money');
-    assert.equal(action.subView, 'urge');
-    assert.equal(action.title, 'Latihan Jeda Belanja (Urge Surfing)');
+    assert.equal(action.nodeId, 'node-money-log');
+    assert.ok(action.title.includes('Catatan Sadar'));
   });
 
   it('supports legacy partnerA data in couple conversation check', () => {
     const state = {
-      checkins: [{ emotion: 'Tenang', at: Date.now() }],
-      expenses: [{ amount: 50000, category: 'Makanan', at: Date.now() }],
+      completedPathNodes: [
+        'node-self-checkin', 'node-self-breath', 'node-self-grounding', 'node-self-lesson', 'node-self-bonus',
+        'node-money-log', 'node-money-urge', 'node-money-lesson', 'node-money-goal', 'node-money-bonus'
+      ],
       partnerA: { 'c-security': { answer: 'Ada' } }
     };
 
-    const action = getSuggestedAction(state);
-    assert.equal(action.tab, 'money');
-    assert.equal(action.subView, 'urge');
+    const node = getNodeById('node-us-security');
+    assert.equal(isNodeCompleted(node, state), true);
   });
 
   it('handles null or empty state safely', () => {
     const action = getSuggestedAction(null);
     assert.ok(action.title);
-    assert.equal(action.tab, 'emo');
+    assert.equal(action.nodeId, 'node-self-checkin');
+
+    const emptyAction = getSuggestedAction({});
+    assert.ok(emptyAction.title);
+    assert.equal(emptyAction.nodeId, 'node-self-checkin');
   });
 });
 
@@ -106,12 +114,85 @@ describe('Weekly Practice Counter (No Streaks, Zero Shame)', () => {
   });
 });
 
-describe('Home Screen Rendering & 4 Soft Journey Nodes', () => {
-  it('renders Langkah Hari Ini panel and 4 soft journey nodes without readiness scores or percentages', () => {
+describe('Curriculum Path Map Data Structure (path.js)', () => {
+  it('defines exactly 4 units with titles, goals, and spot illustrations', () => {
+    assert.equal(PATH_UNITS.length, 4);
+
+    const expectedTitles = [
+      'Mengenal Diri',
+      'Tenang Soal Uang',
+      'Bicara Berdua',
+      'Merencanakan Masa Depan'
+    ];
+
+    PATH_UNITS.forEach((unit, idx) => {
+      assert.equal(unit.title, expectedTitles[idx]);
+      assert.ok(unit.goal && unit.goal.length > 10, 'Unit must have a clear one-line goal');
+      assert.ok(unit.accent, 'Unit must define an accent color token');
+      assert.ok(unit.spot, 'Unit must define a spot illustration identifier');
+      assert.ok(Array.isArray(unit.nodes) && unit.nodes.length >= 4 && unit.nodes.length <= 6,
+        `Unit ${unit.title} must contain 4 to 6 nodes`);
+    });
+  });
+
+  it('flattens nodes and retrieves by ID correctly', () => {
+    const all = getAllPathNodes();
+    assert.equal(all.length, 20); // 5 + 5 + 5 + 5 = 20 nodes total
+
+    const checkinNode = getNodeById('node-self-checkin');
+    assert.ok(checkinNode);
+    assert.equal(checkinNode.title, 'Sapa Perasaanmu');
+    assert.equal(checkinNode.unitId, 'unit-self');
+
+    const nonExistent = getNodeById('node-fake-id');
+    assert.equal(nonExistent, null);
+  });
+
+  it('determines node states (selesai, tersedia, bonus, terbuka-bebas) with zero lockouts', () => {
+    const d = {
+      completedPathNodes: ['node-self-checkin']
+    };
+    const suggested = getSuggestedNode(d);
+    assert.equal(suggested.id, 'node-self-breath');
+
+    const doneNode = getNodeById('node-self-checkin');
+    assert.equal(getNodeState(doneNode, d, suggested.id), 'selesai');
+
+    const activeNode = getNodeById('node-self-breath');
+    assert.equal(getNodeState(activeNode, d, suggested.id), 'tersedia');
+
+    const bonusNode = getNodeById('node-self-bonus');
+    assert.equal(getNodeState(bonusNode, d, suggested.id), 'bonus');
+
+    const openNode = getNodeById('node-self-grounding');
+    assert.equal(getNodeState(openNode, d, suggested.id), 'terbuka-bebas');
+  });
+
+  it('creates executable flow configuration for practice, checkin, and lesson nodes', () => {
+    const onDone = () => {};
+    const mockStore = { d: {} };
+
+    const checkinNode = getNodeById('node-self-checkin');
+    const checkinFlow = createFlowForNode(checkinNode, onDone, mockStore);
+    assert.ok(checkinFlow.steps && checkinFlow.steps.length > 0);
+
+    const breathNode = getNodeById('node-self-breath');
+    const breathFlow = createFlowForNode(breathNode, onDone, mockStore);
+    assert.ok(breathFlow.steps && breathFlow.steps.length > 0);
+
+    const lessonNode = getNodeById('node-self-lesson');
+    const lessonFlow = createFlowForNode(lessonNode, onDone, mockStore);
+    assert.ok(lessonFlow.steps && lessonFlow.steps.length > 0);
+  });
+});
+
+describe('Home Screen Rendering & Scrolling Vertical Path Map', () => {
+  it('renders sticky top bar, hero action, 4 unit banners, and S-path nodes without scores or streaks', () => {
     const mockStore = {
       d: {
         stage: 'Mempersiapkan pernikahan',
         checkins: [{ at: Date.now() }],
+        pauses: [],
         expenses: [],
         coupleConversations: {},
         goal: null,
@@ -121,28 +202,63 @@ describe('Home Screen Rendering & 4 Soft Journey Nodes', () => {
 
     const html = renderHome(mockStore);
 
-    // One primary panel
-    assert.ok(html.includes('Langkah Hari Ini'));
-    assert.ok(html.includes('heroActionBtn'));
+    // Sticky top bar with weekly practice count & Tunas stage (No hearts, no gems, no ranking)
+    assert.ok(html.includes('path-sticky-header'));
+    assert.ok(html.includes('Minggu ini:'));
+    assert.ok(html.includes('Tunas:'));
+    assert.equal(html.includes('gems'), false, 'Strictly no gems that run out');
+    assert.equal(html.includes('hearts'), false, 'Strictly no lives or hearts');
+    assert.equal(html.includes('ranking'), false, 'Strictly no leaderboards or rankings');
 
-    // Weekly practice framing
+    // 1-Tap Quick Action Hero: Langkah Hari Ini
+    assert.ok(html.includes('Langkah Hari Ini'));
+    assert.ok(html.includes('id="heroActionBtn"'));
+    assert.ok(html.includes('data-node-id="node-self-breath"'));
+
+    // Weekly practice encouragement without streaks
     assert.ok(html.includes('Minggu ini kamu sudah berlatih'));
     assert.equal(html.includes('Streak'), false, 'Home must NEVER show streak counters');
     assert.equal(html.includes('terputus'), false, 'Missing a week must show nothing negative');
 
-    // 4 Soft Nodes
-    assert.ok(html.includes('Mengenal diri'));
-    assert.ok(html.includes('Percaya diri soal uang'));
-    assert.ok(html.includes('Bicara berdua'));
-    assert.ok(html.includes('Merencanakan masa depan'));
+    // 4 Curriculum Units with Colored Banners & Goals
+    assert.ok(html.includes('Mengenal Diri'));
+    assert.ok(html.includes('Tenang Soal Uang'));
+    assert.ok(html.includes('Bicara Berdua'));
+    assert.ok(html.includes('Merencanakan Masa Depan'));
+
+    // Unit Banners with Spot Illustrations
+    assert.ok(html.includes('banner-teal'));
+    assert.ok(html.includes('banner-saffron'));
+    assert.ok(html.includes('banner-plum'));
+    assert.ok(html.includes('banner-sunny'));
+    assert.ok(html.includes('spot-emosi'));
+    assert.ok(html.includes('spot-uang'));
+    assert.ok(html.includes('spot-kita'));
+    assert.ok(html.includes('spot-selesai'));
+
+    // Serpentine S-path nodes with offsets
+    assert.ok(html.includes('path-node'));
+    assert.ok(html.includes('offset-center') || html.includes('offset-right') || html.includes('offset-left'));
+
+    // Completed node shows checkmark and completed state
+    assert.ok(html.includes('path-node'));
+    assert.ok(html.includes('selesai completed'));
+    assert.ok(html.includes('✓'));
+
+    // Available node shows floating MULAI bubble
+    assert.ok(html.includes('node-mulai-bubble'));
+    assert.ok(html.includes('MULAI'));
+
+    // Star bonus nodes
+    assert.ok(html.includes('⭐'));
+
+    // Modal root for node bottom sheet
+    assert.ok(html.includes('id="nodeModalRoot"'));
 
     // Zero readiness scores or percentages
     assert.equal(html.includes('%'), false, 'Must never show percentage of readiness');
     assert.equal(html.includes('skor'), false, 'Must never show readiness score');
     assert.equal(html.includes('Kematangan:'), false);
-
-    // Completed node shows checkmark
-    assert.ok(html.includes('journey-node completed'));
   });
 });
 

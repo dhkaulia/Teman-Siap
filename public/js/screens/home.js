@@ -1,78 +1,36 @@
 /**
- * Screen: Home (Beranda)
+ * Screen: Home (Beranda) — Scrolling Vertical Path Map
  * 
  * Rules:
- * - One primary panel "Langkah hari ini" driven by transparent rule-based getSuggestedAction.
- * - Vertical journey path: 4 soft nodes (Mengenal diri, Percaya diri soal uang, Bicara berdua, Merencanakan masa depan)
- *   showing completed practices with a small check, never a score or percentage of "readiness".
- * - Weekly "latihan bermakna" count framed as "minggu ini kamu sudah berlatih N kali".
- * - No streak counters; missing a week shows nothing negative.
- * - Acceptance: Home fits in one screen at 360x740 without scrolling past the main panel.
+ * - 4 Units: "Mengenal Diri", "Tenang Soal Uang", "Bicara Berdua", "Merencanakan Masa Depan".
+ * - Colored banner per unit with spot illustration and one-line goal.
+ * - Gently curving S-path of round 64px nodes.
+ * - Node states: selesai (check), tersedia (pulsing with MULAI bubble), terbuka-bebas (open), bonus (star).
+ * - Never lock nodes; visually suggest order with sparkle and MULAI bubble.
+ * - Mascot sits near current node, waves on first open each day.
+ * - Tapping a node opens a bottom sheet: title, promise, duration, Mulai, and technical background.
+ * - Sticky top bar: weekly practice count and Tunas growth stage (no hearts/gems/ranking).
+ * - 1-tap start for first-time user via hero action button.
  */
 
-import { esc } from '../ui/utils.js';
-import { renderMascot, getMascotStage, getTotalPractices } from '../ui/mascot.js';
+import { esc, today } from '../ui/utils.js';
+import { renderMascot, getMascotStage, getTotalPractices, renderSpotIllustration } from '../ui/mascot.js';
+import {
+  PATH_UNITS,
+  getAllPathNodes,
+  getNodeById,
+  isNodeCompleted,
+  getSuggestedNode,
+  getNodeState,
+  markNodeCompleted,
+  createFlowForNode
+} from '../flows/path.js';
+import { sessionRunner } from '../session.js';
+import { AnswerSheet } from '../ui/answerSheet.js';
+import { triggerCelebration } from '../ui/confetti.js';
+import { playTapSound, triggerHapticTap } from '../ui/feedback.js';
 
-/**
- * Transparent rule-based action suggestion
- * Deterministic, explainable, and zero judgment.
- */
-export function getSuggestedAction(d) {
-  if (!d) {
-    return {
-      title: 'Sapa perasaanmu 1 menit',
-      desc: 'Mengenali apa yang kamu rasakan hari ini adalah langkah awal ketenangan.',
-      tab: 'emo',
-      subView: 'checkin',
-      btnText: 'Mulai Cek Emosi'
-    };
-  }
-
-  // Rule 1: No emotion check-ins yet
-  if (!d.checkins || !d.checkins.length) {
-    return {
-      title: 'Sapa perasaanmu 1 menit',
-      desc: 'Mengenali apa yang kamu rasakan hari ini adalah langkah awal ketenangan.',
-      tab: 'emo',
-      subView: 'checkin',
-      btnText: 'Mulai Cek Emosi'
-    };
-  }
-
-  // Rule 2: No conscious expenses logged yet
-  if (!d.expenses || !d.expenses.length) {
-    return {
-      title: 'Catat satu pengeluaran sadar',
-      desc: 'Hadapi catatan uang tanpa rasa takut. Catat satu angka pengeluaran hari ini.',
-      tab: 'money',
-      subView: 'log',
-      btnText: 'Catat Pengeluaran'
-    };
-  }
-
-  // Rule 3: No couple conversations completed yet
-  const hasConvo = (d.coupleConversations && Object.keys(d.coupleConversations).length > 0) ||
-                   (d.partnerA && Object.keys(d.partnerA).length > 0) ||
-                   (d.partnerB && Object.keys(d.partnerB).length > 0);
-  if (!hasConvo) {
-    return {
-      title: 'Percakapan: Arti Rasa Aman',
-      desc: 'Diskusikan apa yang membuatmu dan pasangan merasa aman soal uang.',
-      tab: 'us',
-      subView: null,
-      btnText: 'Mulai Percakapan'
-    };
-  }
-
-  // Rule 4: Regular maintenance practice (Urge surfing / pausing)
-  return {
-    title: 'Latihan Jeda Belanja (Urge Surfing)',
-    desc: 'Latih menunda keinginan belanja impulsif dengan jeda hening sejenak.',
-    tab: 'money',
-    subView: 'urge',
-    btnText: 'Coba Jeda Belanja'
-  };
-}
+export { PATH_UNITS, getAllPathNodes, getNodeById, isNodeCompleted, getSuggestedNode, getNodeState };
 
 /**
  * Weekly practice counter
@@ -100,129 +58,284 @@ export function getWeeklyPracticeCount(d) {
   return count;
 }
 
+/**
+ * Suggested action for backward compatibility and quick action
+ */
+export function getSuggestedAction(d) {
+  const suggested = getSuggestedNode(d);
+  return {
+    title: suggested ? suggested.title : 'Sapa perasaanmu 1 menit',
+    desc: suggested ? suggested.promise : 'Mengenali apa yang kamu rasakan hari ini adalah langkah awal ketenangan.',
+    tab: 'home',
+    subView: null,
+    btnText: suggested ? `Mulai ${suggested.duration}` : 'Mulai Sekarang',
+    nodeId: suggested ? suggested.id : 'node-self-checkin'
+  };
+}
+
+/**
+ * Main Home Renderer
+ */
 export function renderHome(store) {
-  const d = store.d;
-  const s = getSuggestedAction(d);
+  const d = store.d || {};
   const weeklyCount = getWeeklyPracticeCount(d);
   const totalPractices = getTotalPractices(d);
   const mascotStage = getMascotStage(totalPractices);
+  const suggestedNode = getSuggestedNode(d);
+  const suggestedId = suggestedNode ? suggestedNode.id : '';
 
-  // 4 Soft Journey Nodes (Check status without readiness scores or percentages)
-  const isNode1Done = Boolean((d.checkins && d.checkins.length > 0) || (d.pauses && d.pauses.length > 0));
-  const isNode2Done = Boolean(d.expenses && d.expenses.length > 0);
-  const isNode3Done = Boolean(
-    (d.coupleConversations && Object.keys(d.coupleConversations).length > 0) ||
-    (d.partnerA && Object.keys(d.partnerA).length > 0)
-  );
-  const isNode4Done = Boolean(d.goal || (d.plans && d.plans.length > 0));
-
-  const journeyNodes = [
-    {
-      id: 'node-self',
-      icon: '🌱',
-      title: 'Mengenal diri',
-      hint: 'Cek emosi & napas tenang',
-      completed: isNode1Done,
-      tab: 'emo'
-    },
-    {
-      id: 'node-money',
-      icon: '🪙',
-      title: 'Percaya diri soal uang',
-      hint: 'Catatan sadar & jeda belanja',
-      completed: isNode2Done,
-      tab: 'money'
-    },
-    {
-      id: 'node-us',
-      icon: '🤝',
-      title: 'Bicara berdua',
-      hint: 'Percakapan pasangan satu ponsel',
-      completed: isNode3Done,
-      tab: 'us'
-    },
-    {
-      id: 'node-future',
-      icon: '🎯',
-      title: 'Merencanakan masa depan',
-      hint: 'Tujuan tabungan & rencana jika-maka',
-      completed: isNode4Done,
-      tab: 'money'
+  // Determine if mascot waves today
+  let isWaveDay = false;
+  try {
+    const t = today();
+    const lastDay = typeof localStorage !== 'undefined' ? localStorage.getItem('temansiap_wave_day') : null;
+    if (lastDay !== t) {
+      isWaveDay = true;
     }
-  ];
+  } catch (e) {}
+
+  const mascotState = isWaveDay ? 'wave' : (weeklyCount > 0 ? 'cheer' : 'idle');
+
+  // S-path curve rhythm positions: center -> right -> center -> left -> center
+  const S_OFFSETS = ['offset-center', 'offset-right', 'offset-center', 'offset-left', 'offset-center', 'offset-right'];
 
   return `
-    <!-- Minimal Greeting (Compact for 360x740 fit) -->
-    <div class="home-greeting-row">
-      <div>
-        <h1 class="home-greeting-title">Selamat datang.</h1>
-        <p class="mute home-greeting-sub">${esc(d.stage || 'Persiapan Bersama')} • ${esc(mascotStage.name)}</p>
+    <!-- Sticky Top Bar: Weekly Practice Count & Tunas Growth Stage -->
+    <header class="path-sticky-header" id="pathStickyHeader">
+      <div class="path-sticky-content">
+        <div class="path-weekly-pill" role="status" aria-label="Latihan minggu ini: ${weeklyCount} kali">
+          <span class="path-pill-icon" aria-hidden="true">🌿</span>
+          <span class="path-pill-text">Minggu ini: <b>${weeklyCount} kali</b></span>
+        </div>
+        <div class="path-mascot-pill" aria-label="Pertumbuhan Tunas: ${esc(mascotStage.name)}">
+          <span class="path-mascot-avatar" aria-hidden="true">
+            ${renderMascot('idle', 26, { stage: mascotStage.id, inlineStyle: false })}
+          </span>
+          <span class="path-pill-text">Tunas: <b>${esc(mascotStage.name)}</b></span>
+        </div>
       </div>
-      <div class="home-mascot-chip" title="Tunas: ${esc(mascotStage.name)}">
-        ${renderMascot(weeklyCount > 0 ? 'wave' : 'idle', 44, { stage: mascotStage.id, label: `Tunas (${mascotStage.name})`, inlineStyle: false })}
-      </div>
-    </div>
+    </header>
 
-    <!-- The One Primary Panel: Langkah Hari Ini -->
-    <div class="hero-action mb-3">
-      <div class="hero-label">
-        Langkah Hari Ini
-      </div>
-      <h2>${esc(s.title)}</h2>
-      <p>${esc(s.desc)}</p>
-      <button type="button" id="heroActionBtn">${esc(s.btnText)} →</button>
-    </div>
-
-    <!-- Weekly Practice Count (No streaks, zero negative framing) -->
-    <div class="weekly-practice-banner mb-3" role="status">
-      <span class="weekly-icon" aria-hidden="true">🌿</span>
-      <span class="weekly-text">
-        ${weeklyCount > 0
-          ? `Minggu ini kamu sudah berlatih <b>${weeklyCount} kali</b>.`
-          : 'Minggu ini kamu sudah berlatih <b>0 kali</b>. Luangkan satu langkah santai hari ini.'}
-      </span>
-    </div>
-
-    <!-- Vertical Journey Path: 4 Soft Nodes -->
-    <div class="card p-3 mb-2">
-      <div class="card-title-row mb-2">
-        <h2 class="text-sm font-bold text-ink-primary mb-0">Jejak Kesiapan</h2>
-        <span class="text-xs mute">Langkah Nyata</span>
+    <div class="path-map-container">
+      <!-- 1-Tap Quick Action Hero: Langkah Hari Ini -->
+      <div class="hero-action mb-3 mt-2">
+        <div class="hero-label">
+          Langkah Hari Ini ✨
+        </div>
+        <h2>${esc(suggestedNode ? suggestedNode.title : 'Sapa Perasaanmu')}</h2>
+        <p>${esc(suggestedNode ? suggestedNode.promise : 'Mengenali apa yang kamu rasakan hari ini.')}</p>
+        <button type="button" class="btn-chunky primary btn-thumb" id="heroActionBtn" data-node-id="${esc(suggestedId)}">
+          <span>Mulai Sekarang (${esc(suggestedNode ? suggestedNode.duration : '1 menit')}) →</span>
+        </button>
       </div>
 
-      <div class="journey-path">
-        ${journeyNodes.map(node => `
-          <button type="button" class="journey-node ${node.completed ? 'completed' : ''}" data-journey-tab="${node.tab}">
-            <div class="journey-node-dot" aria-hidden="true">
-              ${node.completed ? '✓' : ''}
-            </div>
-            <div class="journey-node-main">
-              <div class="journey-node-title">
-                <span class="journey-node-icon" aria-hidden="true">${node.icon}</span>
-                <span>${esc(node.title)}</span>
+      <!-- Weekly Encouragement Banner (No streaks, zero negative framing) -->
+      <div class="weekly-practice-banner mb-3" role="status">
+        <span class="weekly-icon" aria-hidden="true">🌱</span>
+        <span class="weekly-text">
+          ${weeklyCount > 0
+            ? `Minggu ini kamu sudah berlatih <b>${weeklyCount} kali</b>.`
+            : 'Minggu ini kamu sudah berlatih <b>0 kali</b>. Luangkan satu langkah santai hari ini.'}
+        </span>
+      </div>
+
+      <!-- Curriculum Units & Serpentine S-Path Nodes -->
+      <div class="curriculum-path-list">
+        ${PATH_UNITS.map((unit, unitIdx) => {
+          return `
+            <section class="unit-section mb-4" id="${unit.id}" aria-labelledby="heading-${unit.id}">
+              <!-- Unit Colored Banner with Spot Illustration & Goal -->
+              <div class="unit-banner banner-${unit.accent}">
+                <div class="unit-spot-wrap" aria-hidden="true">
+                  ${renderSpotIllustration(unit.spot, 48)}
+                </div>
+                <div class="unit-info">
+                  <span class="card-tag ${unit.accent} mb-1">Unit ${unitIdx + 1}</span>
+                  <h2 id="heading-${unit.id}" class="unit-title">${esc(unit.title)}</h2>
+                  <div class="unit-subtitle mute text-xs mb-1">${esc(unit.subtitle)}</div>
+                  <p class="unit-goal text-xs mb-0">${esc(unit.goal)}</p>
+                </div>
               </div>
-              <div class="journey-node-hint">${esc(node.hint)}</div>
-            </div>
-            <span class="journey-node-arrow" aria-hidden="true">→</span>
-          </button>
-        `).join('')}
+
+              <!-- S-Path Nodes in Unit -->
+              <div class="path-unit-nodes">
+                <!-- S-curve background line -->
+                <svg class="path-s-curve-svg" viewBox="0 0 360 400" preserveAspectRatio="none" aria-hidden="true">
+                  <path d="M 180,30 C 180,70 230,70 230,110 C 230,150 180,150 180,190 C 180,230 130,230 130,270 C 130,310 180,310 180,350"
+                    fill="none"
+                    stroke="var(--border-card)"
+                    stroke-width="5"
+                    stroke-dasharray="8 6"
+                    stroke-linecap="round" />
+                </svg>
+
+                ${unit.nodes.map((node, nodeIdx) => {
+                  const state = getNodeState(node, d, suggestedId);
+                  const isSuggested = node.id === suggestedId;
+                  const offsetClass = S_OFFSETS[nodeIdx % S_OFFSETS.length];
+                  const isDone = state === 'selesai';
+
+                  // Mascot perches near the suggested next node
+                  const showMascotHere = isSuggested;
+                  const mascotPosClass = offsetClass === 'offset-left' ? 'pos-right' : 'pos-left';
+
+                  return `
+                    <div class="path-node-row ${offsetClass} ${isSuggested ? 'is-suggested-row' : ''}">
+                      ${showMascotHere ? `
+                        <div class="path-mascot-companion ${mascotPosClass}" aria-hidden="true">
+                          ${renderMascot(mascotState, 58, { stage: mascotStage.id, label: 'Tunas', inlineStyle: false })}
+                        </div>
+                      ` : ''}
+
+                      <button type="button"
+                              class="path-node journey-node ${state} ${isDone ? 'completed' : ''} ${isSuggested ? 'is-suggested' : ''}"
+                              data-node-id="${esc(node.id)}"
+                              aria-label="${esc(node.title)} (${esc(node.duration)}): status ${state}">
+                        ${isSuggested ? `<div class="node-mulai-bubble">MULAI ✨</div>` : ''}
+                        <div class="path-node-inner" aria-hidden="true">
+                          ${isDone ? '✓' : (node.icon || '🌱')}
+                        </div>
+                      </button>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </section>
+          `;
+        }).join('')}
       </div>
     </div>
+
+    <!-- Node Detail Bottom Sheet Container -->
+    <div id="nodeModalRoot"></div>
   `;
 }
 
+/**
+ * Binds Event Handlers for Home Screen
+ */
 export function bindHome(container, store, navigate) {
+  // Mark wave day as seen
+  try {
+    localStorage.setItem('temansiap_wave_day', today());
+  } catch (e) {}
+
+  // 1-Tap Quick Action Button in Hero
   const heroBtn = container.querySelector('#heroActionBtn');
   if (heroBtn) {
     heroBtn.onclick = () => {
-      const s = getSuggestedAction(store.d);
-      navigate(s.tab, s.subView);
+      playTapSound();
+      triggerHapticTap();
+      const nodeId = heroBtn.dataset.nodeId;
+      const node = getNodeById(nodeId) || getAllPathNodes()[0];
+      if (node) openNodeBottomSheet(node, store, navigate, container);
     };
   }
 
-  container.querySelectorAll('[data-journey-tab]').forEach(btn => {
+  // Tapping any node opens its bottom sheet
+  container.querySelectorAll('.path-node').forEach(btn => {
     btn.onclick = () => {
-      navigate(btn.dataset.journeyTab);
+      playTapSound();
+      triggerHapticTap();
+      const nodeId = btn.dataset.nodeId;
+      const node = getNodeById(nodeId);
+      if (node) {
+        openNodeBottomSheet(node, store, navigate, container);
+      }
     };
   });
+
+  // Auto-scroll the suggested next node into view on load
+  const suggestedNodeEl = container.querySelector('.path-node.is-suggested, .path-node.tersedia');
+  if (suggestedNodeEl) {
+    setTimeout(() => {
+      suggestedNodeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 250);
+  }
+}
+
+/**
+ * Opens Node Bottom Sheet
+ */
+function openNodeBottomSheet(node, store, navigate, container) {
+  const modalRoot = container.querySelector('#nodeModalRoot') || document.body;
+  modalRoot.innerHTML = '';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'node-modal-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', node.title);
+
+  overlay.innerHTML = `
+    <div class="node-modal-backdrop"></div>
+    <div class="node-modal-sheet">
+      <div class="answersheet-pill-handle" aria-hidden="true"></div>
+
+      <div class="node-modal-header">
+        <span class="node-modal-icon" aria-hidden="true">${node.icon || '🌱'}</span>
+        <div>
+          <span class="card-tag tunas mb-1">${node.type.toUpperCase()} • ⏱️ ${esc(node.duration)}</span>
+          <h2 class="node-modal-title mt-1 mb-0">${esc(node.title)}</h2>
+        </div>
+      </div>
+
+      <p class="node-modal-promise mt-2 mb-2">
+        ${esc(node.promise)}
+      </p>
+
+      <!-- Expandable Technical & Scientific Background -->
+      <details class="clinical-note mt-2 mb-3">
+        <summary>Pelajari lebih lanjut (Latar Belakang)</summary>
+        <p class="text-xs mute mt-1">${esc(node.technicalBg)}</p>
+      </details>
+
+      <div class="node-modal-actions">
+        <button type="button" class="btn-chunky primary btn-thumb" id="nodeModalStartBtn">
+          <span>Mulai Sekarang (${esc(node.duration)}) →</span>
+        </button>
+        <button type="button" class="btn-chunky btn-ghost btn-thumb mt-1" id="nodeModalCloseBtn">
+          <span>Nanti Saja</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  modalRoot.appendChild(overlay);
+
+  requestAnimationFrame(() => {
+    overlay.classList.add('is-open');
+    const startBtn = overlay.querySelector('#nodeModalStartBtn');
+    if (startBtn) startBtn.focus();
+  });
+
+  const close = () => {
+    overlay.classList.remove('is-open');
+    setTimeout(() => {
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }, 220);
+  };
+
+  overlay.querySelector('.node-modal-backdrop').onclick = close;
+  overlay.querySelector('#nodeModalCloseBtn').onclick = close;
+
+  overlay.querySelector('#nodeModalStartBtn').onclick = () => {
+    playTapSound();
+    triggerHapticTap();
+    close();
+
+    const onDone = () => {
+      markNodeCompleted(node.id, store);
+      triggerCelebration({ sessionId: node.id });
+      AnswerSheet.show({
+        message: `Mantap, langkah "${node.title}" telah kamu selesaikan!`,
+        onContinue: () => {
+          navigate('home');
+        }
+      });
+    };
+
+    const flow = createFlowForNode(node, onDone, store);
+    sessionRunner.start(flow, {}, onDone);
+  };
 }
