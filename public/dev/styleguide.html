@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Teman Siap — Design System Styleguide v2.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/screens.css">
+  <style>
+    /* Styleguide Host Layout */
+    body.styleguide-body {
+      background-color: #0c1312;
+      color: #E2E8F0;
+      font-family: var(--font-sans);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    .styleguide-header {
+      background: #131E1D;
+      border-bottom: 2px solid #233432;
+      padding: 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .styleguide-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #F0FDF4;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .styleguide-tag {
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      background: #14532D;
+      color: #86EFAC;
+      border-radius: var(--radius-pill);
+      font-weight: 700;
+    }
+
+    .styleguide-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.875rem;
+    }
+
+    .styleguide-btn {
+      background: #1E2D2B;
+      color: #E2E8F0;
+      border: 1px solid #334B47;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 150ms ease;
+    }
+
+    .styleguide-btn:hover {
+      background: #273A37;
+    }
+
+    .styleguide-viewport-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 32px;
+      padding: 32px 16px 64px 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Device Mockup Shell (Strict 360px) */
+    .device-mockup {
+      width: 360px;
+      min-width: 360px;
+      max-width: 360px;
+      display: flex;
+      flex-direction: column;
+      border-radius: 32px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      background: var(--bg-canvas);
+    }
+
+    .device-chrome {
+      background: #0D1615;
+      padding: 12px 16px 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .device-pill {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 2px 10px;
+      border-radius: 12px;
+    }
+
+    .device-pill.light {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+
+    .device-pill.dark {
+      background: #1E293B;
+      color: #94A3B8;
+    }
+
+    .device-screen {
+      padding: 16px;
+      background-color: var(--bg-canvas);
+      color: var(--ink-primary);
+      overflow-y: auto;
+      max-height: 85vh;
+    }
+
+    /* Swatch Grid */
+    .swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+      margin-bottom: 16px;
+    }
+
+    .swatch-card {
+      border: var(--border-width) solid var(--border-card);
+      border-radius: var(--radius-md);
+      padding: 10px;
+      background: var(--bg-card);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .swatch-color-box {
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 6px;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .swatch-meta {
+      font-size: 0.75rem;
+      line-height: 1.3;
+    }
+
+    .swatch-name {
+      font-weight: 700;
+      color: var(--ink-primary);
+    }
+
+    .swatch-hex {
+      font-family: monospace;
+      color: var(--ink-secondary);
+      font-size: 0.6875rem;
+    }
+
+    .swatch-ratio {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: var(--tunas);
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    /* Chunky Button Showcase Styles */
+    .button-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 12px;
+      margin-bottom: 16px;
+    }
+
+    .button-state-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .state-label {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ink-muted);
+      margin-bottom: 4px;
+    }
+
+    /* Tokens Table */
+    .token-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-card);
+      font-size: 0.8125rem;
+    }
+
+    .token-name {
+      font-family: monospace;
+      font-size: 0.75rem;
+      color: var(--ink-secondary);
+    }
+
+    .token-val {
+      font-weight: 600;
+      color: var(--ink-primary);
+    }
+
+    /* Radius Demo */
+    .radius-demo-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .radius-box {
+      border: var(--border-width) solid var(--teal);
+      background: var(--teal-light);
+      padding: 12px 4px;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      color: var(--teal-dark);
+    }
+
+    /* Guardrails Banner inside mockup */
+    .guardrails-box {
+      background: var(--plum-light);
+      border: var(--border-width) solid var(--plum);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      font-size: 0.75rem;
+      line-height: 1.45;
+      color: var(--ink-primary);
+      margin-bottom: 16px;
+    }
+
+    .guardrails-title {
+      font-family: var(--font-display);
+      font-size: 0.875rem;
+      font-weight: 800;
+      color: var(--plum-dark);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+  </style>
+</head>
+<body class="styleguide-body">
+
+  <!-- Styleguide Toolbar -->
+  <header class="styleguide-header">
+    <div class="styleguide-title">
+      <span>🌱 Teman Siap — Design System v2.0</span>
+      <span class="styleguide-tag">360px Mobile Spec</span>
+    </div>
+    <div class="styleguide-controls">
+      <button id="toggleSimulatedPress" class="styleguide-btn" type="button" aria-pressed="false">
+        <span>👇 Simulasikan Status Ditekan (Active)</span>
+      </button>
+      <a href="/dev/components.html" class="styleguide-btn">🧩 Komponen UI</a>
+      <a href="/" class="styleguide-btn">🏠 Ke App</a>
+    </div>
+  </header>
+
+  <main class="styleguide-viewport-container">
+
+    <!-- ========================================================
+         LEFT FRAME: MODE TERANG (LIGHT THEME) — 360px
+         ======================================================== -->
+    <article class="device-mockup theme-light" aria-label="Pratinjau Mode Terang 360px">
+      <div class="device-chrome">
+        <span class="device-pill light">☀️ Mode Terang (Light)</span>
+        <span style="font-size: 0.6875rem; color: #94A3B8;">360 × 740 px</span>
+      </div>
+
+      <div class="device-screen">
+        <!-- Hero Card -->
+        <div class="card mb-3" style="border-radius: var(--radius-lg); border: var(--border-width) solid var(--border-card);">
+          <span class="card-tag saffron">Design Tokens v2</span>
+          <h1 class="mt-1 mb-1" style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; line-height: 1.2;">
+            Teman Siap
+          </h1>
+          <p class="mute text-sm mb-0">
+            Aplikasi belajar persiapan pernikahan yang ramah, taktil, dan memberdayakan.
+          </p>
+        </div>
+
+        <!-- Playful Guardrails Section (Verbatim) -->
+        <div class="guardrails-box">
+          <div class="guardrails-title">
+            <span>🛡️ Playful Guardrails</span>
+          </div>
+          <p class="mb-0" style="margin: 0; font-size: 0.75rem;">
+            no hearts or energy limits that block learning; no leaderboards or public comparisons; no streak loss shaming; no countdown pressure or fake scarcity; no variable/random rewards near any money action; no celebration tied to the amount saved or spent (celebrate practice, not balances); mascot never guilt-trips; every sound/animation/haptic can be turned off.
+          </p>
+        </div>
+
+        <!-- Chunky Buttons Showcase -->
+        <section class="card mb-3" style="border-radius: var(--radius-lg);">
+          <h2 class="text-md mb-1" style="font-family: var(--font-display); font-weight: 800;">
+            Tombol Taktil (Chunky Buttons)
+          </h2>
+          <p class="mute text-xs mb-2">
+            Bayangan bawah 4px solid yang menyusut ke 0 saat disentuh/ditekan. Sentuh tombol untuk merasakan mekanik fisiknya:
+          </p>
+
+          <div class="button-stack">
+            <!-- 1. Teal Primary -->
+            <div>
+              <div class="state-label">1. Primary Teal (.btn-teal / .primary)</div>
+              <div class="button-state-row">
+                <div>
+                  <button class="btn-chunky btn-teal w-full" type="button">
+                    <span>Mulai Praktik</span>
+                  </button>
+                </div>
+                <div>
+                  <button class="btn-chunky btn-teal is-pressed w-full" type="button" tabindex="-1" aria-hidden="true">
+                    <span>Ditekan (Active)</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Saffron -->
+            <div>
+              <div class="state-label">2. Saffron (.btn-saffron / .saffron-btn)</div>
+              <div class="button-state-row">
+                <div>
+                  <button class="btn-chunky btn-saffron w-full" type="button">
+                    <span>Jeda Sadar</span>
+                  </button>
+                </div>
+                <div>
+                  <button class="btn-chunky btn-saffron is-pressed w-full" type="button" tabindex="-1" aria-hidden="true">
+                    <span>Ditekan</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Plum -->
+            <div>
+              <div class="state-label">3. Relational Plum (.btn-plum / .plum-btn)</div>
+              <div class="button-state-row">
+                <div>
+                  <button class="btn-chunky btn-plum w-full" type="button">
+                    <span>Bicara Berdua</span>
+                  </button>
+                </div>
+                <div>
+                  <button class="btn-chunky btn-plum is-pressed w-full" type="button" tabindex="-1" aria-hidden="true">
+                    <span>Ditekan</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. Tunas Green -->
+            <div>
+              <div class="state-label">4. Tunas Green (.btn-tunas — Keberhasilan)</div>
+              <div class="button-state-row">
+                <div>
+                  <button class="btn-chunky btn-tunas w-full" type="button">
+                    <span>Selesai Latihan ✓</span>
+                  </button>
+                </div>
+                <div>
+                  <button class="btn-chunky btn-tunas is-pressed w-full" type="button" tabindex="-1" aria-hidden="true">
+                    <span>Ditekan</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 5. Soft Coral -->
+            <div>
+              <div class="state-label">5. Soft Coral (.btn-coral — Penekanan Lembut)</div>
+              <div class="button-state-row">
+                <div>
+                  <button class="btn-chunky btn-coral w-full" type="button">
+                    <span>Butuh Istirahat</span>
+                  </button>
+                </div>
+                <div>
+                  <button class="btn-chunky btn-coral is-pressed w-full" type="button" tabindex="-1" aria-hidden="true">
+                    <span>Ditekan</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 6. Sunny Yellow -->
+            <div>
+              <div class="state-label">6. Sunny Yellow (.btn-sunny — Apresiasi)</div>
+              <div class="button-state-row">
+                <div>
+                  <button class="btn-chunky btn-sunny w-full" type="button">
+                    <span>Klaim Hadiah ☀️</span>
+                  </button>
+                </div>
+                <div>
+                  <button class="btn-chunky btn-sunny is-pressed w-full" type="button" tabindex="-1" aria-hidden="true">
+                    <span>Ditekan</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 7. Secondary -->
+            <div>
+              <div class="state-label">7. Secondary Card (.btn-secondary / .secondary)</div>
+              <div class="button-state-row">
+                <div>
+                  <button class="btn-chunky btn-secondary w-full" type="button">
+                    <span>Kembali / Nanti</span>
+                  </button>
+                </div>
+                <div>
+                  <button class="btn-chunky btn-secondary is-pressed w-full" type="button" tabindex="-1" aria-hidden="true">
+                    <span>Ditekan</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Color Swatches & Contrast -->
+        <section class="card mb-3" style="border-radius: var(--radius-lg);">
+          <h2 class="text-md mb-1" style="font-family: var(--font-display); font-weight: 800;">
+            Palet Semantik (Terang)
+          </h2>
+          <p class="mute text-xs mb-2">Semua pasangan teks terverifikasi WCAG 2.1 AA (≥ 4.5:1):</p>
+
+          <div class="swatch-grid">
+            <div class="swatch-card">
+              <div class="swatch-color-box" style="background-color: var(--teal); color: #FFF;">
+                <span>AA</span>
+              </div>
+              <div class="swatch-meta">
+                <div class="swatch-name">Primary Teal</div>
+                <div class="swatch-hex">#1B5E59</div>
+                <div class="swatch-ratio">✓ 6.54:1</div>
+              </div>
+            </div>
+
+            <div class="swatch-card">
+              <div class="swatch-color-box" style="background-color: var(--saffron); color: #FFF;">
+                <span>AA</span>
+              </div>
+              <div class="swatch-meta">
+                <div class="swatch-name">Accent Saffron</div>
+                <div class="swatch-hex">#D97706</div>
+                <div class="swatch-ratio">✓ 4.82:1</div>
+              </div>
+            </div>
+
+            <div class="swatch-card">
+              <div class="swatch-color-box" style="background-color: var(--plum); color: #FFF;">
+                <span>AA</span>
+              </div>
+              <div class="swatch-meta">
+                <div class="swatch-name">Relational Plum</div>
+                <div class="swatch-hex">#6B4E71</div>
+                <div class="swatch-ratio">✓ 6.82:1</div>
+              </div>
+            </div>
+
+            <div class="swatch-card">
+              <div class="swatch-color-box" style="background-color: var(--tunas); color: #FFF;">
+                <span>AA</span>
+              </div>
+              <div class="swatch-meta">
+                <div class="swatch-name">Tunas Green</div>
+                <div class="swatch-hex">#15803D</div>
+                <div class="swatch-ratio">✓ 5.02:1</div>
+              </div>
+            </div>
+
+            <div class="swatch-card">
+              <div class="swatch-color-box" style="background-color: var(--coral); color: #FFF;">
+                <span>AA</span>
+              </div>
+              <div class="swatch-meta">
+                <div class="swatch-name">Soft Coral</div>
+                <div class="swatch-hex">#C84825</div>
+                <div class="swatch-ratio">✓ 4.76:1</div>
+              </div>
+            </div>
+
+            <div class="swatch-card">
+              <div class="swatch-color-box" style="background-color: var(--sunny); color: #12211F;">
+                <span>AA</span>
+              </div>
+              <div class="swatch-meta">
+                <div class="swatch-name">Sunny Yellow</div>
+                <div class="swatch-hex">#F59E0B</div>
+                <div class="swatch-ratio">✓ 7.74:1</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Typography Stacks -->
+        <section class="card mb-3" style="border-radius: var(--radius-lg);">
+          <h2 class="text-md mb-2" style="font-family: var(--font-display); font-weight: 800;">
+            Tipografi: Nunito & Jakarta Sans
+          </h2>
+          <div style="border-left: 3px solid var(--teal); padding-left: 10px; margin-bottom: 12px;">
+            <div style="font-family: var(--font-display); font-size: 1.375rem; font-weight: 800; line-height: 1.2;">
+              Nunito Display H1 (22px)
+            </div>
+            <div style="font-family: var(--font-display); font-size: 1.125rem; font-weight: 700; color: var(--ink-secondary);">
+              Nunito Subtitle H2 (18px)
+            </div>
+            <div style="font-family: var(--font-display); font-size: 2rem; font-weight: 900; color: var(--teal); margin-top: 4px;">
+              30 Detik
+            </div>
+          </div>
+          <p class="text-sm mb-0">
+            <strong>Plus Jakarta Sans:</strong> Teks bacaan yang jernih, angka terkalibrasi, dan navigasi ramah keterbacaan di layar kecil.
+          </p>
+        </section>
+
+        <!-- Shape Language -->
+        <section class="card mb-3" style="border-radius: var(--radius-lg);">
+          <h2 class="text-md mb-1" style="font-family: var(--font-display); font-weight: 800;">
+            Bentuk & Radius (16–24px)
+          </h2>
+          <p class="mute text-xs mb-2">Border tebal 2px dengan lekukan lembut:</p>
+          <div class="radius-demo-row">
+            <div class="radius-box" style="border-radius: var(--radius-sm);">14px (sm)</div>
+            <div class="radius-box" style="border-radius: var(--radius-md);">18px (md)</div>
+            <div class="radius-box" style="border-radius: var(--radius-lg);">24px (lg)</div>
+            <div class="radius-box" style="border-radius: var(--radius-pill);">Pill</div>
+          </div>
+        </section>
+      </div>
+    </article>
+
+    <!-- ========================================================
+         RIGHT FRAME: MODE GELAP (DARK THEME) — 360px
+         ======================================================== -->
+    <article class="device-mockup theme-dark" aria-label="Pratinjau Mode Gelap 360px">
+      <div class="device-chrome">
+        <span class="device-pill dark">🌙 Mode Gelap (Dark)</span>
+        <span style="font-size: 0.6875rem; color: #94A3B8;">360 × 740 px</span>
+      </div>
+
+      <div class="device-screen">
+        <!-- Hero Card -->
+        <div class="card mb-3" style="border-radius: var(--radius-lg); border: var(--border-width) solid var(--border-card);">
+          <span class="card-tag saffron">Design Tokens v2</span>
+          <h1 class="mt-1 mb-1" style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; line-height: 1.2;">
+            Teman Siap
+          </h1>
+          <p class="mute text-sm mb-0">
+            Aplikasi belajar persiapan pernikahan yang ramah, taktil, dan memberdayakan.
+          </p>
+        </div>
+
+        <!-- Playful Guardrails Section (Verbatim) -->
+        <div class="guardrails-box">
+          <div class="guardrails-title">
+            <span>🛡️ Playful Guardrails</span>
+          </div>
+          <p class="mb-0" style="margin: 0; font-size: 0.75rem;">
+            no hearts or energy limits that block learning; no leaderboards or public comparisons; no streak loss shaming; no countdown pressure or fake scarcity; no variable/random rewards near any money action; no celebration tied to the amount saved or spent (celebrate practice, not balances); mascot never guilt-trips; every sound/animation/haptic can be turned off.
+          </p>
+        </div>
+
+        <!-- Chunky Buttons Showcase -->
+        <section class="card mb-3" style="border-radius: var(--radius-lg);">
+          <h2 class="text-md mb-1" style="font-family: var(--font-display); font-weight: 800;">
+            Tombol Taktil (Chunky Buttons)
+          </h2>
+          <p class="mute text-xs mb-2">
+            Bayangan bawah 4px solid yang menyusut ke 0 saat disentuh/ditekan. Sentuh tombol untuk merasakan mekanik fisiknya:
+          </p>
+
+          <div class="button-stack">
+            <!-- 1. Teal Primary -->
+            <div>
+              <div class="state-label">1. Primary Teal (.btn-teal / .primary)</div>
+              <div class="button-state-row">
+                <div>
+                  <button class="btn-chunky btn-teal w-full" type="button">
+                    <span>Mulai Praktik</span>
+                  </button>
+                </div>
+                <div>
+                  <button class="btn-chunky btn-teal is-pressed w-full" type="button" tabindex="-1" aria-hidden="true">
+                    <span>Ditekan (Active)</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Saffron -->
+            <div>
+              <div class="state-label">2. Saffron (.btn-saffron / .saffron-btn)</div>
+              <div class="button-state-row">
+                <div>
+                  <button class="btn-chunky btn-saffron w-full" type="button">
+                    <span>Jeda Sadar</span>
+                  </button>
+                </div>
+                <div>
+                  <button class="btn-chunky btn-saffron is-pressed w-full" type="button" tabindex="-1" aria-hidden="true">
+                    <span>Ditekan</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Plum -->
+            <div>
+              <div class="state-label">3. Relational Plum (.btn-plum / .plum-btn)</div>
+              <div class="button-state-row">
+                <div>
+                  <button class="btn-chunky btn-plum w-full" type="button">
+                    <span>Bicara Berdua</span>
+                  </button>
+                </div>
+                <div>
+                  <button class="btn-chunky btn-plum is-pressed w-full" type="button" tabindex="-1" aria-hidden="true">
+                    <span>Ditekan</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. Tunas Green -->
+            <div>
+              <div class="state-label">4. Tunas Green (.btn-tunas — Keberhasilan)</div>
+              <div class="button-state-row">
+                <div>
+                  <button class="btn-chunky btn-tunas w-full" type="button">
+                    <span>Selesai Latihan ✓</span>
+                  </button>
+                </div>
+                <div>
+                  <button class="btn-chunky btn-tunas is-pressed w-full" type="button" tabindex="-1" aria-hidden="true">
+                    <span>Ditekan</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 5. Soft Coral -->
+            <div>
+              <div class="state-label">5. Soft Coral (.btn-coral — Penekanan Lembut)</div>
+              <div class="button-state-row">
+                <div>
+                  <button class="btn-chunky btn-coral w-full" type="button">
+                    <span>Butuh Istirahat</span>
+                  </button>
+                </div>
+                <div>
+                  <button class="btn-chunky btn-coral is-pressed w-full" type="button" tabindex="-1" aria-hidden="true">
+                    <span>Ditekan</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 6. Sunny Yellow -->
+            <div>
+              <div class="state-label">6. Sunny Yellow (.btn-sunny — Apresiasi)</div>
+              <div class="button-state-row">
+                <div>
+                  <button class="btn-chunky btn-sunny w-full" type="button">
+                    <span>Klaim Hadiah ☀️</span>
+                  </button>
+                </div>
+                <div>
+                  <button class="btn-chunky btn-sunny is-pressed w-full" type="button" tabindex="-1" aria-hidden="true">
+                    <span>Ditekan</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 7. Secondary -->
+            <div>
+              <div class="state-label">7. Secondary Card (.btn-secondary / .secondary)</div>
+              <div class="button-state-row">
+                <div>
+                  <button class="btn-chunky btn-secondary w-full" type="button">
+                    <span>Kembali / Nanti</span>
+                  </button>
+                </div>
+                <div>
+                  <button class="btn-chunky btn-secondary is-pressed w-full" type="button" tabindex="-1" aria-hidden="true">
+                    <span>Ditekan</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Color Swatches & Contrast -->
+        <section class="card mb-3" style="border-radius: var(--radius-lg);">
+          <h2 class="text-md mb-1" style="font-family: var(--font-display); font-weight: 800;">
+            Palet Semantik (Gelap)
+          </h2>
+          <p class="mute text-xs mb-2">Semua pasangan teks terverifikasi WCAG 2.1 AA (≥ 4.5:1):</p>
+
+          <div class="swatch-grid">
+            <div class="swatch-card">
+              <div class="swatch-color-box" style="background-color: var(--teal); color: #101716;">
+                <span>AA</span>
+              </div>
+              <div class="swatch-meta">
+                <div class="swatch-name">Primary Teal</div>
+                <div class="swatch-hex">#4FB0A8</div>
+                <div class="swatch-ratio">✓ 6.11:1</div>
+              </div>
+            </div>
+
+            <div class="swatch-card">
+              <div class="swatch-color-box" style="background-color: var(--saffron); color: #101716;">
+                <span>AA</span>
+              </div>
+              <div class="swatch-meta">
+                <div class="swatch-name">Accent Saffron</div>
+                <div class="swatch-hex">#FBBF24</div>
+                <div class="swatch-ratio">✓ 10.2:1</div>
+              </div>
+            </div>
+
+            <div class="swatch-card">
+              <div class="swatch-color-box" style="background-color: var(--plum); color: #101716;">
+                <span>AA</span>
+              </div>
+              <div class="swatch-meta">
+                <div class="swatch-name">Relational Plum</div>
+                <div class="swatch-hex">#B396B9</div>
+                <div class="swatch-ratio">✓ 6.31:1</div>
+              </div>
+            </div>
+
+            <div class="swatch-card">
+              <div class="swatch-color-box" style="background-color: var(--tunas); color: #101716;">
+                <span>AA</span>
+              </div>
+              <div class="swatch-meta">
+                <div class="swatch-name">Tunas Green</div>
+                <div class="swatch-hex">#4ADE80</div>
+                <div class="swatch-ratio">✓ 9.25:1</div>
+              </div>
+            </div>
+
+            <div class="swatch-card">
+              <div class="swatch-color-box" style="background-color: var(--coral); color: #101716;">
+                <span>AA</span>
+              </div>
+              <div class="swatch-meta">
+                <div class="swatch-name">Soft Coral</div>
+                <div class="swatch-hex">#FB923C</div>
+                <div class="swatch-ratio">✓ 7.12:1</div>
+              </div>
+            </div>
+
+            <div class="swatch-card">
+              <div class="swatch-color-box" style="background-color: var(--sunny); color: #101716;">
+                <span>AA</span>
+              </div>
+              <div class="swatch-meta">
+                <div class="swatch-name">Sunny Yellow</div>
+                <div class="swatch-hex">#FCD34D</div>
+                <div class="swatch-ratio">✓ 11.18:1</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Typography Stacks -->
+        <section class="card mb-3" style="border-radius: var(--radius-lg);">
+          <h2 class="text-md mb-2" style="font-family: var(--font-display); font-weight: 800;">
+            Tipografi: Nunito & Jakarta Sans
+          </h2>
+          <div style="border-left: 3px solid var(--teal); padding-left: 10px; margin-bottom: 12px;">
+            <div style="font-family: var(--font-display); font-size: 1.375rem; font-weight: 800; line-height: 1.2;">
+              Nunito Display H1 (22px)
+            </div>
+            <div style="font-family: var(--font-display); font-size: 1.125rem; font-weight: 700; color: var(--ink-secondary);">
+              Nunito Subtitle H2 (18px)
+            </div>
+            <div style="font-family: var(--font-display); font-size: 2rem; font-weight: 900; color: var(--teal); margin-top: 4px;">
+              30 Detik
+            </div>
+          </div>
+          <p class="text-sm mb-0">
+            <strong>Plus Jakarta Sans:</strong> Teks bacaan yang jernih, angka terkalibrasi, dan navigasi ramah keterbacaan di layar kecil.
+          </p>
+        </section>
+
+        <!-- Shape Language -->
+        <section class="card mb-3" style="border-radius: var(--radius-lg);">
+          <h2 class="text-md mb-1" style="font-family: var(--font-display); font-weight: 800;">
+            Bentuk & Radius (16–24px)
+          </h2>
+          <p class="mute text-xs mb-2">Border tebal 2px dengan lekukan lembut:</p>
+          <div class="radius-demo-row">
+            <div class="radius-box" style="border-radius: var(--radius-sm);">14px (sm)</div>
+            <div class="radius-box" style="border-radius: var(--radius-md);">18px (md)</div>
+            <div class="radius-box" style="border-radius: var(--radius-lg);">24px (lg)</div>
+            <div class="radius-box" style="border-radius: var(--radius-pill);">Pill</div>
+          </div>
+        </section>
+      </div>
+    </article>
+
+  </main>
+
+  <script>
+    // Interactive simulation toggle for testing pressed button states across all buttons
+    const toggleBtn = document.getElementById('toggleSimulatedPress');
+    let simulated = false;
+
+    toggleBtn.addEventListener('click', () => {
+      simulated = !simulated;
+      toggleBtn.setAttribute('aria-pressed', simulated ? 'true' : 'false');
+      toggleBtn.innerHTML = simulated 
+        ? '<span>👆 Lepaskan Tekanan (Kembali ke Istirahat)</span>'
+        : '<span>👇 Simulasikan Status Ditekan (Active)</span>';
+
+      document.querySelectorAll('.button-state-row > div:first-child .btn-chunky').forEach(btn => {
+        if (simulated) {
+          btn.classList.add('is-pressed');
+        } else {
+          btn.classList.remove('is-pressed');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

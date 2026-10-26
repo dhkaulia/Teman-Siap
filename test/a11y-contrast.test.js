@@ -59,6 +59,23 @@ describe('Accessibility: Contrast Ratio Measurements (WCAG 2.1 AA >= 4.5:1)', ()
       const ratio = contrastRatio('#FFFFFF', relationalPlum);
       assert.ok(ratio >= 4.5, `Expected >= 4.5, got ${ratio.toFixed(2)}`);
     });
+
+    it('white text on tunas green button exceeds 4.5:1', () => {
+      const ratio = contrastRatio('#FFFFFF', '#15803D');
+      assert.ok(ratio >= 4.5, `Expected >= 4.5, got ${ratio.toFixed(2)}`);
+      assert.ok(ratio >= 5.0);
+    });
+
+    it('white text on soft coral button exceeds 4.5:1 (not red)', () => {
+      const ratio = contrastRatio('#FFFFFF', '#C84825');
+      assert.ok(ratio >= 4.5, `Expected >= 4.5, got ${ratio.toFixed(2)}`);
+    });
+
+    it('dark ink on sunny yellow button exceeds 4.5:1', () => {
+      const ratio = contrastRatio(inkPrimary, '#F59E0B');
+      assert.ok(ratio >= 4.5, `Expected >= 4.5, got ${ratio.toFixed(2)}`);
+      assert.ok(ratio >= 7.0);
+    });
   });
 
   // Dark Theme Pairs
@@ -88,6 +105,24 @@ describe('Accessibility: Contrast Ratio Measurements (WCAG 2.1 AA >= 4.5:1)', ()
     it('dark teal on dark bg-card exceeds 4.5:1 (for headings/accents)', () => {
       const ratio = contrastRatio(darkTeal, darkBgCard);
       assert.ok(ratio >= 4.5, `Expected >= 4.5, got ${ratio.toFixed(2)}`);
+    });
+
+    it('dark tunas green on dark bg-card exceeds 4.5:1', () => {
+      const ratio = contrastRatio('#4ADE80', darkBgCard);
+      assert.ok(ratio >= 4.5, `Expected >= 4.5, got ${ratio.toFixed(2)}`);
+      assert.ok(ratio >= 9.0);
+    });
+
+    it('dark soft coral on dark bg-card exceeds 4.5:1', () => {
+      const ratio = contrastRatio('#FB923C', darkBgCard);
+      assert.ok(ratio >= 4.5, `Expected >= 4.5, got ${ratio.toFixed(2)}`);
+      assert.ok(ratio >= 7.0);
+    });
+
+    it('dark sunny yellow on dark bg-card exceeds 4.5:1', () => {
+      const ratio = contrastRatio('#FCD34D', darkBgCard);
+      assert.ok(ratio >= 4.5, `Expected >= 4.5, got ${ratio.toFixed(2)}`);
+      assert.ok(ratio >= 11.0);
     });
   });
 });

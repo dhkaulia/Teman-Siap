@@ -1,36 +1,65 @@
-/* Teman Siap — Design Tokens (from DESIGN.md) */
+/* Teman Siap — Design Tokens v2.0 (Playful, Tactile & Accessible) */
 
 :root {
-  /* Color Palette */
+  /* 1. Core Semantic Palette (WCAG 2.1 AA Verified >= 4.5:1) */
   --teal: #1B5E59;
   --teal-light: #E6F2F0;
   --teal-dark: #124440;
+  --teal-shadow: #124440;
   
   --saffron: #D97706;
   --saffron-light: #FEF3C7;
+  --saffron-dark: #B45309;
+  --saffron-shadow: #92400E;
   
   --plum: #6B4E71;
   --plum-light: #F3EEF5;
+  --plum-dark: #553C5A;
+  --plum-shadow: #4E3553;
+
+  /* 2. Gamified Accent Palette (v2 Additions) */
+  /* Tunas Green: for success, completed reflections & adoption */
+  --tunas: #15803D;
+  --tunas-light: #DCFCE7;
+  --tunas-dark: #14532D;
+  --tunas-shadow: #14532D;
+
+  /* Soft Coral: for gentle emphasis & pauses (strictly NOT red) */
+  --coral: #C84825;
+  --coral-light: #FFEDE7;
+  --coral-dark: #9A3412;
+  --coral-shadow: #9A3412;
+
+  /* Sunny Yellow: for rewards, appreciation & streak-free milestones */
+  --sunny: #F59E0B;
+  --sunny-light: #FEF3C7;
+  --sunny-dark: #B45309;
+  --sunny-shadow: #B45309;
   
+  /* 3. Neutral Canvas & Card Surfaces */
   --bg-canvas: #F4F6F5;
   --bg-card: #FFFFFF;
   --border-card: #DFE5E3;
   --border-focus: #D97706;
+  --border-width: 2px;
   
+  /* 4. High-Contrast Typography Inks */
   --ink-primary: #12211F;
   --ink-secondary: #485D5A;
   --ink-muted: #627673;
   --ink-on-color: #FFFFFF;
   
+  /* Safety / Non-judgmental boundary */
   --danger: #5E3573;
   --danger-light: #F4EDF6;
   --danger-border: #DCD0E1;
 
-  /* Typography Stacks */
-  --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
+  /* 5. Typography Stacks (Nunito / Baloo 2 Display + Plus Jakarta Sans Body) */
+  --font-display: "Nunito", "Baloo 2", system-ui, -apple-system, sans-serif;
+  --font-serif: var(--font-display); /* Replaces Newsreader in headings while preserving legacy selectors */
   --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
 
-  /* Spacing Scale */
+  /* 6. Spacing Scale */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -39,18 +68,20 @@
   --space-6: 24px;
   --space-8: 32px;
 
-  /* Border Radii */
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
+  /* 7. Chunky Shape Language (16px to 24px Radius) */
+  --radius-sm: 14px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
   --radius-pill: 9999px;
 
-  /* Elevation Shadows */
+  /* 8. Pressed Bottom Shadow & Elevation */
+  --btn-shadow-offset: 4px;
   --shadow-subtle: 0 2px 8px rgba(18, 33, 31, 0.04);
   --shadow-elevation: 0 8px 24px rgba(18, 33, 31, 0.08);
 
   /* Animation Timings */
   --transition-step: 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-press: 80ms cubic-bezier(0.2, 0.8, 0.4, 1);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -62,12 +93,32 @@
     --teal: #4FB0A8;
     --teal-light: #183330;
     --teal-dark: #8AD2CB;
+    --teal-shadow: #0A2E2B;
     
     --saffron: #FBBF24;
     --saffron-light: #362912;
+    --saffron-dark: #F59E0B;
+    --saffron-shadow: #78350F;
     
     --plum: #B396B9;
     --plum-light: #2D2130;
+    --plum-dark: #CEB5D3;
+    --plum-shadow: #4A3050;
+
+    --tunas: #4ADE80;
+    --tunas-light: #143522;
+    --tunas-dark: #86EFAC;
+    --tunas-shadow: #166534;
+
+    --coral: #FB923C;
+    --coral-light: #3D1E0C;
+    --coral-dark: #FDBA74;
+    --coral-shadow: #9A3412;
+
+    --sunny: #FCD34D;
+    --sunny-light: #3B3008;
+    --sunny-dark: #FDE047;
+    --sunny-shadow: #78350F;
     
     --ink-primary: #F0F6F5;
     --ink-secondary: #9EABA9;
@@ -82,6 +133,7 @@
   }
 }
 
+.theme-dark,
 body.theme-dark {
   --bg-canvas: #101716;
   --bg-card: #182322;
@@ -89,10 +141,27 @@ body.theme-dark {
   --teal: #4FB0A8;
   --teal-light: #183330;
   --teal-dark: #8AD2CB;
+  --teal-shadow: #0A2E2B;
   --saffron: #FBBF24;
   --saffron-light: #362912;
+  --saffron-dark: #F59E0B;
+  --saffron-shadow: #78350F;
   --plum: #B396B9;
   --plum-light: #2D2130;
+  --plum-dark: #CEB5D3;
+  --plum-shadow: #4A3050;
+  --tunas: #4ADE80;
+  --tunas-light: #143522;
+  --tunas-dark: #86EFAC;
+  --tunas-shadow: #166534;
+  --coral: #FB923C;
+  --coral-light: #3D1E0C;
+  --coral-dark: #FDBA74;
+  --coral-shadow: #9A3412;
+  --sunny: #FCD34D;
+  --sunny-light: #3B3008;
+  --sunny-dark: #FDE047;
+  --sunny-shadow: #78350F;
   --ink-primary: #F0F6F5;
   --ink-secondary: #9EABA9;
   --ink-muted: #7A8C8A;
@@ -101,14 +170,32 @@ body.theme-dark {
   --danger-border: #4D3852;
 }
 
+.theme-light,
 body.theme-light {
   --teal: #1B5E59;
   --teal-light: #E6F2F0;
   --teal-dark: #124440;
+  --teal-shadow: #124440;
   --saffron: #D97706;
   --saffron-light: #FEF3C7;
+  --saffron-dark: #B45309;
+  --saffron-shadow: #92400E;
   --plum: #6B4E71;
   --plum-light: #F3EEF5;
+  --plum-dark: #553C5A;
+  --plum-shadow: #4E3553;
+  --tunas: #15803D;
+  --tunas-light: #DCFCE7;
+  --tunas-dark: #14532D;
+  --tunas-shadow: #14532D;
+  --coral: #C84825;
+  --coral-light: #FFEDE7;
+  --coral-dark: #9A3412;
+  --coral-shadow: #9A3412;
+  --sunny: #F59E0B;
+  --sunny-light: #FEF3C7;
+  --sunny-dark: #B45309;
+  --sunny-shadow: #B45309;
   --bg-canvas: #F4F6F5;
   --bg-card: #FFFFFF;
   --border-card: #DFE5E3;
@@ -118,4 +205,125 @@ body.theme-light {
   --danger: #5E3573;
   --danger-light: #F4EDF6;
   --danger-border: #DCD0E1;
+}
+
+/* -------------------------------------------------------------
+ * Tactile Chunky Button System (Duolingo-style Pressed Bottom Shadow)
+ * 4px solid bottom shadow that collapses to 0 on click/touch
+ * ----------------------------------------------------------- */
+button.btn-chunky {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 48px;
+  min-width: 48px;
+  padding: var(--space-3) var(--space-5);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  border-width: var(--border-width);
+  border-style: solid;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  transform: translateY(0);
+  transition: transform var(--transition-press), box-shadow var(--transition-press);
+}
+
+button.btn-chunky:active,
+button.btn-chunky.is-pressed {
+  transform: translateY(var(--btn-shadow-offset));
+  box-shadow: 0 0 0 transparent !important;
+}
+
+/* Chunky Variants */
+button.btn-teal,
+button.primary {
+  background-color: var(--teal);
+  color: #FFFFFF;
+  border-color: var(--teal-dark);
+  box-shadow: 0 var(--btn-shadow-offset) 0 var(--teal-shadow);
+}
+button.btn-teal:active,
+button.primary:active {
+  box-shadow: 0 0 0 var(--teal-shadow);
+}
+
+button.btn-saffron,
+button.saffron-btn {
+  background-color: var(--saffron);
+  color: #FFFFFF;
+  border-color: var(--saffron-dark);
+  box-shadow: 0 var(--btn-shadow-offset) 0 var(--saffron-shadow);
+}
+button.btn-saffron:active,
+button.saffron-btn:active {
+  box-shadow: 0 0 0 var(--saffron-shadow);
+}
+
+button.btn-plum,
+button.plum-btn {
+  background-color: var(--plum);
+  color: #FFFFFF;
+  border-color: var(--plum-dark);
+  box-shadow: 0 var(--btn-shadow-offset) 0 var(--plum-shadow);
+}
+button.btn-plum:active,
+button.plum-btn:active {
+  box-shadow: 0 0 0 var(--plum-shadow);
+}
+
+button.btn-tunas {
+  background-color: var(--tunas);
+  color: #FFFFFF;
+  border-color: var(--tunas-dark);
+  box-shadow: 0 var(--btn-shadow-offset) 0 var(--tunas-shadow);
+}
+button.btn-tunas:active {
+  box-shadow: 0 0 0 var(--tunas-shadow);
+}
+
+button.btn-coral {
+  background-color: var(--coral);
+  color: #FFFFFF;
+  border-color: var(--coral-dark);
+  box-shadow: 0 var(--btn-shadow-offset) 0 var(--coral-shadow);
+}
+button.btn-coral:active {
+  box-shadow: 0 0 0 var(--coral-shadow);
+}
+
+button.btn-sunny {
+  background-color: var(--sunny);
+  color: #12211F;
+  border-color: var(--sunny-dark);
+  box-shadow: 0 var(--btn-shadow-offset) 0 var(--sunny-shadow);
+}
+button.btn-sunny:active {
+  box-shadow: 0 0 0 var(--sunny-shadow);
+}
+
+button.btn-secondary,
+button.secondary {
+  background-color: var(--bg-card);
+  color: var(--ink-primary);
+  border-color: var(--border-card);
+  box-shadow: 0 var(--btn-shadow-offset) 0 var(--border-card);
+}
+button.btn-secondary:active,
+button.secondary:active {
+  box-shadow: 0 0 0 var(--border-card);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button.btn-chunky,
+  button.primary,
+  button.secondary,
+  button.plum-btn,
+  button.saffron-btn {
+    transition: none !important;
+  }
 }

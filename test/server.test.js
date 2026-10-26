@@ -102,6 +102,7 @@ describe('Static File Server & Module Loading', () => {
     await check('/js/ui/bottomSheet.js', 'text/javascript');
     await check('/js/ui/bubble.js', 'text/javascript');
     await check('/dev/components.html', 'text/html');
+    await check('/dev/styleguide.html', 'text/html');
     await check('/content.js', 'text/javascript');
     await check('/support.js', 'text/javascript');
     await check('/sw.js', 'text/javascript');
