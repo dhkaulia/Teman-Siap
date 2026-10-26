@@ -103,4 +103,28 @@ describe('Store Migration', () => {
     assert.deepEqual(migrated.inventory, ['pot-clay', 'pot-blue-ceramic']);
     assert.equal(migrated.equippedCosmetics.pot, 'pot-blue-ceramic');
   });
+
+  it('initializes and migrates enableEffects, enableSound, and enableHaptics preferences', () => {
+    const fresh = createInitialState();
+    assert.equal(fresh.enableEffects, true);
+    assert.equal(fresh.enableSound, false);
+    assert.equal(fresh.enableHaptics, false);
+
+    const oldState = { version: 4 };
+    const migrated = migrate(oldState);
+    assert.equal(migrated.enableEffects, true);
+    assert.equal(migrated.enableSound, false);
+    assert.equal(migrated.enableHaptics, false);
+
+    const customState = {
+      version: 5,
+      enableEffects: false,
+      enableSound: true,
+      enableHaptics: true
+    };
+    const migratedCustom = migrate(customState);
+    assert.equal(migratedCustom.enableEffects, false);
+    assert.equal(migratedCustom.enableSound, true);
+    assert.equal(migratedCustom.enableHaptics, true);
+  });
 });

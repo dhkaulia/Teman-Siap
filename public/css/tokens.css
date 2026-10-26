@@ -384,3 +384,15 @@ button.secondary:active {
     transition: none !important;
   }
 }
+
+/* -------------------------------------------------------------
+ * User-Disabled Effects State (from Saya Settings Toggle)
+ * ----------------------------------------------------------- */
+body.effects-disabled *,
+body.effects-disabled *::before,
+body.effects-disabled *::after {
+  animation: none !important;
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}

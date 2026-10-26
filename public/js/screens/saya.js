@@ -16,6 +16,8 @@ import {
   WEEKLY_GOAL_OPTIONS
 } from '../rewards.js';
 import { COPY } from '../copy.js';
+import { setCelebrationEnabled, isCelebrationEnabled } from '../ui/confetti.js';
+import { setSoundEnabled, isSoundEnabled, setHapticsEnabled, isHapticsEnabled } from '../ui/feedback.js';
 
 export function renderSelf(store) {
   const d = store.d || {};
@@ -25,6 +27,9 @@ export function renderSelf(store) {
 
   const enableRitme = d.enableRitme !== false;
   const enableRewards = d.enableRewards !== false;
+  const enableEffects = d.enableEffects !== false && isCelebrationEnabled();
+  const enableSound = Boolean(d.enableSound || isSoundEnabled());
+  const enableHaptics = Boolean(d.enableHaptics || isHapticsEnabled());
   const seeds = getSeeds(d);
   const ritme = calculateRitme(d);
   const milestones = checkMilestones(d);
@@ -287,6 +292,39 @@ export function renderSelf(store) {
         </span>
       </label>
 
+      <!-- Celebration & Animation Effects Toggle -->
+      <label class="faith-toggle-label mb-3" style="display: flex; gap: var(--space-3); align-items: flex-start; cursor: pointer;">
+        <input type="checkbox" id="enableEffectsToggle" class="faith-toggle-input" ${enableEffects ? 'checked' : ''}>
+        <span class="text-sm">
+          <b>Efek perayaan & animasi</b><br>
+          <span class="mute text-xs">
+            Menampilkan animasi konfeti dan partikel saat menyelesaikan sesi. Matikan untuk pengalaman yang tenang tanpa animasi tambahan.
+          </span>
+        </span>
+      </label>
+
+      <!-- Sound Effects Toggle -->
+      <label class="faith-toggle-label mb-3" style="display: flex; gap: var(--space-3); align-items: flex-start; cursor: pointer;">
+        <input type="checkbox" id="enableSoundToggle" class="faith-toggle-input" ${enableSound ? 'checked' : ''}>
+        <span class="text-sm">
+          <b>Efek suara lembut (WebAudio)</b><br>
+          <span class="mute text-xs">
+            Nada akustik lembut saat memilih opsi atau menyelesaikan langkah. Default non-aktif.
+          </span>
+        </span>
+      </label>
+
+      <!-- Haptics Toggle -->
+      <label class="faith-toggle-label mb-3" style="display: flex; gap: var(--space-3); align-items: flex-start; cursor: pointer;">
+        <input type="checkbox" id="enableHapticsToggle" class="faith-toggle-input" ${enableHaptics ? 'checked' : ''}>
+        <span class="text-sm">
+          <b>Getaran sentuhan (Haptics)</b><br>
+          <span class="mute text-xs">
+            Getaran mikro 10ms saat menyentuh tombol pada perangkat yang mendukung. Default non-aktif.
+          </span>
+        </span>
+      </label>
+
       <!-- Faith Perspective Opt-In Setting (Default Off) -->
       <label class="faith-toggle-label" style="display: flex; gap: var(--space-3); align-items: flex-start; cursor: pointer;">
         <input type="checkbox" id="faithPerspectiveToggle" class="faith-toggle-input" ${d.faithPerspective ? 'checked' : ''}>
@@ -397,6 +435,39 @@ export function bindSelf(container, store, navigate, rerender) {
   if (rewardsToggle) {
     rewardsToggle.onchange = () => {
       store.setEnableRewards(rewardsToggle.checked);
+      rerender();
+    };
+  }
+
+  const effectsToggle = container.querySelector('#enableEffectsToggle');
+  if (effectsToggle) {
+    effectsToggle.onchange = () => {
+      const active = effectsToggle.checked;
+      store.setEnableEffects(active);
+      setCelebrationEnabled(active);
+      if (typeof document !== 'undefined') {
+        document.body.classList.toggle('effects-disabled', !active);
+      }
+      rerender();
+    };
+  }
+
+  const soundToggle = container.querySelector('#enableSoundToggle');
+  if (soundToggle) {
+    soundToggle.onchange = () => {
+      const active = soundToggle.checked;
+      store.setEnableSound(active);
+      setSoundEnabled(active);
+      rerender();
+    };
+  }
+
+  const hapticsToggle = container.querySelector('#enableHapticsToggle');
+  if (hapticsToggle) {
+    hapticsToggle.onchange = () => {
+      const active = hapticsToggle.checked;
+      store.setEnableHaptics(active);
+      setHapticsEnabled(active);
       rerender();
     };
   }

@@ -262,6 +262,41 @@ export function boot() {
   setupThemeToggle();
   registerServiceWorker();
 
+  // Sync effects preference with body class
+  const syncEffects = () => {
+    const disabled = store.d.enableEffects === false;
+    document.body.classList.toggle('effects-disabled', disabled);
+  };
+  syncEffects();
+
+  // URL Query Params support for automated testing, deep-linking, & visual audits
+  if (typeof window !== 'undefined' && window.location) {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('onboarded') === '1') {
+      store.d.onboardingComplete = true;
+    }
+    if (params.get('theme') === 'dark') {
+      document.body.classList.remove('theme-light');
+      document.body.classList.add('theme-dark');
+    }
+    const tabParam = params.get('tab');
+    if (tabParam) {
+      currentTab = tabParam;
+    }
+    const lessonParam = params.get('lesson');
+    if (lessonParam) {
+      import('./flows/lessons.js').then(({ getLessonById }) => {
+        import('./flows/lessonPlayer.js').then(({ createLessonFlow }) => {
+          const lId = lessonParam === '1' ? 'lesson-naming-feelings' : lessonParam;
+          const lesson = getLessonById(lId) || getLessonById('lesson-naming-feelings');
+          if (lesson) {
+            sessionRunner.start(createLessonFlow(lesson, () => navigate('home'), store));
+          }
+        });
+      });
+    }
+  }
+
   render();
   checkAndShowInstallHint();
 
@@ -270,6 +305,7 @@ export function boot() {
 
   // Keep screen updated when store updates (e.g. from completed flows)
   store.subscribe(() => {
+    syncEffects();
     if (!sessionRunner.getActiveSession()) {
       render();
     }

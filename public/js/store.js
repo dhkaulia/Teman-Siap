@@ -53,6 +53,9 @@ export function createInitialState() {
     weeklyGoal: 3, // Santai 2, Biasa 3, Semangat 5
     enableRitme: true, // Settings toggle: can be disabled completely
     enableRewards: true, // Settings toggle: can be disabled completely
+    enableEffects: true, // Settings toggle: celebration confetti & playful animations
+    enableSound: false, // Settings toggle: WebAudio effects (off by default)
+    enableHaptics: false, // Settings toggle: haptic vibration (off by default)
     inventory: ['pot-clay', 'outfit-default', 'bg-default'],
     equippedCosmetics: {
       pot: 'pot-clay',
@@ -162,6 +165,9 @@ export function migrate(savedData, targetVersion = CURRENT_STORE_VERSION) {
   migrated.weeklyGoal = [2, 3, 5].includes(Number(savedData.weeklyGoal)) ? Number(savedData.weeklyGoal) : 3;
   migrated.enableRitme = savedData.enableRitme !== undefined ? Boolean(savedData.enableRitme) : true;
   migrated.enableRewards = savedData.enableRewards !== undefined ? Boolean(savedData.enableRewards) : true;
+  migrated.enableEffects = savedData.enableEffects !== undefined ? Boolean(savedData.enableEffects) : true;
+  migrated.enableSound = savedData.enableSound !== undefined ? Boolean(savedData.enableSound) : false;
+  migrated.enableHaptics = savedData.enableHaptics !== undefined ? Boolean(savedData.enableHaptics) : false;
   migrated.inventory = Array.isArray(savedData.inventory) && savedData.inventory.length
     ? savedData.inventory
     : ['pot-clay', 'outfit-default', 'bg-default'];
@@ -374,6 +380,27 @@ class Store {
     return this.set(state => ({
       ...state,
       enableRewards: Boolean(enableRewards)
+    }));
+  }
+
+  setEnableEffects(enableEffects) {
+    return this.set(state => ({
+      ...state,
+      enableEffects: Boolean(enableEffects)
+    }));
+  }
+
+  setEnableSound(enableSound) {
+    return this.set(state => ({
+      ...state,
+      enableSound: Boolean(enableSound)
+    }));
+  }
+
+  setEnableHaptics(enableHaptics) {
+    return this.set(state => ({
+      ...state,
+      enableHaptics: Boolean(enableHaptics)
     }));
   }
 

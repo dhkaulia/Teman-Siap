@@ -62,6 +62,11 @@ export function triggerCelebration(options = {}) {
     return false;
   }
 
+  // Rule 2b: Respect body effects-disabled class
+  if (typeof document !== 'undefined' && document.body && document.body.classList.contains('effects-disabled')) {
+    return false;
+  }
+
   // Rule 3: Respect prefers-reduced-motion
   if (typeof window !== 'undefined' && window.matchMedia) {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
