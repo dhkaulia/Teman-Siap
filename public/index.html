@@ -5,12 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Teman Siap — Kesiapan Emosi, Finansial & Relasi</title>
   <meta name="description" content="Pahami dirimu, pahami uangmu, bangun masa depan lebih tenang bersama.">
+  <meta name="theme-color" content="#1B5E59">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/screens.css">
 </head>
 <body>
+  <!-- Screen Reader Live Region for Step Transitions & Timer Milestones -->
+  <div id="liveAnnouncer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
   <div class="app-container">
     <header class="app-header">
       <div class="brand-badge">
@@ -25,6 +35,9 @@
         </button>
       </div>
     </header>
+
+    <!-- Install Hint Banner (Appears once, after first completed practice, never on first load) -->
+    <div id="installHintContainer" class="install-hint-container" hidden></div>
 
     <main id="view" tabindex="-1"></main>
 

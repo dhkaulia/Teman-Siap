@@ -13,6 +13,7 @@ import { createGoalFlow } from './flows/goalFlow.js';
 import { createPlanFlow } from './flows/planFlow.js';
 import { createCoupleFlow } from './flows/coupleFlow.js';
 import { CONTENT } from '../content.js';
+import { announce } from './ui/utils.js';
 
 import { renderOnboarding, bindOnboarding } from './screens/onboarding.js';
 import { renderHome, bindHome } from './screens/home.js';
@@ -156,6 +157,88 @@ function setupThemeToggle() {
 }
 
 // -------------------------------------------------------------
+// PWA Service Worker & Install Hint
+// TODO: Push notifications for daily check-in reminders (out of scope for v1 — do not request Notification.permission)
+// -------------------------------------------------------------
+let deferredInstallPrompt = null;
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+  });
+}
+
+export function registerServiceWorker() {
+  if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(err => {
+        console.warn('SW registration failed:', err);
+      });
+    });
+  }
+}
+
+export function checkAndShowInstallHint() {
+  if (typeof localStorage === 'undefined') return;
+  if (localStorage.getItem('temansiap_install_hint_shown') === '1') return;
+
+  const d = store.d;
+  const completedPractices = (d.checkins?.length || 0) +
+                             (d.expenses?.length || 0) +
+                             (d.pauses?.length || 0) +
+                             Object.keys(d.coupleConversations || {}).length;
+
+  // Appears once, after the first completed practice, NEVER on first load
+  if (completedPractices < 1) return;
+
+  const container = document.getElementById('installHintContainer');
+  if (!container) return;
+
+  container.hidden = false;
+  container.innerHTML = `
+    <div class="install-hint-card" role="region" aria-label="Petunjuk pemasangan aplikasi">
+      <div class="install-hint-icon" aria-hidden="true">📲</div>
+      <div class="install-hint-text">
+        <div class="font-bold text-sm">Pasang Teman Siap di Layar Utama</div>
+        <div class="text-xs mute">Buka instan dan tetap berfungsi penuh saat offline tanpa kuota.</div>
+      </div>
+      <div class="install-hint-actions">
+        <button type="button" class="primary btn-action-sm" id="pwaInstallActionBtn">Pasang</button>
+        <button type="button" class="icon-btn btn-action-sm" id="pwaDismissActionBtn" aria-label="Tutup petunjuk">✕</button>
+      </div>
+    </div>
+  `;
+
+  announce('Petunjuk pemasangan aplikasi Teman Siap tersedia.');
+
+  const installBtn = container.querySelector('#pwaInstallActionBtn');
+  const dismissBtn = container.querySelector('#pwaDismissActionBtn');
+
+  const closeHint = () => {
+    container.hidden = true;
+    container.innerHTML = '';
+    localStorage.setItem('temansiap_install_hint_shown', '1');
+  };
+
+  if (installBtn) {
+    installBtn.onclick = () => {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        deferredInstallPrompt.userChoice.then(() => {
+          deferredInstallPrompt = null;
+        }).catch(() => {});
+      }
+      closeHint();
+    };
+  }
+
+  if (dismissBtn) {
+    dismissBtn.onclick = closeHint;
+  }
+}
+
+// -------------------------------------------------------------
 // Boot Application
 // -------------------------------------------------------------
 export function boot() {
@@ -177,8 +260,10 @@ export function boot() {
 
   setupKeyboardProtection();
   setupThemeToggle();
+  registerServiceWorker();
 
   render();
+  checkAndShowInstallHint();
 
   // Attempt restoring active session if browser refreshed during a flow
   sessionRunner.restoreIfAvailable();
@@ -188,6 +273,7 @@ export function boot() {
     if (!sessionRunner.getActiveSession()) {
       render();
     }
+    checkAndShowInstallHint();
   });
 }
 

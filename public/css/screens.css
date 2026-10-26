@@ -749,6 +749,40 @@
   border-bottom: none;
 }
 
+/* PWA Install Hint (Appears once, after first completed practice, never on first load) */
+.install-hint-container {
+  margin: var(--space-2) var(--space-4) 0;
+}
+
+.install-hint-card {
+  background: var(--bg-card);
+  border: 1px solid var(--teal);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  box-shadow: var(--shadow-subtle);
+}
+
+.install-hint-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.install-hint-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.install-hint-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
 /* -------------------------------------------------------------
  * Turn-Based Couple Flow & Kita Hub Styles
  * ----------------------------------------------------------- */

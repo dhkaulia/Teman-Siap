@@ -1,0 +1,33 @@
+{
+  "name": "Teman Siap — Kesiapan Emosi, Finansial & Relasi",
+  "short_name": "Teman Siap",
+  "description": "Pahami dirimu, pahami uangmu, bangun masa depan lebih tenang bersama.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#1B5E59",
+  "background_color": "#F4F6F5",
+  "lang": "id",
+  "categories": ["lifestyle", "health", "finance"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

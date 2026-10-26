@@ -28,3 +28,19 @@ export function today() {
 export function monthKey() {
   return today().slice(0, 7);
 }
+
+/**
+ * Screen reader live announcement helper
+ * Uses aria-live="polite" live region for step changes and timer milestones
+ */
+export function announce(message) {
+  if (typeof document === 'undefined') return;
+  const liveEl = document.getElementById('liveAnnouncer');
+  if (liveEl) {
+    liveEl.textContent = '';
+    requestAnimationFrame(() => {
+      liveEl.textContent = String(message || '');
+    });
+  }
+}
+

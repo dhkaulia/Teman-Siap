@@ -9,6 +9,7 @@ import { CONTENT } from '../../content.js';
 import { Wave } from '../ui/wave.js';
 import { ChoiceTiles } from '../ui/choiceTiles.js';
 import { Bubble } from '../ui/bubble.js';
+import { announce } from '../ui/utils.js';
 
 export function createUrgeFlow(faithPerspective = false, onFinish = null) {
   let timerInterval = null;
@@ -131,12 +132,20 @@ export function createUrgeFlow(faithPerspective = false, onFinish = null) {
             }
           }
 
+          let halfwayAnnounced = false;
+          announce('Latihan jeda belanja 10 menit dimulai.');
+
           const updateScene = () => {
             const now = Date.now();
             const remainSec = Math.max(0, Math.round((endTs - now) / 1000));
             const m = Math.floor(remainSec / 60);
             const s = String(remainSec % 60).padStart(2, '0');
             if (timerEl) timerEl.textContent = `${m}:${s}`;
+
+            if (remainSec <= 300 && !halfwayAnnounced) {
+              halfwayAnnounced = true;
+              announce('Menit ke-5: kartu refleksi pikiran terbuka.');
+            }
 
             // Update wave height proportionally (peaks at 4-5 mins, recedes to calm)
             if (waveInstance) {
@@ -153,6 +162,7 @@ export function createUrgeFlow(faithPerspective = false, onFinish = null) {
             }
 
             if (remainSec <= 0) {
+              announce('Waktu jeda 10 menit selesai. Lanjut ke keputusan.');
               cleanupTimerAndWakeLock();
               runner.next();
             }

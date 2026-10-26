@@ -14,7 +14,10 @@ const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
-  '.json': 'application/json; charset=utf-8'
+  '.json': 'application/json; charset=utf-8',
+  '.webmanifest': 'application/manifest+json; charset=utf-8',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png'
 };
 
 function createTestServer() {
@@ -101,6 +104,11 @@ describe('Static File Server & Module Loading', () => {
     await check('/dev/components.html', 'text/html');
     await check('/content.js', 'text/javascript');
     await check('/support.js', 'text/javascript');
+    await check('/sw.js', 'text/javascript');
+    await check('/manifest.webmanifest', 'application/manifest+json');
+    await check('/icons/icon.svg', 'image/svg+xml');
+    await check('/icons/icon-192.png', 'image/png');
+    await check('/icons/icon-512.png', 'image/png');
 
     // Path traversal defense check
     const traversalRes = await fetch(`http://localhost:${port}/../package.json`);

@@ -11,6 +11,7 @@
  */
 
 import { store } from './store.js';
+import { announce } from './ui/utils.js';
 
 export const SESSION_STORAGE_KEY = 'temansiap_active_session';
 
@@ -281,6 +282,8 @@ class SessionRunner {
     const newStepContainer = document.createElement('div');
     newStepContainer.className = 'session-step-container step-entering';
     newStepContainer.innerHTML = this._buildStepHTML(step, answers);
+
+    announce(`Langkah ${stepIndex + 1} dari ${totalSteps}: ${step.title || 'Latihan'}`);
 
     if (existingStep) {
       existingStep.classList.add('step-leaving');
