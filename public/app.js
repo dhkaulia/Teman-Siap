@@ -1,7 +1,7 @@
 /**
  * Teman Siap — Mobile-First, Local-First Web App
  * 
- * Architecture Rules Followed:
+ * Rules:
  * - Mobile-first: 360x740 base up to 480px column on desktop.
  * - 100dvh viewport, safe-area-inset-* compliant.
  * - Touch targets >= 48x48px, >= 8px gap. Primary actions in bottom thumb zone.
@@ -12,15 +12,22 @@
  * - Private by default: consent-based couple sharing.
  * - Plain language: clinical specifics tucked into optional <details>.
  * - Every exercise can be skipped or exited anytime.
- * - Never shows data the user did not enter.
+ * - Never shows data the user did not enter (no fake goals, prefilled progress, or invented amounts).
+ * - Faith framing behind opt-in setting in "Saya", default off.
+ * - Crisis hotlines in separate support.js, unverified, shown only in DEV_MODE with warning.
  * - Vanilla JS, zero runtime dependencies.
  */
+
+// -------------------------------------------------------------
+// Dev Mode Flag for Unverified Clinical/Safety Pre-Release Assets
+// -------------------------------------------------------------
+const DEV_MODE = new URLSearchParams(window.location.search).has('dev') || localStorage.getItem('temansiap_dev') === '1';
 
 // -------------------------------------------------------------
 // State Store (Local-First & Private by Default)
 // -------------------------------------------------------------
 const store = {
-  key: 'temansiap.v3',
+  key: 'temansiap.v4',
   d: null,
 
   init() {
@@ -32,20 +39,21 @@ const store = {
         this.d = null;
       }
     }
-    // Never show data the user did not enter: goal and plans start empty
+    // Never show data the user did not enter: goal, plans, checkins, expenses start empty
     if (!this.d) {
       this.d = {
         stage: null,
         goals: [],
         checkins: [],
         expenses: [],
-        goal: null, // null until user creates one
+        goal: null, // null until user clicks "Buat tujuan pertama"
         plans: [],  // empty until user creates or adopts one
         pauses: [],
         partnerA: {},
         partnerB: {},
         sharedNotes: {},
         currentPerspective: 'A',
+        faithPerspective: false, // Default off: neutral universal values
         onboardingStep: 1
       };
       this.save();
@@ -100,7 +108,6 @@ const TABS = [
 
 // -------------------------------------------------------------
 // Mobile Keyboard & Viewport Protection
-// Inputs must never be hidden by the on-screen keyboard
 // -------------------------------------------------------------
 document.addEventListener('focusin', e => {
   if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) {
@@ -155,7 +162,7 @@ function getSuggestedAction() {
   }
   return {
     title: 'Latihan Jeda Belanja (Urge Surfing)',
-    desc: 'Latih kesabaran (sabr) menunda keinginan belanja impulsif dengan jeda hening.',
+    desc: 'Latih menunda keinginan belanja impulsif dengan jeda hening sejenak.',
     tab: 'money',
     subView: 'urge',
     btnText: 'Coba Jeda Belanja'
@@ -236,13 +243,13 @@ function render() {
 }
 
 // -------------------------------------------------------------
-// 1. Onboarding Flow (One Step Per Screen, Instant Win)
+// 1. Onboarding Flow (No fake data, no prefilled selections)
 // -------------------------------------------------------------
 let tempOnboarding = {
-  stage: 'Mempersiapkan pernikahan',
-  goals: ['Mengenali emosi & pemicu belanja', 'Komunikasi uang tanpa pertengkaran'],
-  emotion: 'Tenang & Lega',
-  need: 'Istirahat sejenak tanpa rasa bersalah'
+  stage: null,
+  goals: [],
+  emotion: null,
+  need: null
 };
 
 function renderOnboarding() {
@@ -285,15 +292,16 @@ function renderOnboarding() {
 
         <label for="onboardStageSelect">Pilih tahap hidup:</label>
         <select id="onboardStageSelect">
-          <option value="Mempersiapkan pernikahan" selected>Mempersiapkan pernikahan (Calon Pengantin)</option>
-          <option value="Sudah bertunangan">Sudah bertunangan / Dalam proses lamaran</option>
-          <option value="Pengantin baru / Newlyweds">Pengantin baru (1–3 tahun pertama)</option>
-          <option value="Menjelajah untuk diri sendiri">Menjelajah untuk pemahaman diri sendiri</option>
-          <option value="Tidak ingin menjawab">Lebih nyaman tidak menjawab</option>
+          <option value="" disabled ${!tempOnboarding.stage ? 'selected' : ''}>-- Pilih salah satu --</option>
+          <option value="Mempersiapkan pernikahan" ${tempOnboarding.stage === 'Mempersiapkan pernikahan' ? 'selected' : ''}>Mempersiapkan pernikahan (Calon Pengantin)</option>
+          <option value="Sudah bertunangan" ${tempOnboarding.stage === 'Sudah bertunangan' ? 'selected' : ''}>Sudah bertunangan / Dalam proses lamaran</option>
+          <option value="Pengantin baru / Newlyweds" ${tempOnboarding.stage === 'Pengantin baru / Newlyweds' ? 'selected' : ''}>Pengantin baru (1–3 tahun pertama)</option>
+          <option value="Menjelajah untuk diri sendiri" ${tempOnboarding.stage === 'Menjelajah untuk diri sendiri' ? 'selected' : ''}>Menjelajah untuk pemahaman diri sendiri</option>
+          <option value="Tidak ingin menjawab" ${tempOnboarding.stage === 'Tidak ingin menjawab' ? 'selected' : ''}>Lebih nyaman tidak menjawab</option>
         </select>
 
         <h3 style="margin-top: 16px;">Tujuan yang ingin kamu utamakan:</h3>
-        <p class="mute">Boleh pilih lebih dari satu:</p>
+        <p class="mute">Boleh pilih atau dilewati:</p>
 
         <div class="pill-list">
           ${[
@@ -302,7 +310,7 @@ function renderOnboarding() {
             'Mengatasi rasa takut mengecek saldo',
             'Komunikasi uang tanpa pertengkaran',
             'Bantuan keluarga / sandwich generation',
-            'Membangun tabungan dana darurat'
+            'Membangun tabungan dana cadangan'
           ].map(g => `
             <button type="button" class="pill-item ${tempOnboarding.goals.includes(g) ? 'active' : ''}" data-onboard-goal="${esc(g)}">
               ${g}
@@ -330,14 +338,15 @@ function renderOnboarding() {
               <span class="chip-icon">${e.icon}</span>
               <div class="chip-col">
                 <span class="chip-label">${e.label}</span>
-                <span class="chip-hint">${e.hint}</span>
+                <span class="chip-hint">${store.d.faithPerspective && e.faithHint ? e.faithHint : e.hint}</span>
               </div>
             </button>
           `).join('')}
         </div>
 
-        <label for="onboardNeedSelect" style="margin-top: 14px;">Apa satu hal yang paling kamu butuhkan hari ini?</label>
+        <label for="onboardNeedSelect" style="margin-top: 14px;">Apa satu hal yang paling kamu butuhkan hari ini? (Boleh lewati)</label>
         <select id="onboardNeedSelect">
+          <option value="">-- Lewati jika belum tahu --</option>
           ${CONTENT.needs.map(n => `
             <option value="${esc(n)}" ${tempOnboarding.need === n ? 'selected' : ''}>${n}</option>
           `).join('')}
@@ -377,7 +386,8 @@ function bindOnboarding() {
 
     const nextBtn = $('#onboardStep2Next');
     if (nextBtn) nextBtn.onclick = () => {
-      tempOnboarding.stage = $('#onboardStageSelect').value;
+      const selected = $('#onboardStageSelect').value;
+      tempOnboarding.stage = selected || 'Mempersiapkan pernikahan';
       store.d.onboardingStep = 3;
       render();
     };
@@ -393,15 +403,19 @@ function bindOnboarding() {
     if (finishBtn) finishBtn.onclick = () => {
       tempOnboarding.need = $('#onboardNeedSelect').value;
       
-      store.d.stage = tempOnboarding.stage;
+      store.d.stage = tempOnboarding.stage || 'Mempersiapkan pernikahan';
       store.d.goals = tempOnboarding.goals;
-      store.d.checkins.push({
-        emotion: tempOnboarding.emotion,
-        need: tempOnboarding.need,
-        sensations: ['Tubuh terasa rileks dan ringan'],
-        note: 'Cek pertama saat memulai aplikasi',
-        at: Date.now()
-      });
+
+      // Only record a checkin if the user explicitly picked an emotion
+      if (tempOnboarding.emotion) {
+        store.d.checkins.push({
+          emotion: tempOnboarding.emotion,
+          need: tempOnboarding.need || '',
+          sensations: [],
+          note: '',
+          at: Date.now()
+        });
+      }
       delete store.d.onboardingStep;
       store.save();
       navigateTo('home');
@@ -438,7 +452,7 @@ function renderHome() {
     <div class="card">
       <div class="card-title-row">
         <h3>Praktik Bermakna Mingguan</h3>
-        <span class="card-tag">Tanpa Tekanan</span>
+        <span class="card-tag">${d.faithPerspective ? 'Gotong Royong & Sabar' : 'Kebiasaan Sehat'}</span>
       </div>
       <p class="mute">Tidak ada streak yang terhapus jika kamu rehat. Kami merayakan setiap niat baik yang kamu lakukan.</p>
 
@@ -472,13 +486,13 @@ function renderHome() {
         <h3>Lapar Mata Saat Ini?</h3>
         <span class="card-tag saffron">Alat Cepat</span>
       </div>
-      <p class="mute">Dorongan belanja memuncak selama 10–15 menit seperti ombak lalu mereda. Luangkan jeda sejenak.</p>
+      <p class="mute">Dorongan belanja memuncak selama 10 menit seperti ombak lalu mereda. Luangkan jeda sejenak.</p>
       <button type="button" class="saffron-btn" id="homeUrgeBtn" style="width: 100%;">
         Buka Jeda 10 Menit (Urge Surfing) ⏱️
       </button>
     </div>
 
-    <!-- Recent Emotion Snapshot -->
+    <!-- Recent Emotion Snapshot (rendered only if user has entered one) -->
     ${recentCheckin ? `
       <div class="card">
         <div class="card-title-row">
@@ -489,7 +503,7 @@ function renderHome() {
           <span style="font-size: 1.6rem;">🌱</span>
           <div>
             <div style="font-weight: 600;">${esc(recentCheckin.emotion)}</div>
-            <div class="mute" style="font-size: 0.86rem;">Kebutuhan: ${esc(recentCheckin.need || 'Istirahat')}</div>
+            ${recentCheckin.need ? `<div class="mute" style="font-size: 0.86rem;">Kebutuhan: ${esc(recentCheckin.need)}</div>` : ''}
           </div>
         </div>
       </div>
@@ -516,7 +530,6 @@ function bindHome() {
 
 // -------------------------------------------------------------
 // 3. Module A: Emotions (Emosi — "Me")
-// One Primary Action Per Screen (Check-in vs Dedicated Practice)
 // -------------------------------------------------------------
 function renderEmotions() {
   return `
@@ -528,7 +541,7 @@ function renderEmotions() {
     </div>
     <p class="mute">Emosi adalah pengalaman sementara, bukan kegagalan diri. Kenali perasaanmu tanpa menghakimi.</p>
 
-    <!-- Sub-Navigation for Clean Focus -->
+    <!-- Sub-Navigation -->
     <div class="sub-nav" role="tablist">
       <button type="button" class="${emotionSubView === 'checkin' ? 'active' : ''}" id="emoTabCheckin">
         1. Cek Perasaan
@@ -543,6 +556,8 @@ function renderEmotions() {
 }
 
 function renderEmotionCheckin() {
+  const faith = store.d.faithPerspective;
+
   if (!selectedEmotion) {
     return `
       <div class="card">
@@ -558,7 +573,7 @@ function renderEmotionCheckin() {
               <span class="chip-icon">${e.icon}</span>
               <div class="chip-col">
                 <span class="chip-label">${e.label}</span>
-                <span class="chip-hint">${e.hint}</span>
+                <span class="chip-hint">${faith && e.faithHint ? e.faithHint : e.hint}</span>
               </div>
             </button>
           `).join('')}
@@ -572,7 +587,6 @@ function renderEmotionCheckin() {
     `;
   }
 
-  // Step 2 of Check-in: Body sensations & need
   return `
     <div class="card">
       <div class="card-title-row">
@@ -600,7 +614,6 @@ function renderEmotionCheckin() {
       <label for="checkinNoteArea">Catatan pribadi (hanya di browsermu):</label>
       <textarea id="checkinNoteArea" placeholder="Tuliskan apa yang ada di pikiranmu dengan bebas..."></textarea>
 
-      <!-- Sticky thumb-zone action -->
       <div class="sticky-bottom-action">
         <button type="button" class="primary" id="saveEmotionCheckinBtn" style="width: 100%;">
           Simpan Cek Emosi Ini ✨
@@ -611,11 +624,16 @@ function renderEmotionCheckin() {
 }
 
 function renderEmotionPractice() {
+  const faith = store.d.faithPerspective;
+
   if (activeExerciseId === 'ex-breath') {
+    const ex = CONTENT.exercises.find(x => x.id === 'ex-breath');
+    const title = faith && ex.faithTitle ? ex.faithTitle : ex.title;
+
     return `
       <div class="card">
         <div class="card-title-row">
-          <h3>Latihan Napas Sabar (4-4-6)</h3>
+          <h3>${esc(title)}</h3>
           <button type="button" class="secondary" id="exitExerciseBtn" style="min-height: 38px; padding: 4px 10px; font-size: 0.85rem;">
             ✕ Tutup Latihan
           </button>
@@ -634,7 +652,7 @@ function renderEmotionPractice() {
 
         <details class="clinical-note" style="margin-top: 18px;">
           <summary>Pelajari prinsip di balik latihan ini</summary>
-          <p>${CONTENT.exercises.find(x => x.id === 'ex-breath').clinicalDetail}</p>
+          <p>${ex.clinicalDetail}</p>
         </details>
       </div>
     `;
@@ -648,30 +666,33 @@ function renderEmotionPractice() {
       </div>
       <p class="mute">Latihan terbukti secara psikologis untuk meredakan gelisah tanpa obat:</p>
 
-      ${CONTENT.exercises.map(x => `
-        <div style="border: 1px solid var(--border-card); border-radius: 12px; padding: 14px; margin-bottom: 12px; background: var(--bg-card);">
-          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
-            <span style="font-weight: 700; font-size: 1.05rem; color: var(--ink-primary);">${x.title}</span>
-            <span class="card-tag">${x.duration}</span>
-          </div>
-          <p class="mute" style="margin-bottom: 10px; font-size: 0.9rem;">${x.description}</p>
-          
-          ${x.id === 'ex-breath' ? `
-            <button type="button" class="primary" data-start-ex="${x.id}" style="width: 100%;">
-              Buka Latihan Napas Interaktif →
-            </button>
-          ` : `
-            <ol style="margin: 0 0 10px; padding-left: 20px; font-size: 0.9rem; color: var(--ink-secondary);">
-              ${x.steps.map(s => `<li style="margin-bottom: 4px;">${s}</li>`).join('')}
-            </ol>
-          `}
+      ${CONTENT.exercises.map(x => {
+        const title = faith && x.faithTitle ? x.faithTitle : x.title;
+        return `
+          <div style="border: 1px solid var(--border-card); border-radius: 12px; padding: 14px; margin-bottom: 12px; background: var(--bg-card);">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
+              <span style="font-weight: 700; font-size: 1.05rem; color: var(--ink-primary);">${esc(title)}</span>
+              <span class="card-tag">${x.duration}</span>
+            </div>
+            <p class="mute" style="margin-bottom: 10px; font-size: 0.9rem;">${x.description}</p>
+            
+            ${x.id === 'ex-breath' ? `
+              <button type="button" class="primary" data-start-ex="${x.id}" style="width: 100%;">
+                Buka Latihan Napas Interaktif →
+              </button>
+            ` : `
+              <ol style="margin: 0 0 10px; padding-left: 20px; font-size: 0.9rem; color: var(--ink-secondary);">
+                ${x.steps.map(s => `<li style="margin-bottom: 4px;">${s}</li>`).join('')}
+              </ol>
+            `}
 
-          <details class="clinical-note">
-            <summary>Pelajari prinsip ilmiahnya</summary>
-            <p>${x.clinicalDetail}</p>
-          </details>
-        </div>
-      `).join('')}
+            <details class="clinical-note">
+              <summary>Pelajari prinsip ilmiahnya</summary>
+              <p>${x.clinicalDetail}</p>
+            </details>
+          </div>
+        `;
+      }).join('')}
     </div>
   `;
 }
@@ -763,7 +784,7 @@ function bindEmotions() {
 
       breathBtn.textContent = 'Hentikan Latihan';
       let secondsLeft = 60;
-      let phase = 0; // 0: inhale (4s), 1: hold (4s), 2: exhale (6s)
+      let phase = 0;
       let phaseTime = 0;
 
       const circle = $('#breathCircle');
@@ -816,7 +837,7 @@ function bindEmotions() {
 
 // -------------------------------------------------------------
 // 4. Module B: Money (Uang — "My Money")
-// Segmented subviews: Log Expense | Urge Surfing | Goals & Plans
+// Zero fake data: empty state with single "Buat tujuan pertama" button
 // -------------------------------------------------------------
 function renderMoney() {
   const d = store.d;
@@ -908,7 +929,9 @@ function renderMoneyLog() {
 }
 
 function renderMoneyUrge() {
+  const faith = store.d.faithPerspective;
   const reframe = CONTENT.cognitiveReframes[activeReframeIndex];
+  const reframeText = faith && reframe.counterPerspectiveFaith ? reframe.counterPerspectiveFaith : reframe.counterPerspective;
 
   return `
     <div class="urge-surf-box">
@@ -930,9 +953,9 @@ function renderMoneyUrge() {
       <div class="intensity-slider-wrap">
         <div class="intensity-header">
           <span>Seberapa kuat dorongan belanjamu? (1–10):</span>
-          <span id="sliderIntensityLabel" style="color: var(--saffron);">7 / 10 (Cukup Kuat)</span>
+          <span id="sliderIntensityLabel" style="color: var(--saffron);">5 / 10 (Sedang)</span>
         </div>
-        <input type="range" class="slider-range" id="urgeSlider" min="1" max="10" value="7">
+        <input type="range" class="slider-range" id="urgeSlider" min="1" max="10" value="5">
       </div>
 
       <div class="timer-display" id="urgeTimerDisplay">10:00</div>
@@ -948,7 +971,7 @@ function renderMoneyUrge() {
           💡 Sudut Pandang Seimbang
         </div>
         <div class="reframe-thought" id="reframeThought">${reframe.impulseThought}</div>
-        <div class="reframe-answer" id="reframeAnswer">${reframe.counterPerspective}</div>
+        <div class="reframe-answer" id="reframeAnswer">${reframeText}</div>
         <div style="text-align: right; margin-top: 8px;">
           <button type="button" class="secondary" id="nextReframeBtn" style="min-height: 38px; padding: 4px 12px; font-size: 0.82rem;">
             Lihat Contoh Lain ↻
@@ -969,11 +992,11 @@ function renderMoneyGoals() {
   const goal = d.goal;
 
   return `
-    <!-- Goal Section: Never shows data the user did not enter -->
+    <!-- Goal Section: Empty state with single button if no goal entered -->
     <div class="card">
       <div class="card-title-row">
         <h3>Tujuan Tabungan Bersama</h3>
-        <span class="card-tag saffron">Masa Depan</span>
+        <span class="card-tag saffron">${d.faithPerspective ? 'Masa Depan Sakinah' : 'Masa Depan'}</span>
       </div>
 
       ${goal ? `
@@ -994,28 +1017,27 @@ function renderMoneyGoals() {
           <input type="number" id="addSaveInput" inputmode="numeric" pattern="[0-9]*" placeholder="Nominal (Rp)" min="1" style="margin-bottom: 0;">
           <button type="button" class="saffron-btn" id="addSaveBtn" style="white-space: nowrap;">+ Tabung</button>
         </div>
-      ` : `
-        <p class="mute">Belum ada tujuan tabungan yang kamu buat. Menetapkan satu tujuan bersama memberi makna besar pada penghematan kecil harian.</p>
-        
-        ${showNewGoalForm ? `
-          <div style="border-top: 1px solid var(--border-card); padding-top: 12px; margin-top: 10px;">
-            <label for="newGoalNameInput">Nama Tujuan Tabungan:</label>
-            <input type="text" id="newGoalNameInput" placeholder="Misal: Dana Darurat 3 Bulan / DP Tempat Tinggal">
+      ` : (showNewGoalForm ? `
+        <div style="margin-top: 10px;">
+          <label for="newGoalNameInput">Nama Tujuan Tabungan:</label>
+          <input type="text" id="newGoalNameInput" placeholder="Misal: Dana Cadangan / Tempat Tinggal Mandiri">
 
-            <label for="newGoalTargetInput">Target Nominal (Rp):</label>
-            <input type="number" id="newGoalTargetInput" inputmode="numeric" pattern="[0-9]*" placeholder="Misal: 5000000" min="1">
+          <label for="newGoalTargetInput">Target Nominal (Rp):</label>
+          <input type="number" id="newGoalTargetInput" inputmode="numeric" pattern="[0-9]*" placeholder="Misal: 5000000" min="1">
 
-            <div class="btn-group">
-              <button type="button" class="primary" id="saveNewGoalBtn">Simpan Tujuan Tabungan</button>
-              <button type="button" class="secondary" id="cancelGoalFormBtn">Batal</button>
-            </div>
+          <div class="btn-group">
+            <button type="button" class="primary" id="saveNewGoalBtn">Simpan Tujuan Tabungan</button>
+            <button type="button" class="secondary" id="cancelGoalFormBtn">Batal</button>
           </div>
-        ` : `
+        </div>
+      ` : `
+        <div style="text-align: center; padding: 18px 8px;">
+          <p class="mute" style="margin-bottom: 16px;">Belum ada tujuan tabungan yang kamu buat.</p>
           <button type="button" class="primary" id="openGoalFormBtn" style="width: 100%;">
-            + Buat Tujuan Tabungan Pertama
+            Buat tujuan pertama
           </button>
-        `}
-      `}
+        </div>
+      `)}
     </div>
 
     <!-- If-Then Plans Section -->
@@ -1036,7 +1058,7 @@ function renderMoneyGoals() {
           `).join('')}
         </div>
       ` : `
-        <p class="mute" style="font-style: italic;">Belum ada rencana jika-maka. Buat rencana baru atau pilih dari contoh siap pakai di bawah.</p>
+        <p class="mute" style="font-style: italic;">Belum ada rencana jika-maka.</p>
       `}
 
       <div style="border-top: 1px solid var(--border-card); padding-top: 12px;">
@@ -1119,8 +1141,9 @@ function bindMoney() {
     nextReframeBtn.onclick = () => {
       activeReframeIndex = (activeReframeIndex + 1) % CONTENT.cognitiveReframes.length;
       const ref = CONTENT.cognitiveReframes[activeReframeIndex];
+      const faith = store.d.faithPerspective;
       $('#reframeThought').textContent = ref.impulseThought;
-      $('#reframeAnswer').textContent = ref.counterPerspective;
+      $('#reframeAnswer').textContent = faith && ref.counterPerspectiveFaith ? ref.counterPerspectiveFaith : ref.counterPerspective;
     };
   }
 
@@ -1152,7 +1175,7 @@ function bindMoney() {
           startTimerBtn.textContent = 'Mulai Jeda 10 Menit ⏳';
 
           store.d.pauses.push({
-            intensity: slider ? slider.value : 7,
+            intensity: slider ? slider.value : 5,
             helped: true,
             at: Date.now()
           });
@@ -1216,7 +1239,7 @@ function bindMoney() {
         at: Date.now()
       });
       store.save();
-      alert(`Alhamdulillah, ${idr(val)} ditambahkan ke tabungan ${store.d.goal.name}!`);
+      alert(`Berhasil menambahkan ${idr(val)} ke tabungan ${store.d.goal.name}!`);
       render();
     };
   }
@@ -1368,7 +1391,7 @@ function renderRelationship() {
             </ul>
 
             <label for="jointAgreementInput" style="margin-top: 14px;">Satu Komitmen / Langkah Kecil Bersama:</label>
-            <input type="text" id="jointAgreementInput" value="${esc(jointNote)}" placeholder="Misal: Buat amplop khusus bantuan keluarga Rp 1 jt/bulan">
+            <input type="text" id="jointAgreementInput" value="${esc(jointNote)}" placeholder="Misal: Buat pos khusus bantuan keluarga Rp 500 rb/bulan">
             <button type="button" class="plum-btn" id="saveJointAgreementBtn" style="width: 100%;">
               Simpan Kesepakatan Bersama 📝
             </button>
@@ -1518,16 +1541,16 @@ function bindRelationship() {
 }
 
 // -------------------------------------------------------------
-// 6. Module: Self (Saya — "Safe Space & Verification")
+// 6. Module: Self (Saya — "Safe Space, Settings & Support")
 // -------------------------------------------------------------
 function renderSelf() {
   const d = store.d;
-  const support = CONTENT.supportNotice;
+  const support = typeof SUPPORT_DATA !== 'undefined' ? SUPPORT_DATA : null;
 
   return `
     <div class="card-title-row">
       <div>
-        <span class="card-tag">Privasi & Riwayat</span>
+        <span class="card-tag">Privasi & Pengaturan</span>
         <h1 style="margin: 4px 0 2px;">Ruang Saya</h1>
       </div>
     </div>
@@ -1549,6 +1572,23 @@ function renderSelf() {
       </ul>
     </div>
 
+    <!-- Faith Perspective Opt-In Setting (Default Off) -->
+    <div class="card">
+      <div class="card-title-row">
+        <h3>Preferensi Konten</h3>
+        <span class="card-tag">Pengaturan</span>
+      </div>
+      <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin-bottom: 0;">
+        <input type="checkbox" id="faithPerspectiveToggle" ${d.faithPerspective ? 'checked' : ''} style="width: 22px; height: 22px; min-height: 22px; margin: 2px 0 0;">
+        <span style="font-size: 0.95rem; color: var(--ink-primary); line-height: 1.45;">
+          <b>Tampilkan sudut pandang nilai iman</b><br>
+          <span class="mute" style="font-size: 0.85rem;">
+            Menyertakan perspektif nilai keimanan (seperti sabar, syukur, dan qana'ah) di dalam latihan dan refleksi. Default non-aktif.
+          </span>
+        </span>
+      </label>
+    </div>
+
     <!-- Privacy Management -->
     <div class="card">
       <div class="card-title-row">
@@ -1567,27 +1607,50 @@ function renderSelf() {
       </div>
     </div>
 
-    <!-- Verified Indonesian Crisis Contacts -->
+    <!-- Crisis Support Section -->
     <div class="card" style="border-left: 4px solid var(--teal);">
       <div class="card-title-row">
-        <h3 style="color: var(--teal);">${esc(support.crisisTitle)}</h3>
-        <span class="card-tag">Resmi Terverifikasi</span>
+        <h3 style="color: var(--teal); margin: 0;">Bantuan & Dukungan Darurat</h3>
       </div>
-      <p class="mute" style="font-size: 0.88rem;">${esc(support.disclaimer)}</p>
-      <p style="font-size: 0.9rem; color: var(--ink-secondary); margin-bottom: 12px;">${esc(support.crisisText)}</p>
+      <p class="mute" style="font-size: 0.88rem; margin-top: 8px;">
+        ${support ? esc(support.disclaimer) : 'Aplikasi ini adalah sarana edukasi mandiri, bukan layanan diagnosis psikologis klinis atau penasihat keuangan.'}
+      </p>
+      <p style="font-size: 0.9rem; color: var(--ink-secondary); margin-bottom: 12px;">
+        Jika kamu atau pasangan sedang mengalami tekanan batin berat, kekerasan dalam relasi, atau situasi krisis darurat, selalu hubungi layanan bantuan darurat setempat atau tenaga profesional manusia.
+      </p>
 
-      ${support.hotlines.map(h => `
-        <div class="hotline-card">
-          <div class="hotline-name">${esc(h.name)}</div>
-          <div class="hotline-number">${esc(h.contact)}</div>
-          <div class="mute" style="font-size: 0.84rem;">${esc(h.desc)}</div>
+      ${DEV_MODE && support && support.hotlines ? `
+        <div style="background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 8px; padding: 10px 12px; margin: 12px 0; font-size: 0.86rem; color: #92400E;">
+          ⚠️ <b>Mode Pengembang (DEV_MODE):</b> ${esc(support.reviewNote)}
+          <br><span style="font-size: 0.8rem;">Status peninjauan: ${support.verified ? 'Selesai Diperiksa' : 'Draf (lastVerified: null)'}</span>
         </div>
-      `).join('')}
+
+        ${support.hotlines.map(h => `
+          <div class="hotline-card">
+            <div class="hotline-name">${esc(h.name)}</div>
+            <div class="hotline-number">${esc(h.contact)}</div>
+            <div class="mute" style="font-size: 0.84rem;">${esc(h.desc)}</div>
+          </div>
+        `).join('')}
+      ` : `
+        <div style="font-size: 0.82rem; color: var(--ink-muted); margin-top: 8px;">
+          <i>Daftar nomor kontak darurat lokal disembunyikan dalam versi publik hingga melewati verifikasi resmi.</i>
+        </div>
+      `}
     </div>
   `;
 }
 
 function bindSelf() {
+  const faithToggle = $('#faithPerspectiveToggle');
+  if (faithToggle) {
+    faithToggle.onchange = () => {
+      store.d.faithPerspective = faithToggle.checked;
+      store.save();
+      render();
+    };
+  }
+
   const exportBtn = $('#exportDataJsonBtn');
   if (exportBtn) {
     exportBtn.onclick = () => {

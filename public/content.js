@@ -4,11 +4,13 @@
 
 const CONTENT = {
   // Emotion Taxonomy (Level 1: Notice & Name)
+  // Default is secular/plain; faith framing is opt-in via user setting
   emotions: [
     { id: 'tenang', label: 'Tenang & Lega', icon: '🌿', hint: 'Napas teratur, pundak rileks' },
     { id: 'cemas', label: 'Cemas / Gelisah', icon: '⚡', hint: 'Dada sesak, pikiran melompat-lompat' },
     { id: 'lelah', label: 'Lelah / Burnout', icon: '🌙', hint: 'Energi habis, tubuh terasa berat' },
-    { id: 'senang', label: 'Senang & Bersyukur', icon: '✨', hint: 'Dada hangat, merasa cukup' },
+    { id: 'senang', label: 'Senang', icon: '✨', hint: 'Energi positif, dada hangat' },
+    { id: 'bersyukur', label: 'Bersyukur', icon: '🤲', hint: 'Merasa cukup dengan keadaan saat ini', faithHint: 'Sikap syukur & qana\'ah atas rezeki saat ini' },
     { id: 'sedih', label: 'Sedih / Rentan', icon: '💧', hint: 'Tenggorokan tercekat, ingin menyendiri' },
     { id: 'marah', label: 'Kesal / Frustrasi', icon: '🔥', hint: 'Rahang tegang, dada panas' },
     { id: 'kewalahan', label: 'Kewalahan', icon: '🌊', hint: 'Banyak tuntutan, sulit berpikir jernih' },
@@ -42,7 +44,8 @@ const CONTENT = {
   exercises: [
     {
       id: 'ex-breath',
-      title: 'Latihan Napas Sabar (4-4-6)',
+      title: 'Latihan Napas Tenang (4-4-6)',
+      faithTitle: 'Latihan Napas Sabar (4-4-6)',
       plainTag: 'Meredakan Gelisah',
       duration: '1 Menit',
       description: 'Membantu menenangkan detak jantung saat pikiran terasa terburu-buru.',
@@ -126,7 +129,8 @@ const CONTENT = {
     },
     {
       impulseThought: '“Teman-temanku sudah punya barang ini, aku malu kalau ketinggalan.”',
-      counterPerspective: 'Pernikahan yang sakinah dibangun di atas ketenteraman sendiri, bukan untuk panggung penonton. Bersyukur (qana\'ah) adalah kunci ketenangan sejati.'
+      counterPerspective: 'Masa depan bersama dibangun di atas ketenangan sendiri, bukan untuk penilaian orang lain. Hidup secukupnya adalah kunci kedamaian sejati.',
+      counterPerspectiveFaith: 'Pernikahan yang sakinah dibangun di atas ketenteraman bersama, bukan untuk panggung penonton. Sikap syukur dan qana\'ah adalah kunci ketenangan sejati.'
     }
   ],
 
@@ -227,18 +231,5 @@ const CONTENT = {
       antidoteName: 'Minta Jeda Menenangkan Tubuh (20 Menit)',
       antidoteExample: '“Aku sedang merasa kewalahan sekarang. Boleh kita rehat 20 menit agar aku bisa menenangkan diri dulu?”'
     }
-  ],
-
-  // Verified Crisis & Emergency Resources (Indonesia)
-  supportNotice: {
-    disclaimer: 'Teman Siap adalah sarana edukasi dan refleksi diri mandiri, bukan layanan diagnosis psikologis klinis atau penasihat keuangan berlisensi.',
-    crisisTitle: 'Layanan Bantuan & Dukungan Manusia',
-    crisisText: 'Jika kamu atau pasangan sedang mengalami tekanan batin yang berat, kekerasan dalam hubungan, atau pikiran menyakiti diri, bantuan profesional manusia selalu tersedia secara gratis dan rahasia:',
-    hotlines: [
-      { name: 'Layanan SEJIWA (Kemenkes RI)', contact: '119 (ekstensi 8)', desc: 'Konseling psikologis gratis 24 jam' },
-      { name: 'SAPA 129 (KemenPPPA)', contact: 'Hotline 129 / WhatsApp 08111-129-129', desc: 'Pengaduan & perlindungan perempuan dan keluarga' },
-      { name: 'Yayasan Pulih', contact: 'WhatsApp 0811-8436-633', desc: 'Konseling trauma dan pemulihan kesehatan mental' },
-      { name: 'LSM Sahabat Rekan Sebaya', contact: '021-9987878', desc: 'Dukungan emosional dan pencegahan krisis' }
-    ]
-  }
+  ]
 };

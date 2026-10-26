@@ -23,8 +23,8 @@ Teman Siap is an empathetic, beginner-friendly companion for Indonesian young ad
 - **Surface / Card:** `#FFFFFF` (Dark: `#1A2422`)  
   *Purpose:* High legibility content container with a subtle 1px border (`#E0E7E4`, Dark: `#273735`).
 - **Typography Inks:**
-  - Ink High Contrast: `#132220` (Dark: `#EEF5F3`) — Contrast ratio > 11:1 (Exceeds WCAG AAA).
-  - Ink Secondary / Mute: `#4B615D` (Dark: `#A3B8B4`) — Contrast ratio > 5.5:1 (Exceeds WCAG AA).
+  - Ink High Contrast: `#132220` (Dark: `#EEF5F3`) — Target contrast ratio > 11:1 on cards.
+  - Ink Secondary / Mute: `#4B615D` (Dark: `#A3B8B4`) — Target contrast ratio > 5.5:1. Formal screen-reader audit pending.
 
 ---
 
