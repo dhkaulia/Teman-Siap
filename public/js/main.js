@@ -53,7 +53,7 @@ function renderNav() {
   const navEl = document.getElementById('nav');
   if (!navEl) return;
 
-  if (!store.d.stage) {
+  if (!store.d.onboardingComplete) {
     navEl.style.display = 'none';
     return;
   }
@@ -78,7 +78,7 @@ export function render() {
   const viewEl = document.getElementById('view');
   if (!viewEl) return;
 
-  if (!store.d.stage) {
+  if (!store.d.onboardingComplete) {
     viewEl.innerHTML = renderOnboarding(store);
     bindOnboarding(viewEl, store, navigate, render);
     return;

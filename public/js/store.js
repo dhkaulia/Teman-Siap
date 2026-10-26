@@ -27,7 +27,8 @@ export function createInitialState() {
     sharedNotes: {},
     currentPerspective: 'A',
     faithPerspective: false, // Default off: neutral universal values
-    onboardingStep: 1
+    onboardingStep: 1,
+    onboardingComplete: false
   };
 }
 
@@ -101,6 +102,16 @@ export function migrate(savedData, targetVersion = CURRENT_STORE_VERSION) {
 
   // Perspective defaults to 'A'
   migrated.currentPerspective = savedData.currentPerspective === 'B' ? 'B' : 'A';
+
+  // Onboarding completion status and progress persistence
+  if (savedData.onboardingComplete !== undefined) {
+    migrated.onboardingComplete = Boolean(savedData.onboardingComplete);
+  } else if (savedData.stage) {
+    migrated.onboardingComplete = true;
+  } else {
+    migrated.onboardingComplete = false;
+  }
+  migrated.onboardingStep = Number(savedData.onboardingStep) || 1;
 
   return migrated;
 }

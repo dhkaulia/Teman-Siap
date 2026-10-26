@@ -1,24 +1,96 @@
 /**
  * Screen: Onboarding
- * 3-step gentle setup: Stage -> Priority Goals -> 1-Min Checkin
- * Rules: Zero fake data, private by default.
+ * 
+ * Rules:
+ * - One question per screen, NO dropdowns anywhere.
+ * 1. Welcome (privacy promise, "Mulai" in thumb zone, "Lihat-lihat dulu" as guest).
+ * 2. Stage: ChoiceTiles (5 options).
+ * 3. What matters: multi-select ChoiceTiles, skippable.
+ * 4. A first 60-second practice (the Breather) BEFORE any account or name prompt.
+ * 5. Warm closing line and pointer to Home. Do not ask for email; accounts come later.
+ * - Persist progress between steps.
  */
-import { CONTENT } from '../../content.js';
+
+import { ChoiceTiles } from '../ui/choiceTiles.js';
+import { Breather } from '../ui/breather.js';
 import { esc } from '../ui/utils.js';
 
-let tempOnboarding = {
-  stage: null,
-  goals: [],
-  emotion: null,
-  need: null
-};
+const STAGE_OPTIONS = [
+  {
+    value: 'Mempersiapkan pernikahan',
+    label: 'Mempersiapkan pernikahan',
+    icon: '💍',
+    hint: 'Sedang merencanakan hari pernikahan bersama'
+  },
+  {
+    value: 'Sudah bertunangan',
+    label: 'Sudah bertunangan',
+    icon: '✨',
+    hint: 'Dalam proses lamaran atau pembicaraan keluarga'
+  },
+  {
+    value: 'Pengantin baru (Newlyweds)',
+    label: 'Pengantin baru (Newlyweds)',
+    icon: '🏡',
+    hint: 'Menjalani 1–3 tahun pertama rumah tangga'
+  },
+  {
+    value: 'Menjelajah untuk diri sendiri',
+    label: 'Menjelajah untuk diri sendiri',
+    icon: '🌱',
+    hint: 'Membangun kesiapan emosi & finansial mandiri'
+  },
+  {
+    value: 'Lebih nyaman tidak menjawab',
+    label: 'Lebih nyaman tidak menjawab',
+    icon: '🔒',
+    hint: 'Privat sepenuhnya'
+  }
+];
+
+const WHAT_MATTERS_OPTIONS = [
+  {
+    value: 'Mengenali emosi & lapar mata',
+    label: 'Mengenali emosi & lapar mata',
+    icon: '⚡',
+    hint: 'Jeda belanja impulsif saat stres'
+  },
+  {
+    value: 'Mengatasi cemas cek saldo',
+    label: 'Mengatasi cemas cek saldo',
+    icon: '🪙',
+    hint: 'Mencatat uang dengan tenang tanpa rasa bersalah'
+  },
+  {
+    value: 'Bicara uang tanpa bertengkar',
+    label: 'Bicara uang tanpa bertengkar',
+    icon: '🤝',
+    hint: 'Mendengarkan sudut pandang pasangan secara aman'
+  },
+  {
+    value: 'Bantuan keluarga & sandwich gen',
+    label: 'Bantuan keluarga & sandwich gen',
+    icon: '🌿',
+    hint: 'Menentukan batas berbakti yang adil'
+  },
+  {
+    value: 'Membangun dana cadangan',
+    label: 'Membangun dana cadangan',
+    icon: '🎯',
+    hint: 'Menabung sedikit demi sedikit untuk masa depan'
+  }
+];
 
 export function renderOnboarding(store) {
-  const step = store.d.onboardingStep || 1;
+  const d = store.d;
+  const step = d.onboardingStep || 1;
 
+  // -------------------------------------------------------------
+  // Step 1: Welcome Screen
+  // -------------------------------------------------------------
   if (step === 1) {
     return `
-      <div class="card onboard-hero">
+      <div class="card onboard-hero mb-3">
         <div class="onboard-icon" aria-hidden="true">🌱</div>
         <h1 class="mb-1">Teman Siap</h1>
         <p class="onboard-subtitle">
@@ -28,93 +100,128 @@ export function renderOnboarding(store) {
           Menjelang pernikahan bukan hanya tentang membagi biaya resepsi. Ini tentang menyelaraskan emosi, kebiasaan belanja, ekspektasi keluarga besar, dan cara berbicara berdua.
         </p>
 
-        <div class="privacy-banner">
+        <!-- Privacy Promise -->
+        <div class="privacy-banner mb-4">
           <div class="privacy-banner-title">
             🔒 Privasi Penuh Tanpa Syarat
           </div>
           <div class="privacy-banner-text">
-            Tidak perlu akun atau email. Semua data tersimpan aman di browsermu dan tidak pernah dibagikan tanpa izinmu.
+            Semua catatan tersimpan secara lokal di ponselmu. Tanpa akun, tanpa email, dan tanpa pelacak iklan.
           </div>
         </div>
 
-        <button type="button" class="primary w-full" id="startOnboardBtn">
-          Mulai Langkah Pertama (3 Menit) →
-        </button>
+        <!-- Thumb Zone Actions -->
+        <div class="flex flex-col gap-2">
+          <button type="button" class="primary w-full" id="onboardStartBtn">
+            Mulai Langkah Pertama →
+          </button>
+          <button type="button" class="secondary w-full" id="onboardGuestBtn">
+            Lihat-lihat dulu (Mode Tamu)
+          </button>
+        </div>
       </div>
     `;
   }
 
+  // -------------------------------------------------------------
+  // Step 2: Stage Screen (ChoiceTiles, 5 options, NO dropdowns)
+  // -------------------------------------------------------------
   if (step === 2) {
     return `
-      <div class="card">
-        <span class="card-tag">Langkah 1 dari 3</span>
-        <h2>Tahap hidupmu saat ini</h2>
-        <p class="mute">Teman Siap menyesuaikan contoh latihan dengan situasi aslimu.</p>
+      <div class="card mb-3">
+        <span class="card-tag saffron">Langkah 1 dari 4 • Tahap Hidup</span>
+        <h2 class="mt-2 mb-1">Tahap hidupmu saat ini</h2>
+        <p class="mute text-xs mb-3">
+          Teman Siap menyesuaikan contoh latihan dan refleksi dengan situasimu saat ini:
+        </p>
 
-        <label for="onboardStageSelect">Pilih tahap hidup:</label>
-        <select id="onboardStageSelect">
-          <option value="" disabled ${!tempOnboarding.stage ? 'selected' : ''}>-- Pilih salah satu --</option>
-          <option value="Mempersiapkan pernikahan" ${tempOnboarding.stage === 'Mempersiapkan pernikahan' ? 'selected' : ''}>Mempersiapkan pernikahan (Calon Pengantin)</option>
-          <option value="Sudah bertunangan" ${tempOnboarding.stage === 'Sudah bertunangan' ? 'selected' : ''}>Sudah bertunangan / Dalam proses lamaran</option>
-          <option value="Pengantin baru / Newlyweds" ${tempOnboarding.stage === 'Pengantin baru / Newlyweds' ? 'selected' : ''}>Pengantin baru (1–3 tahun pertama)</option>
-          <option value="Menjelajah untuk diri sendiri" ${tempOnboarding.stage === 'Menjelajah untuk diri sendiri' ? 'selected' : ''}>Menjelajah untuk pemahaman diri sendiri</option>
-          <option value="Tidak ingin menjawab" ${tempOnboarding.stage === 'Tidak ingin menjawab' ? 'selected' : ''}>Lebih nyaman tidak menjawab</option>
-        </select>
+        <div id="stageChoiceTilesMount" class="mb-4"></div>
 
-        <h3 class="mt-3">Tujuan yang ingin kamu utamakan:</h3>
-        <p class="mute">Boleh pilih atau dilewati:</p>
-
-        <div class="pill-list">
-          ${[
-            'Mengenali emosi & pemicu belanja',
-            'Kurangi belanja impulsif / lapar mata',
-            'Mengatasi rasa takut mengecek saldo',
-            'Komunikasi uang tanpa pertengkaran',
-            'Bantuan keluarga / sandwich generation',
-            'Membangun tabungan dana cadangan'
-          ].map(g => `
-            <button type="button" class="pill-item ${tempOnboarding.goals.includes(g) ? 'active' : ''}" data-onboard-goal="${esc(g)}">
-              ${esc(g)}
-            </button>
-          `).join('')}
-        </div>
-
-        <div class="btn-group mt-3">
-          <button type="button" class="primary w-full" id="onboardStep2Next">Lanjut ke Cek Diri Sejenak →</button>
+        <div class="sticky-bottom-action">
+          <button type="button" class="primary w-full" id="onboardStageNextBtn">
+            Lanjut ke Fokus Utama →
+          </button>
         </div>
       </div>
     `;
   }
 
+  // -------------------------------------------------------------
+  // Step 3: What Matters Screen (Multi-Select ChoiceTiles, Skippable)
+  // -------------------------------------------------------------
   if (step === 3) {
     return `
-      <div class="card">
-        <span class="card-tag saffron">Langkah 2 dari 3 • Cek Awal</span>
-        <h2>Sapa perasaanmu 1 menit</h2>
-        <p class="mute">Sebelum mulai, mari berhenti sejenak. Apa yang paling dominan kamu rasakan sekarang?</p>
+      <div class="card mb-3">
+        <span class="card-tag plum">Langkah 2 dari 4 • Fokus Utama</span>
+        <h2 class="mt-2 mb-1">Apa yang paling ingin kamu latih?</h2>
+        <p class="mute text-xs mb-3">
+          Pilih satu atau lebih yang paling relevan bagimu saat ini. Langkah ini dapat dilewati:
+        </p>
 
-        <div class="chip-grid">
-          ${CONTENT.emotions.slice(0, 6).map(e => `
-            <button type="button" class="chip ${tempOnboarding.emotion === e.label ? 'active' : ''}" data-onboard-emo="${esc(e.label)}" aria-pressed="${tempOnboarding.emotion === e.label}">
-              <span class="chip-icon">${e.icon}</span>
-              <div class="chip-col">
-                <span class="chip-label">${esc(e.label)}</span>
-                <span class="chip-hint">${store.d.faithPerspective && e.faithHint ? esc(e.faithHint) : esc(e.hint)}</span>
-              </div>
-            </button>
-          `).join('')}
+        <div id="whatMattersTilesMount" class="mb-4"></div>
+
+        <div class="flex flex-col gap-2">
+          <button type="button" class="primary w-full" id="onboardMattersNextBtn">
+            Lanjut ke Latihan Pertama (60 Detik) →
+          </button>
+          <button type="button" class="secondary w-full btn-action-sm" id="onboardMattersSkipBtn">
+            Lewati untuk sekarang
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  // -------------------------------------------------------------
+  // Step 4: First 60-Second Practice (The Breather)
+  // -------------------------------------------------------------
+  if (step === 4) {
+    return `
+      <div class="card text-center mb-3">
+        <span class="card-tag saffron">Langkah 3 dari 4 • Latihan Pertama</span>
+        <h2 class="mt-2 mb-1">Latihan Pertama: Napas Tenang</h2>
+        <p class="mute text-xs mb-3">
+          Sebelum mulai menjelajah, mari beri tubuhmu jeda sejenak (60 detik).
+        </p>
+
+        <div id="breatherWidgetMount" class="mb-4"></div>
+
+        <p class="mute text-xs mb-3">
+          Latihan napas 4-4-6 membantu menstabilkan detak jantung dan merilekskan sistem sarafmu.
+        </p>
+
+        <div class="sticky-bottom-action">
+          <button type="button" class="primary w-full" id="onboardBreatherFinishBtn">
+            Lanjut ke Ringkasan Selesai →
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  // -------------------------------------------------------------
+  // Step 5: Warm Closing Line & Pointer to Home (No email prompt)
+  // -------------------------------------------------------------
+  if (step === 5) {
+    return `
+      <div class="card onboard-hero text-center mb-3">
+        <div class="onboard-icon" aria-hidden="true">✨</div>
+        <h2 class="mt-1 mb-2">Ruang tenangmu sudah siap.</h2>
+        <p class="onboard-subtitle mb-3">
+          Selamat datang di Teman Siap.
+        </p>
+        <p class="mute onboard-desc text-left mb-4">
+          Terima kasih sudah meluangkan waktu sejenak untuk dirimu hari ini. Bersiap untuk masa depan tidak harus buru-buru atau sempurna. Cukup satu langkah kecil yang bermakna setiap harinya.
+        </p>
+
+        <div class="neutral-guidance-box text-left mb-4">
+          🔒 <b>Catatan Privasi:</b> Seluruh refleksi dan catatanmu disimpan aman di perangkatmu sendiri. Kami tidak meminta email atau kata sandi; akun sinkronisasi cloud bersifat opsional dan baru hadir nanti.
         </div>
 
-        <label for="onboardNeedSelect" class="mt-3">Apa satu hal yang paling kamu butuhkan hari ini? (Boleh lewati)</label>
-        <select id="onboardNeedSelect">
-          <option value="">-- Lewati jika belum tahu --</option>
-          ${CONTENT.needs.map(n => `
-            <option value="${esc(n)}" ${tempOnboarding.need === n ? 'selected' : ''}>${esc(n)}</option>
-          `).join('')}
-        </select>
-
-        <div class="btn-group mt-3">
-          <button type="button" class="primary w-full" id="onboardFinishBtn">Selesaikan & Masuk ke Beranda ✨</button>
+        <div class="sticky-bottom-action">
+          <button type="button" class="primary w-full" id="onboardEnterHomeBtn">
+            Masuk ke Beranda ✨
+          </button>
         </div>
       </div>
     `;
@@ -126,70 +233,146 @@ export function renderOnboarding(store) {
 export function bindOnboarding(container, store, navigate, rerender) {
   const step = store.d.onboardingStep || 1;
 
+  // -------------------------------------------------------------
+  // Bind Step 1: Welcome
+  // -------------------------------------------------------------
   if (step === 1) {
-    const btn = container.querySelector('#startOnboardBtn');
-    if (btn) {
-      btn.onclick = () => {
+    const startBtn = container.querySelector('#onboardStartBtn');
+    if (startBtn) {
+      startBtn.onclick = () => {
         store.set({ onboardingStep: 2 });
         rerender();
       };
     }
-  } else if (step === 2) {
-    container.querySelectorAll('[data-onboard-goal]').forEach(btn => {
-      btn.onclick = () => {
-        const g = btn.dataset.onboardGoal;
-        if (tempOnboarding.goals.includes(g)) {
-          tempOnboarding.goals = tempOnboarding.goals.filter(x => x !== g);
-        } else {
-          tempOnboarding.goals.push(g);
-        }
-        rerender();
-      };
-    });
 
-    const nextBtn = container.querySelector('#onboardStep2Next');
+    const guestBtn = container.querySelector('#onboardGuestBtn');
+    if (guestBtn) {
+      guestBtn.onclick = () => {
+        store.set({
+          stage: 'Menjelajah sebagai tamu',
+          onboardingStep: 5,
+          onboardingComplete: true
+        });
+        navigate('home');
+      };
+    }
+  }
+
+  // -------------------------------------------------------------
+  // Bind Step 2: Stage (ChoiceTiles, 5 options)
+  // -------------------------------------------------------------
+  else if (step === 2) {
+    const mountEl = container.querySelector('#stageChoiceTilesMount');
+    let selectedStage = store.d.stage || STAGE_OPTIONS[0].value;
+
+    if (mountEl) {
+      new ChoiceTiles({
+        container: mountEl,
+        items: STAGE_OPTIONS,
+        selected: selectedStage,
+        multiple: false,
+        onChange: (val) => {
+          selectedStage = val;
+          store.set({ stage: val });
+        }
+      });
+    }
+
+    const nextBtn = container.querySelector('#onboardStageNextBtn');
     if (nextBtn) {
       nextBtn.onclick = () => {
-        const sel = container.querySelector('#onboardStageSelect');
-        tempOnboarding.stage = (sel && sel.value) ? sel.value : 'Mempersiapkan pernikahan';
-        store.set({ onboardingStep: 3 });
+        store.set({
+          stage: selectedStage,
+          onboardingStep: 3
+        });
         rerender();
       };
     }
-  } else if (step === 3) {
-    container.querySelectorAll('[data-onboard-emo]').forEach(btn => {
-      btn.onclick = () => {
-        tempOnboarding.emotion = btn.dataset.onboardEmo;
+  }
+
+  // -------------------------------------------------------------
+  // Bind Step 3: What Matters (Multi-select ChoiceTiles)
+  // -------------------------------------------------------------
+  else if (step === 3) {
+    const mountEl = container.querySelector('#whatMattersTilesMount');
+    let selectedGoals = Array.isArray(store.d.goals) ? [...store.d.goals] : [];
+
+    if (mountEl) {
+      new ChoiceTiles({
+        container: mountEl,
+        items: WHAT_MATTERS_OPTIONS,
+        selected: selectedGoals,
+        multiple: true,
+        onChange: (vals) => {
+          selectedGoals = Array.isArray(vals) ? vals : [vals].filter(Boolean);
+          store.set({ goals: selectedGoals });
+        }
+      });
+    }
+
+    const nextBtn = container.querySelector('#onboardMattersNextBtn');
+    if (nextBtn) {
+      nextBtn.onclick = () => {
+        store.set({
+          goals: selectedGoals,
+          onboardingStep: 4
+        });
         rerender();
       };
-    });
+    }
 
-    const finishBtn = container.querySelector('#onboardFinishBtn');
+    const skipBtn = container.querySelector('#onboardMattersSkipBtn');
+    if (skipBtn) {
+      skipBtn.onclick = () => {
+        store.set({
+          goals: [],
+          onboardingStep: 4
+        });
+        rerender();
+      };
+    }
+  }
+
+  // -------------------------------------------------------------
+  // Bind Step 4: First 60-Second Practice (The Breather)
+  // -------------------------------------------------------------
+  else if (step === 4) {
+    const mountEl = container.querySelector('#breatherWidgetMount');
+    if (mountEl) {
+      new Breather({
+        container: mountEl,
+        totalCycles: 4, // 4 cycles * 14s = 56s (~60s)
+        onComplete: () => {
+          store.addPause({
+            type: 'breathing',
+            durationSec: 60,
+            feedback: 'selesai',
+            at: Date.now()
+          });
+        }
+      });
+    }
+
+    const finishBtn = container.querySelector('#onboardBreatherFinishBtn');
     if (finishBtn) {
       finishBtn.onclick = () => {
-        const needSel = container.querySelector('#onboardNeedSelect');
-        tempOnboarding.need = needSel ? needSel.value : '';
+        store.set({ onboardingStep: 5 });
+        rerender();
+      };
+    }
+  }
 
-        store.set(state => {
-          const checkins = [...(state.checkins || [])];
-          if (tempOnboarding.emotion) {
-            checkins.push({
-              emotion: tempOnboarding.emotion,
-              need: tempOnboarding.need || '',
-              sensations: [],
-              note: '',
-              at: Date.now()
-            });
-          }
-          return {
-            ...state,
-            stage: tempOnboarding.stage || 'Mempersiapkan pernikahan',
-            goals: tempOnboarding.goals,
-            checkins,
-            onboardingStep: null
-          };
+  // -------------------------------------------------------------
+  // Bind Step 5: Warm Closing Line & Enter Home
+  // -------------------------------------------------------------
+  else if (step === 5) {
+    const enterHomeBtn = container.querySelector('#onboardEnterHomeBtn');
+    if (enterHomeBtn) {
+      enterHomeBtn.onclick = () => {
+        store.set({
+          onboardingComplete: true,
+          stage: store.d.stage || 'Persiapan Bersama'
         });
-
         navigate('home');
       };
     }
