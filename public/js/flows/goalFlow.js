@@ -102,13 +102,13 @@ export function createGoalFlow(onFinish = null) {
         type: 'custom',
         optional: true,
         title: 'Target Waktu (Opsional)',
-        subtitle: 'Boleh tentukan perkiraan target waktu pencapaian (tidak ada label gagal jika belum tercapai):',
+        subtitle: 'Boleh tentukan perkiraan target waktu santai (bisa disesuaikan kapan saja tanpa tekanan):',
         renderCustom(answers) {
           return `
             <label for="goalTargetDateInput" class="text-sm font-medium">Bulan Target (Boleh lewati):</label>
             <input type="month" id="goalTargetDateInput" value="${esc(answers.date || '')}">
             <p class="mute text-xs mt-2">
-              *Progres tabungan dihitung murni dari catatan yang kamu masukkan, tanpa sanksi atau skor kegagalan.
+              *Progres tabungan dihitung murni dari catatan yang kamu masukkan, tanpa sanksi atau beban apa pun.
             </p>
           `;
         },

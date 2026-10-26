@@ -78,6 +78,7 @@ describe('Static File Server & Module Loading', () => {
     await check('/css/screens.css', 'text/css');
 
     await check('/js/main.js', 'text/javascript');
+    await check('/js/copy.js', 'text/javascript');
     await check('/js/store.js', 'text/javascript');
     await check('/js/rewards.js', 'text/javascript');
     await check('/js/session.js', 'text/javascript');

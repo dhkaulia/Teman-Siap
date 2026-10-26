@@ -15,6 +15,7 @@ import {
   COSMETICS_CATALOG,
   WEEKLY_GOAL_OPTIONS
 } from '../rewards.js';
+import { COPY } from '../copy.js';
 
 export function renderSelf(store) {
   const d = store.d || {};
@@ -34,12 +35,12 @@ export function renderSelf(store) {
   return `
     <div class="card-title-row">
       <div>
-        <span class="card-tag">Privasi & Perjalanan</span>
-        <h1 class="mt-1 mb-1">Ruang Saya</h1>
+        <span class="card-tag">${COPY.saya.tag}</span>
+        <h1 class="mt-1 mb-1">${COPY.saya.title}</h1>
       </div>
     </div>
     <p class="mute text-sm">
-      Teman Siap tidak memberi nilai atau label "kelayakan menikah". Setiap latihan adalah proses belajar mandiri yang damai.
+      ${COPY.saya.subtitle}
     </p>
 
     <!-- Mascot Growth Companion Card -->
@@ -49,7 +50,7 @@ export function renderSelf(store) {
       </div>
       <div>
         <span class="card-tag tunas">Fase: ${esc(mascotStage.name)}</span>
-        <h3 class="mt-1 mb-1">Teman Belajar: Tunas</h3>
+        <h3 class="mt-1 mb-1">${COPY.saya.companionTitle}</h3>
         <p class="mute text-xs mb-0">${esc(mascotStage.desc)} (${totalPractices} latihan bermakna selesai)</p>
       </div>
     </div>
@@ -57,11 +58,11 @@ export function renderSelf(store) {
     <!-- Kebun Saya (Private Milestones Grid, No Sharing, No Ranking) -->
     <section class="card mb-3" aria-labelledby="kebunSayaHeading">
       <div class="card-title-row mb-2">
-        <h3 id="kebunSayaHeading" class="mb-0">Kebun Saya 🌸</h3>
-        <span class="card-tag tunas">Privat</span>
+        <h3 id="kebunSayaHeading" class="mb-0">${COPY.saya.kebunTitle}</h3>
+        <span class="card-tag tunas">${COPY.saya.kebunTag}</span>
       </div>
       <p class="mute text-xs mb-3">
-        Tanda jejak proses pribadimu. Tidak ada fitur berbagi ke publik atau papan peringkat; ini adalah ruang aman bagi proses belajarmu sendiri.
+        ${COPY.saya.kebunDesc}
       </p>
 
       <div class="kebun-grid">

@@ -7,6 +7,7 @@ import { sessionRunner } from '../session.js';
 import { createCheckinFlow } from '../flows/checkinFlow.js';
 import { createBreathingFlow } from '../flows/breathingFlow.js';
 import { createGroundingFlow } from '../flows/groundingFlow.js';
+import { COPY } from '../copy.js';
 
 export function cleanupEmosi() {
   // Screen has no background timers
@@ -23,9 +24,9 @@ export function renderEmotions(store) {
   return `
     <!-- Calm Hero -->
     <div class="card emosi-hero">
-      <div class="emosi-hero-badge">🌱 Ruang Diri</div>
+      <div class="emosi-hero-badge">🌱 ${COPY.emosi.tag}</div>
       <h1 class="emosi-hero-title">Lagi terasa apa hari ini?</h1>
-      <p class="mute emosi-hero-desc">Kenali sinyal tubuh dan beri ruang untuk perasaanmu tanpa menghakimi.</p>
+      <p class="mute emosi-hero-desc">${COPY.emosi.subtitle}</p>
       <button type="button" class="primary w-full emosi-start-btn" id="startCheckinBtn">
         Cek perasaan (30 detik) →
       </button>

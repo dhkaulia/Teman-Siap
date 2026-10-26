@@ -23,6 +23,7 @@ import { createBreathingFlow } from '../flows/breathingFlow.js';
 import { BottomSheet } from '../ui/bottomSheet.js';
 import { esc } from '../ui/utils.js';
 import { getPlantStage } from '../store.js';
+import { COPY } from '../copy.js';
 
 let isSafetyExitActive = false;
 let activeDeckIndex = 0;
@@ -108,8 +109,8 @@ function renderTamanKitaScene(couple) {
   return `
     <div class="taman-kita-card mb-3" role="region" aria-label="Taman Kita">
       <div class="card-title-row mb-2">
-        <h2 class="text-sm font-bold mb-0">Taman Kita 🌸</h2>
-        <span class="card-tag tunas">Ruang Bersama</span>
+        <h2 class="text-sm font-bold mb-0">${COPY.kita.tamanKitaTitle}</h2>
+        <span class="card-tag tunas">${COPY.kita.tamanKitaBadge}</span>
       </div>
 
       <svg class="taman-kita-svg" viewBox="0 0 340 170" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Taman dengan tanaman ${esc(partnerA.name)} dan ${esc(partnerB.name)}">
@@ -170,7 +171,7 @@ function renderTamanKitaScene(couple) {
       </svg>
 
       <p class="mute text-xs mt-2 mb-0 text-center">
-        Taman tumbuh saat masing-masing berproses. Tidak ada yang lebih cepat atau lambat; kalian merawat ruang ini bersama-sama tanpa kompetisi.
+        ${COPY.kita.tamanKitaCaption}
       </p>
     </div>
   `;
@@ -200,7 +201,7 @@ export function renderRelationship(store) {
         <h1 class="mt-2 mb-1">Tidak ada paksaan dalam percakapan ini.</h1>
         <p class="mute text-sm mb-4">
           Sangat wajar jika sebuah topik memicu rasa cemas, lelah, atau tidak nyaman.
-          Hubungan yang sehat selalu memberi ruang untuk jeda. Kamu dan pasangan berhak berhenti kapan saja tanpa perlu merasa bersalah atau gagal.
+          Hubungan yang sehat selalu memberi ruang untuk jeda. Kamu dan pasangan berhak berhenti kapan saja tanpa perlu merasa bersalah atau terbebani.
         </p>
 
         <div class="safety-actions-grid mb-4">

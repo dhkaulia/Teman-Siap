@@ -15,6 +15,7 @@ import { ChoiceTiles } from '../ui/choiceTiles.js';
 import { Breather } from '../ui/breather.js';
 import { esc } from '../ui/utils.js';
 import { WEEKLY_GOAL_OPTIONS } from '../rewards.js';
+import { COPY } from '../copy.js';
 
 const STAGE_OPTIONS = [
   {
@@ -209,20 +210,20 @@ export function renderOnboarding(store) {
     return `
       <div class="card onboard-hero text-center mb-3">
         <div class="onboard-icon" aria-hidden="true">✨</div>
-        <h2 class="mt-1 mb-2">Ruang tenangmu sudah siap.</h2>
+        <h2 class="mt-1 mb-2">${COPY.onboarding.step5Title}</h2>
         <p class="onboard-subtitle mb-3">
-          Selamat datang di Teman Siap.
+          ${COPY.onboarding.step5Subtitle}
         </p>
         <p class="mute onboard-desc text-left mb-4">
-          Terima kasih sudah meluangkan waktu sejenak untuk dirimu hari ini. Bersiap untuk masa depan tidak harus buru-buru atau sempurna. Cukup satu langkah kecil yang bermakna setiap harinya.
+          ${COPY.onboarding.step5Desc}
         </p>
 
         <!-- Weekly Goal Selector (No dropdowns) -->
         <div class="weekly-goal-card text-left mb-4">
-          <span class="card-tag saffron mb-1">Target Ritme Mingguan</span>
-          <h3 class="mt-1 mb-1">Berapa kali kamu ingin berlatih dalam sepekan?</h3>
+          <span class="card-tag saffron mb-1">${COPY.onboarding.step5GoalTitle}</span>
+          <h3 class="mt-1 mb-1">${COPY.onboarding.step5GoalQuestion}</h3>
           <p class="mute text-xs mb-3">
-            Pilih ritme yang paling nyaman untukmu saat ini. Kamu dapat mengubahnya kapan saja di Ruang Saya.
+            ${COPY.onboarding.step5GoalHint}
           </p>
           <div class="weekly-goal-options" role="radiogroup" aria-label="Target ritme mingguan">
             ${WEEKLY_GOAL_OPTIONS.map(opt => {

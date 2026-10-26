@@ -15,6 +15,7 @@ import { createPlanFlow } from '../flows/planFlow.js';
 import { BottomSheet } from '../ui/bottomSheet.js';
 import { Keypad } from '../ui/keypad.js';
 import { esc, idr, monthKey, today } from '../ui/utils.js';
+import { COPY } from '../copy.js';
 
 export function cleanupUang() {
   // Hub has no background timers
@@ -35,16 +36,16 @@ export function renderMoney(store) {
   return `
     <div class="card-title-row mb-1">
       <div>
-        <span class="card-tag">Pilar Finansial</span>
-        <h1 class="mt-1 mb-1">Keuangan Sadar</h1>
+        <span class="card-tag">${COPY.uang.tag}</span>
+        <h1 class="mt-1 mb-1">${COPY.uang.title}</h1>
       </div>
     </div>
-    <p class="mute text-sm mb-3">Melihat angka dengan tenang tanpa rasa malu. Membangun kebiasaan cukup dan saling terbuka.</p>
+    <p class="mute text-sm mb-3">${COPY.uang.subtitle}</p>
 
     <!-- Monthly Summary Hub Card -->
     <div class="card mt-1 mb-3">
       <div class="card-title-row">
-        <h2 class="text-xs font-bold text-ink-primary mb-0">Tercatat Bulan Ini</h2>
+        <h2 class="text-xs font-bold text-ink-primary mb-0">${COPY.uang.hubTitle}</h2>
         <span class="card-tag">${new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</span>
       </div>
 
@@ -53,13 +54,13 @@ export function renderMoney(store) {
           ${idr(totalSpent)}
         </div>
         <p class="mute text-xs mb-1">Tercatat ${currentMonthExpenses.length} transaksi mandiri bulan ini.</p>
-        <div class="month-note">Dari catatanmu, bukan saldo bank</div>
+        <div class="month-note">${COPY.uang.hubCaption}</div>
       ` : `
         <div class="month-amount-display">
           Rp 0
         </div>
-        <p class="mute text-sm mb-1 font-medium">Belum ada catatan. Mulai dari satu.</p>
-        <div class="month-note">Dari catatanmu, bukan saldo bank</div>
+        <p class="mute text-sm mb-1 font-medium">${COPY.uang.hubEmpty}</p>
+        <div class="month-note">${COPY.uang.hubCaption}</div>
       `}
     </div>
 

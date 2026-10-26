@@ -30,6 +30,7 @@ import { AnswerSheet } from '../ui/answerSheet.js';
 import { triggerCelebration } from '../ui/confetti.js';
 import { playTapSound, triggerHapticTap } from '../ui/feedback.js';
 import { getSeeds, calculateRitme } from '../rewards.js';
+import { COPY } from '../copy.js';
 
 export { PATH_UNITS, getAllPathNodes, getNodeById, isNodeCompleted, getSuggestedNode, getNodeState };
 
@@ -110,20 +111,20 @@ export function renderHome(store) {
         ${enableRitme ? `
           <div class="path-weekly-pill" role="status" aria-label="Latihan minggu ini: ${weeklyCount} kali">
             <span class="path-pill-icon" aria-hidden="true">🌿</span>
-            <span class="path-pill-text">Minggu ini: <b>${weeklyCount} kali</b></span>
+            <span class="path-pill-text">${COPY.home.weeklyBadge} <b>${weeklyCount} kali</b></span>
           </div>
         ` : ''}
         ${enableRewards ? `
           <div class="path-seeds-pill" aria-label="Benih terkumpul: ${seeds} benih">
             <span class="path-pill-icon" aria-hidden="true">🌱</span>
-            <span class="path-pill-text"><b>${seeds}</b> Benih</span>
+            <span class="path-pill-text"><b>${seeds}</b> ${COPY.home.seedsBadge}</span>
           </div>
         ` : ''}
         <div class="path-mascot-pill" aria-label="Pertumbuhan Tunas: ${esc(mascotStage.name)}">
           <span class="path-mascot-avatar" aria-hidden="true">
             ${renderMascot('idle', 26, { stage: mascotStage.id, inlineStyle: false })}
           </span>
-          <span class="path-pill-text">Tunas: <b>${esc(mascotStage.name)}</b></span>
+          <span class="path-pill-text">${COPY.home.tunasBadge} <b>${esc(mascotStage.name)}</b></span>
         </div>
       </div>
     </header>
@@ -132,12 +133,12 @@ export function renderHome(store) {
       <!-- 1-Tap Quick Action Hero: Langkah Hari Ini -->
       <div class="hero-action mb-3 mt-2">
         <div class="hero-label">
-          Langkah Hari Ini ✨
+          ${COPY.home.heroTag}
         </div>
-        <h2>${esc(suggestedNode ? suggestedNode.title : 'Sapa Perasaanmu')}</h2>
-        <p>${esc(suggestedNode ? suggestedNode.promise : 'Mengenali apa yang kamu rasakan hari ini.')}</p>
+        <h2>${esc(suggestedNode ? suggestedNode.title : COPY.home.defaultTitle)}</h2>
+        <p>${esc(suggestedNode ? suggestedNode.promise : COPY.home.defaultPromise)}</p>
         <button type="button" class="btn-chunky primary btn-thumb" id="heroActionBtn" data-node-id="${esc(suggestedId)}">
-          <span>Mulai Sekarang (${esc(suggestedNode ? suggestedNode.duration : '1 menit')}) →</span>
+          <span>${COPY.home.heroBtn} (${esc(suggestedNode ? suggestedNode.duration : '1 menit')}) →</span>
         </button>
       </div>
 
@@ -147,8 +148,8 @@ export function renderHome(store) {
           <span class="weekly-icon" aria-hidden="true">🌱</span>
           <span class="weekly-text">
             ${weeklyCount > 0
-              ? `Minggu ini kamu sudah berlatih <b>${weeklyCount} kali</b>.`
-              : 'Minggu ini kamu sudah berlatih <b>0 kali</b>. Luangkan satu langkah santai hari ini.'}
+              ? COPY.home.weeklyEncouragementCount(weeklyCount)
+              : COPY.home.weeklyEncouragementZero}
           </span>
         </div>
       ` : ''}
