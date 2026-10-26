@@ -1,0 +1,121 @@
+/* Teman Siap — Design Tokens (from DESIGN.md) */
+
+:root {
+  /* Color Palette */
+  --teal: #1B5E59;
+  --teal-light: #E6F2F0;
+  --teal-dark: #124440;
+  
+  --saffron: #D97706;
+  --saffron-light: #FEF3C7;
+  
+  --plum: #6B4E71;
+  --plum-light: #F3EEF5;
+  
+  --bg-canvas: #F4F6F5;
+  --bg-card: #FFFFFF;
+  --border-card: #DFE5E3;
+  --border-focus: #D97706;
+  
+  --ink-primary: #12211F;
+  --ink-secondary: #485D5A;
+  --ink-muted: #627673;
+  --ink-on-color: #FFFFFF;
+  
+  --danger: #B91C1C;
+  --danger-light: #FEE2E2;
+  --danger-border: #FCA5A5;
+
+  /* Typography Stacks */
+  --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+
+  /* Spacing Scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Border Radii */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 9999px;
+
+  /* Elevation Shadows */
+  --shadow-subtle: 0 2px 8px rgba(18, 33, 31, 0.04);
+  --shadow-elevation: 0 8px 24px rgba(18, 33, 31, 0.08);
+
+  /* Animation Timings */
+  --transition-step: 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-canvas: #101716;
+    --bg-card: #182322;
+    --border-card: #273735;
+    
+    --teal: #4FB0A8;
+    --teal-light: #183330;
+    --teal-dark: #8AD2CB;
+    
+    --saffron: #FBBF24;
+    --saffron-light: #362912;
+    
+    --plum: #B396B9;
+    --plum-light: #2D2130;
+    
+    --ink-primary: #F0F6F5;
+    --ink-secondary: #9EABA9;
+    --ink-muted: #7A8C8A;
+    
+    --danger: #EF4444;
+    --danger-light: #351A1A;
+    --danger-border: #7F1D1D;
+    
+    --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --shadow-elevation: 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+}
+
+body.theme-dark {
+  --bg-canvas: #101716;
+  --bg-card: #182322;
+  --border-card: #273735;
+  --teal: #4FB0A8;
+  --teal-light: #183330;
+  --teal-dark: #8AD2CB;
+  --saffron: #FBBF24;
+  --saffron-light: #362912;
+  --plum: #B396B9;
+  --plum-light: #2D2130;
+  --ink-primary: #F0F6F5;
+  --ink-secondary: #9EABA9;
+  --ink-muted: #7A8C8A;
+  --danger: #EF4444;
+  --danger-light: #351A1A;
+  --danger-border: #7F1D1D;
+}
+
+body.theme-light {
+  --teal: #1B5E59;
+  --teal-light: #E6F2F0;
+  --teal-dark: #124440;
+  --saffron: #D97706;
+  --saffron-light: #FEF3C7;
+  --plum: #6B4E71;
+  --plum-light: #F3EEF5;
+  --bg-canvas: #F4F6F5;
+  --bg-card: #FFFFFF;
+  --border-card: #DFE5E3;
+  --ink-primary: #12211F;
+  --ink-secondary: #485D5A;
+  --ink-muted: #627673;
+  --danger: #B91C1C;
+  --danger-light: #FEE2E2;
+  --danger-border: #FCA5A5;
+}

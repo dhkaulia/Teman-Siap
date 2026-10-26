@@ -1,0 +1,182 @@
+/* Teman Siap — Base Layout & Mobile-First Reset */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--bg-canvas);
+  color: var(--ink-primary);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* App container: Mobile first, centered column on desktop */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0 auto;
+  max-width: 480px;
+  width: 100%;
+  background-color: var(--bg-canvas);
+  position: relative;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.06);
+}
+
+/* Top App Header */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-card);
+  padding-top: max(var(--space-3), env(safe-area-inset-top));
+  padding-bottom: var(--space-3);
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.brand-symbol {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--teal);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.brand-name {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink-primary);
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Main Viewport */
+main#view {
+  flex: 1;
+  padding: var(--space-4) var(--space-4) calc(76px + env(safe-area-inset-bottom));
+  outline: none;
+}
+
+/* Fixed Bottom Navigation */
+nav#nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  z-index: 50;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-card);
+  display: flex;
+  padding-bottom: max(6px, env(safe-area-inset-bottom));
+}
+
+nav#nav button {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: var(--space-2) 2px;
+  min-height: 54px;
+  min-width: 48px;
+  color: var(--ink-muted);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: color 0.15s ease;
+}
+
+nav#nav button .nav-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+nav#nav button[aria-current="page"] {
+  color: var(--teal);
+  font-weight: 700;
+}
+
+/* Typography Rules: line length <= 56ch */
+h1, h2, h3 {
+  font-family: var(--font-serif);
+  color: var(--ink-primary);
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 0.2em 0 0.4em;
+  max-width: 56ch;
+}
+
+h1 { font-size: 1.65rem; }
+h2 { font-size: 1.3rem; }
+h3 { font-size: 1.1rem; }
+
+p, .mute, label, li {
+  max-width: 56ch;
+}
+
+p {
+  margin: 0 0 0.9em;
+  color: var(--ink-secondary);
+  font-size: 1rem;
+}
+
+.mute {
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+/* Focus and Reduced Motion */
+:focus-visible {
+  outline: 3px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

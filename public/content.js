@@ -2,7 +2,7 @@
 // Grounded in evidence-based frameworks: DBT, ACT, CBT, and the Gottman Method.
 // Note: Plain Bahasa Indonesia on primary views; clinical specifics in progressive details (PRD 13.3).
 
-const CONTENT = {
+export const CONTENT = {
   // Emotion Taxonomy (Level 1: Notice & Name)
   // Default is secular/plain; faith framing is opt-in via user setting
   emotions: [

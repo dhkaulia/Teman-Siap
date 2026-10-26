@@ -2,7 +2,7 @@
 // Status: Unverified draft placeholder. Must be clinically and legally verified before release.
 // A reviewer should update this file directly, set verified to true, and record lastVerified.
 
-const SUPPORT_DATA = {
+export const SUPPORT_DATA = {
   verified: false,
   lastVerified: null,
   reviewNote: 'Daftar ini perlu diperiksa sebelum rilis.',

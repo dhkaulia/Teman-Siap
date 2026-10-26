@@ -1,9 +1,13 @@
-// Zero-dependency static file server
+// Zero-dependency static file server (ES Module)
 // Serves ONLY files inside the /public directory with strict path traversal protection
 
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
+import http from 'http';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.resolve(__dirname, 'public');
@@ -12,6 +16,7 @@ const NORMALIZED_PUBLIC = PUBLIC_DIR.endsWith(path.sep) ? PUBLIC_DIR : PUBLIC_DI
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
+  '.mjs': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.svg': 'image/svg+xml',
