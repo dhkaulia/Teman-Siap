@@ -95,6 +95,7 @@ describe('Static File Server & Module Loading', () => {
     await check('/js/flows/goalFlow.js', 'text/javascript');
     await check('/js/flows/planFlow.js', 'text/javascript');
     await check('/js/flows/coupleFlow.js', 'text/javascript');
+    await check('/js/flows/loveMapsFlow.js', 'text/javascript');
     await check('/js/flows/path.js', 'text/javascript');
     await check('/js/flows/lessons.js', 'text/javascript');
     await check('/js/flows/lessonPlayer.js', 'text/javascript');

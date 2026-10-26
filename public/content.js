@@ -231,5 +231,33 @@ export const CONTENT = {
       antidoteName: 'Minta Jeda Menenangkan Tubuh (20 Menit)',
       antidoteExample: '“Aku sedang merasa kewalahan sekarang. Boleh kita rehat 20 menit agar aku bisa menenangkan diri dulu?”'
     }
+  ],
+
+  // Love Maps (Kuis Saling Kenal - Gottman Method)
+  loveMapsQuestions: [
+    {
+      id: 'lm-calm',
+      title: 'Ketenangan Diri',
+      question: 'Apa hal sederhana yang paling cepat membuatmu merasa tenang dan rileks setelah hari yang panjang?',
+      hint: 'Misal: Seduhan teh hangat hening, jalan santai sore, mandi air hangat, atau rebahan tanpa suara.'
+    },
+    {
+      id: 'lm-comfort-food',
+      title: 'Comfort Food',
+      question: 'Apa makanan atau minuman penghibur favoritmu saat sedang lelah atau butuh semangat?',
+      hint: 'Misal: Soto ayam kuah hangat, cokelat manis, martabak manis, es teh manis, atau kopi susu.'
+    },
+    {
+      id: 'lm-dream',
+      title: 'Impian Terpendam',
+      question: 'Apa impian atau harapan masa depan yang paling jarang kamu ceritakan ke orang lain?',
+      hint: 'Misal: Membuka usaha kecil bersama, punya ruang baca sendiri di rumah, atau keliling Indonesia.'
+    },
+    {
+      id: 'lm-appreciation',
+      title: 'Bentuk Apresiasi',
+      question: 'Apa hal kecil yang bisa dilakukan pasangan yang membuatmu merasa sangat dihargai dan disayangi?',
+      hint: 'Misal: Ucapan terima kasih tulus, pelukan tanpa kata, didengarkan tanpa disela, atau disiapkan minuman.'
+    }
   ]
 };

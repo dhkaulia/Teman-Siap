@@ -34,6 +34,7 @@ const APP_SHELL_FILES = [
   '/js/flows/goalFlow.js',
   '/js/flows/planFlow.js',
   '/js/flows/coupleFlow.js',
+  '/js/flows/loveMapsFlow.js',
   '/js/flows/path.js',
   '/js/flows/lessons.js',
   '/js/flows/lessonPlayer.js',

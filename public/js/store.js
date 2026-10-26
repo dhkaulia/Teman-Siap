@@ -11,6 +11,23 @@ export const CURRENT_STORE_VERSION = 5;
 export const STORAGE_KEY = 'temansiap_state';
 export const LEGACY_KEYS = ['temansiap.v5', 'temansiap.v4', 'temansiap.v3', 'temansiap.v2', 'temansiap.v1'];
 
+export const TAMAN_KITA_STAGES = [
+  { stage: 1, minPractices: 0, name: 'Biji Tunas', desc: 'Disemai di tanah gembur', icon: '🌱' },
+  { stage: 2, minPractices: 2, name: 'Tunas Berdaun', desc: 'Dua helai daun hijau segar', icon: '🌿' },
+  { stage: 3, minPractices: 5, name: 'Tanaman Rimbun', desc: 'Batang kokoh & daun lebat', icon: '🪴' },
+  { stage: 4, minPractices: 9, name: 'Mekar Berbunga', desc: 'Bunga mekar harum menghiasi taman', icon: '🌸' }
+];
+
+export function getPlantStage(practicesCount) {
+  const count = Math.max(0, Number(practicesCount) || 0);
+  for (let i = TAMAN_KITA_STAGES.length - 1; i >= 0; i--) {
+    if (count >= TAMAN_KITA_STAGES[i].minPractices) {
+      return TAMAN_KITA_STAGES[i];
+    }
+  }
+  return TAMAN_KITA_STAGES[0];
+}
+
 export function createInitialState() {
   return {
     version: CURRENT_STORE_VERSION,
@@ -43,7 +60,28 @@ export function createInitialState() {
       background: 'bg-default'
     },
     practices: [],
-    completedPathNodes: []
+    completedPathNodes: [],
+
+    // Couple & Shared Garden State ("Taman Kita")
+    couple: {
+      coupleId: 'cpl_local_01',
+      partnerA: {
+        participantId: 'p-a-local',
+        name: 'Partner A',
+        practicesCount: 0
+      },
+      partnerB: {
+        participantId: 'p-b-local',
+        name: 'Partner B',
+        practicesCount: 0
+      },
+      garden: {
+        sharedItems: ['batu-tapak', 'bangku-kayu'],
+        theme: 'beranda-senja'
+      },
+      colekDismissed: false,
+      loveMaps: {}
+    }
   };
 }
 
@@ -136,6 +174,30 @@ export function migrate(savedData, targetVersion = CURRENT_STORE_VERSION) {
     : { pot: 'pot-clay', outfit: 'outfit-default', background: 'bg-default' };
   migrated.practices = Array.isArray(savedData.practices) ? savedData.practices : [];
   migrated.completedPathNodes = Array.isArray(savedData.completedPathNodes) ? savedData.completedPathNodes : [];
+
+  // Couple & Shared Garden migration
+  const savedCouple = savedData.couple && typeof savedData.couple === 'object' ? savedData.couple : {};
+  migrated.couple = {
+    coupleId: savedCouple.coupleId || 'cpl_local_01',
+    partnerA: {
+      participantId: savedCouple.partnerA?.participantId || 'p-a-local',
+      name: savedCouple.partnerA?.name || 'Partner A',
+      practicesCount: Math.max(0, Number(savedCouple.partnerA?.practicesCount) || 0)
+    },
+    partnerB: {
+      participantId: savedCouple.partnerB?.participantId || 'p-b-local',
+      name: savedCouple.partnerB?.name || 'Partner B',
+      practicesCount: Math.max(0, Number(savedCouple.partnerB?.practicesCount) || 0)
+    },
+    garden: {
+      sharedItems: Array.isArray(savedCouple.garden?.sharedItems) && savedCouple.garden.sharedItems.length
+        ? savedCouple.garden.sharedItems
+        : ['batu-tapak', 'bangku-kayu'],
+      theme: savedCouple.garden?.theme || 'beranda-senja'
+    },
+    colekDismissed: Boolean(savedCouple.colekDismissed),
+    loveMaps: savedCouple.loveMaps && typeof savedCouple.loveMaps === 'object' ? savedCouple.loveMaps : {}
+  };
 
   // Onboarding completion status and progress persistence
   if (savedData.onboardingComplete !== undefined) {
@@ -332,6 +394,64 @@ class Store {
     return this.set(state => ({
       ...state,
       currentPerspective: currentPerspective === 'B' ? 'B' : 'A'
+    }));
+  }
+
+  setPartnerNames(nameA, nameB) {
+    return this.set(state => ({
+      ...state,
+      couple: {
+        ...(state.couple || {}),
+        partnerA: {
+          ...(state.couple?.partnerA || {}),
+          name: (nameA && String(nameA).trim()) || state.couple?.partnerA?.name || 'Partner A'
+        },
+        partnerB: {
+          ...(state.couple?.partnerB || {}),
+          name: (nameB && String(nameB).trim()) || state.couple?.partnerB?.name || 'Partner B'
+        }
+      }
+    }));
+  }
+
+  recordPartnerPractice(participantRole) {
+    const role = (participantRole === 'B' || (!participantRole && this._state?.currentPerspective === 'B')) ? 'partnerB' : 'partnerA';
+    return this.set(state => {
+      const currentCouple = state.couple || {};
+      const currentPartner = currentCouple[role] || {};
+      return {
+        ...state,
+        couple: {
+          ...currentCouple,
+          [role]: {
+            ...currentPartner,
+            practicesCount: (Number(currentPartner.practicesCount) || 0) + 1
+          }
+        }
+      };
+    });
+  }
+
+  dismissColek() {
+    return this.set(state => ({
+      ...state,
+      couple: {
+        ...(state.couple || {}),
+        colekDismissed: true
+      }
+    }));
+  }
+
+  saveLoveMapsSession(sessionId, sessionData) {
+    return this.set(state => ({
+      ...state,
+      couple: {
+        ...(state.couple || {}),
+        loveMaps: {
+          ...(state.couple?.loveMaps || {}),
+          [sessionId]: sessionData
+        }
+      }
     }));
   }
 
