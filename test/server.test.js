@@ -83,6 +83,14 @@ describe('Static File Server & Module Loading', () => {
     await check('/js/screens/kita.js', 'text/javascript');
     await check('/js/screens/saya.js', 'text/javascript');
     await check('/js/screens/onboarding.js', 'text/javascript');
+    await check('/js/ui/choiceTiles.js', 'text/javascript');
+    await check('/js/ui/bodyMap.js', 'text/javascript');
+    await check('/js/ui/breather.js', 'text/javascript');
+    await check('/js/ui/wave.js', 'text/javascript');
+    await check('/js/ui/keypad.js', 'text/javascript');
+    await check('/js/ui/bottomSheet.js', 'text/javascript');
+    await check('/js/ui/bubble.js', 'text/javascript');
+    await check('/dev/components.html', 'text/html');
     await check('/content.js', 'text/javascript');
     await check('/support.js', 'text/javascript');
 

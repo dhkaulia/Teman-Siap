@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Teman Siap — UI Components Showcase</title>
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/screens.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="brand-badge">
+        <div class="brand-symbol" aria-hidden="true">🧪</div>
+        <div>
+          <div class="brand-name">UI Showcase</div>
+        </div>
+      </div>
+      <div class="header-controls">
+        <a href="/" class="secondary btn-action-sm nowrap mr-2">← Ke App</a>
+        <button id="themeToggle" class="icon-btn" aria-label="Ganti tema">
+          <span id="themeIcon">🌓</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="p-3">
+      <div class="card mb-3">
+        <span class="card-tag saffron">Desain Sistem</span>
+        <h1 class="mt-1 mb-1">Komponen UI Teman Siap</h1>
+        <p class="mute text-sm">
+          Komponen modular bebas dependensi, ramah sentuhan (min 48px), navigasi keyboard & pembaca layar (screen reader).
+        </p>
+      </div>
+
+      <!-- 1. ChoiceTiles -->
+      <section class="card mb-4" aria-labelledby="headingChoiceTiles">
+        <div class="card-title-row">
+          <h2 id="headingChoiceTiles" class="text-md">1. ChoiceTiles</h2>
+          <span class="card-tag">Single & Multi</span>
+        </div>
+        <p class="mute text-sm mb-2">Pilihan besar dengan ikon, label, hint, warna aktif, dan ikon centang (✓).</p>
+        
+        <h3 class="text-sm font-bold mt-2 mb-1">Mode Tunggal (Radio):</h3>
+        <div id="choiceTilesSingleDemo"></div>
+        <div class="mute text-xs mt-1 mb-3" id="singleChoiceResult">Pilihan: tenang</div>
+
+        <h3 class="text-sm font-bold mt-2 mb-1">Mode Banyak (Checkbox):</h3>
+        <div id="choiceTilesMultiDemo"></div>
+        <div class="mute text-xs mt-1" id="multiChoiceResult">Pilihan: istirahat</div>
+      </section>
+
+      <!-- 2. BodyMap -->
+      <section class="card mb-4" aria-labelledby="headingBodyMap">
+        <div class="card-title-row">
+          <h2 id="headingBodyMap" class="text-md">2. BodyMap</h2>
+          <span class="card-tag saffron">Somatik</span>
+        </div>
+        <p class="mute text-sm mb-2">Peta tubuh SVG interaktif untuk mengenali lokasi ketegangan fisik saat emosi hadir.</p>
+        <div id="bodyMapDemo"></div>
+        <div class="mute text-xs mt-2 text-center" id="bodyMapResult">Sensasi terpilih: (belum ada)</div>
+      </section>
+
+      <!-- 3. Breather -->
+      <section class="card mb-4" aria-labelledby="headingBreather">
+        <div class="card-title-row">
+          <h2 id="headingBreather" class="text-md">3. Breather</h2>
+          <span class="card-tag">Regulasi 4-4-6</span>
+        </div>
+        <p class="mute text-sm mb-2">Animasi lingkaran napas berbasis CSS transform murni (tanpa reflow layout). Mendukung jeda & reduced motion.</p>
+        <div id="breatherDemo"></div>
+      </section>
+
+      <!-- 4. Wave -->
+      <section class="card mb-4" aria-labelledby="headingWave">
+        <div class="card-title-row">
+          <h2 id="headingWave" class="text-md">4. Wave (Urge Surfing)</h2>
+          <span class="card-tag saffron">Intensitas 0-10</span>
+        </div>
+        <p class="mute text-sm mb-2">Gelombang dorongan belanja. Geser vertikal untuk mengubah intensitas, atau putar animasi ombak.</p>
+        <div id="waveDemo"></div>
+        <div class="flex gap-2 mt-2">
+          <button type="button" class="saffron-btn w-full" id="wavePlayBtn">Simulasikan Gelombang (4s) 🌊</button>
+        </div>
+      </section>
+
+      <!-- 5. Keypad -->
+      <section class="card mb-4" aria-labelledby="headingKeypad">
+        <div class="card-title-row">
+          <h2 id="headingKeypad" class="text-md">5. Keypad</h2>
+          <span class="card-tag">Format Rupiah</span>
+        </div>
+        <p class="mute text-sm mb-2">Papan angka mandiri dalam aplikasi. Tidak memicu popup keyboard OS seluler.</p>
+        <div id="keypadDemo"></div>
+        <div class="mute text-xs mt-2 text-center" id="keypadResult">Nilai numerik: 0</div>
+      </section>
+
+      <!-- 6. BottomSheet -->
+      <section class="card mb-4" aria-labelledby="headingBottomSheet">
+        <div class="card-title-row">
+          <h2 id="headingBottomSheet" class="text-md">6. BottomSheet</h2>
+          <span class="card-tag">Modal Geser</span>
+        </div>
+        <p class="mute text-sm mb-3">Panel geser bawah dengan pegangan drag, swipe-down, backdrop tap, dan focus trap.</p>
+        <button type="button" class="primary w-full" id="openBottomSheetBtn">Buka Lembar Bawah (Bottom Sheet) 🚀</button>
+      </section>
+
+      <!-- 7. Bubble -->
+      <section class="card mb-4" aria-labelledby="headingBubble">
+        <div class="card-title-row">
+          <h2 id="headingBubble" class="text-md">7. Bubble</h2>
+          <span class="card-tag plum">Refleksi</span>
+        </div>
+        <p class="mute text-sm mb-3">Gelembung pesan refleksi tenang untuk panduan, catatan pribadi, dan respon pasangan.</p>
+        <div id="bubbleDemo"></div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import { ChoiceTiles } from '../js/ui/choiceTiles.js';
+    import { BodyMap } from '../js/ui/bodyMap.js';
+    import { Breather } from '../js/ui/breather.js';
+    import { Wave } from '../js/ui/wave.js';
+    import { Keypad } from '../js/ui/keypad.js';
+    import { BottomSheet } from '../js/ui/bottomSheet.js';
+    import { Bubble } from '../js/ui/bubble.js';
+
+    // 1. ChoiceTiles Single
+    const singleTiles = new ChoiceTiles({
+      container: '#choiceTilesSingleDemo',
+      items: [
+        { value: 'tenang', label: 'Tenang & Lega', icon: '🌿', hint: 'Napas teratur, pundak rileks' },
+        { value: 'cemas', label: 'Cemas / Gelisah', icon: '⚡', hint: 'Dada sesak, pikiran melompat' },
+        { value: 'lelah', label: 'Lelah / Burnout', icon: '🌙', hint: 'Energi habis, tubuh berat' }
+      ],
+      selected: 'tenang',
+      multiple: false,
+      onChange: (val) => {
+        document.getElementById('singleChoiceResult').textContent = `Pilihan: ${val}`;
+      }
+    });
+
+    // 1b. ChoiceTiles Multi
+    const multiTiles = new ChoiceTiles({
+      container: '#choiceTilesMultiDemo',
+      items: [
+        { value: 'istirahat', label: 'Istirahat sejenak', icon: '☕', hint: 'Rehat tanpa rasa bersalah' },
+        { value: 'didengar', label: 'Didengarkan', icon: '👂', hint: 'Tanpa langsung dinasihati' },
+        { value: 'pelukan', label: 'Dukungan emosional', icon: '🤲', hint: 'Rasa aman dan pelukan hangat' }
+      ],
+      selected: ['istirahat'],
+      multiple: true,
+      onChange: (val) => {
+        document.getElementById('multiChoiceResult').textContent = `Pilihan: ${val.join(', ') || '(kosong)'}`;
+      }
+    });
+
+    // 2. BodyMap
+    const bodyMap = new BodyMap({
+      container: '#bodyMapDemo',
+      selected: ['chest'],
+      onChange: (arr) => {
+        document.getElementById('bodyMapResult').textContent = `Sensasi terpilih: ${arr.join(', ') || '(belum ada)'}`;
+      }
+    });
+
+    // 3. Breather
+    const breather = new Breather({
+      container: '#breatherDemo',
+      totalCycles: 2,
+      onComplete: () => {
+        console.log('Breathing complete!');
+      }
+    });
+
+    // 4. Wave
+    const wave = new Wave({
+      container: '#waveDemo',
+      value: 6,
+      onChange: (v) => {
+        console.log('Wave intensity:', v);
+      }
+    });
+
+    document.getElementById('wavePlayBtn').onclick = () => {
+      wave.play(4000);
+    };
+
+    // 5. Keypad
+    const keypad = new Keypad({
+      container: '#keypadDemo',
+      initialValue: 35000,
+      onChange: (v) => {
+        document.getElementById('keypadResult').textContent = `Nilai numerik: ${v}`;
+      }
+    });
+
+    // 6. BottomSheet
+    const bottomSheet = new BottomSheet();
+    document.getElementById('openBottomSheetBtn').onclick = () => {
+      bottomSheet.open({
+        title: 'Konfirmasi Jeda Belanja',
+        content: `
+          <p class="mute mb-3">Luangkan waktu 10 menit sebelum memutuskan transaksi ini. Kamu memegang kendali penuh atas keputusanmu.</p>
+          <div class="card card-border-saffron mb-3">
+            <div class="font-bold mb-1">Sudut Pandang Seimbang:</div>
+            <div class="text-sm">"Keinginan belanja ini hanya sensasi sementara di otak. Menunggu 10 menit tidak membuat barang ini hilang."</div>
+          </div>
+          <button type="button" class="primary w-full" id="sheetOkBtn">Saya Mengerti & Siap Menunggu</button>
+        `,
+        onClose: () => {
+          console.log('Bottom sheet closed');
+        }
+      });
+
+      setTimeout(() => {
+        const okBtn = document.getElementById('sheetOkBtn');
+        if (okBtn) okBtn.onclick = () => bottomSheet.close();
+      }, 50);
+    };
+
+    // 7. Bubble
+    const bubbleDemoContainer = document.getElementById('bubbleDemo');
+
+    new Bubble({
+      container: bubbleDemoContainer,
+      sender: 'Teman Siap',
+      role: 'guide',
+      icon: '🌱',
+      text: 'Selamat sore! Apakah ada hal yang membuat dadamu sesak hari ini?',
+      timestamp: '16:45',
+      actions: [
+        { id: 'act-breath', label: 'Latihan Napas 1 Menit', primary: true },
+        { id: 'act-later', label: 'Hanya Ingin Diam', primary: false }
+      ],
+      onAction: (actionId) => {
+        alert(`Tindakan dipilih: ${actionId}`);
+      }
+    });
+
+    new Bubble({
+      container: bubbleDemoContainer,
+      sender: 'Refleksi Pribadi',
+      role: 'user',
+      icon: '👤',
+      text: 'Tadi sempat cemas memikirkan biaya persiapan pernikahan, tapi setelah tarik napas rasanya lebih lega.',
+      timestamp: '16:48'
+    });
+
+    new Bubble({
+      container: bubbleDemoContainer,
+      sender: 'Partner B',
+      role: 'partner',
+      icon: '🤝',
+      text: 'Terima kasih sudah berbagi secara jujur. Aku setuju kita bicarakan pos anggaran keluarga pelan-pelan.',
+      timestamp: '16:50'
+    });
+
+    // Theme Toggle
+    const themeBtn = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    themeBtn.onclick = () => {
+      const isDark = document.body.classList.contains('theme-dark');
+      if (isDark) {
+        document.body.classList.remove('theme-dark');
+        document.body.classList.add('theme-light');
+        themeIcon.textContent = '☀️';
+      } else {
+        document.body.classList.remove('theme-light');
+        document.body.classList.add('theme-dark');
+        themeIcon.textContent = '🌙';
+      }
+    };
+  </script>
+</body>
+</html>
