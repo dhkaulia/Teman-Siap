@@ -1,0 +1,1 @@
+{ "name": "teman-siap", "version": "0.1.0", "private": true, "description": "Teman Siap MVP: emotional, financial and relationship readiness (local-first prototype)", "scripts": { "start": "node serve.js" } }
