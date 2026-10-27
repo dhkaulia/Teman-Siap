@@ -96,7 +96,7 @@ export function createLessonFlow(lesson, onDone, store) {
     duration: lesson.duration || '2 menit',
     steps: flowSteps,
     hideProgress: false,
-    completeLabel: 'Selesai ✨',
+    completeLabel: 'Selesai',
     // Custom non-guilting exit confirmation
     onExit: (runner) => {
       showLessonExitModal(runner);
@@ -219,7 +219,7 @@ export function buildChooseStep(step, queueReview) {
         <div class="lesson-step-wrap lesson-choose-wrap">
           <div class="lesson-step-header mb-2">
             <span class="card-tag ${isReview ? 'saffron' : 'sunny'} mb-1">
-              ${isReview ? 'Ulasan Lembut ✨' : 'Pilih Respons'}
+              ${isReview ? 'Ulasan Lembut' : 'Pilih Respons'}
             </span>
             <h2 class="lesson-step-title mt-1 mb-1">${esc(step.title)}</h2>
             ${isReview ? `<p class="mute text-xs mb-2">Mari coba sekali lagi dengan tenang.</p>` : ''}
@@ -461,7 +461,7 @@ export function buildMatchStep(step, queueReview) {
             setTimeout(() => {
               AnswerSheet.show({
                 type: 'success',
-                message: 'Semua Pasangan Cocok! 🎉',
+                message: 'Semua Pasangan Cocok!',
                 explanation: step.explanation || 'Menghubungkan konsep secara aktif memperkuat jalur memori di otak.',
                 buttonText: 'Lanjut',
                 onContinue: () => sessionRunner.next()
@@ -690,7 +690,7 @@ export function buildOrderStep(step, queueReview) {
             triggerHapticSuccess();
             AnswerSheet.show({
               type: 'success',
-              message: 'Urutan Tepat! 🎉',
+              message: 'Urutan Tepat!',
               explanation: step.explanation || 'Langkah berurutan membuat otak bekerja secara teratur tanpa beban panik.',
               buttonText: 'Lanjut',
               onContinue: () => sessionRunner.next()
@@ -921,7 +921,7 @@ export function buildSummaryStep(lesson, onDone, store) {
             ${renderMascot('cheer', 96, { stage: mascotStage.id, label: 'Tunas Gembira', inlineStyle: false })}
           </div>
 
-          <h2 class="lesson-summary-title mb-1">Latihan Selesai! 🎉</h2>
+          <h2 class="lesson-summary-title mb-1">Latihan Selesai!</h2>
           <p class="mute text-xs mb-3">Langkah kecil yang konsisten membangun rumah tangga yang kokoh.</p>
 
           <!-- Skills Practiced -->
@@ -929,7 +929,7 @@ export function buildSummaryStep(lesson, onDone, store) {
             <span class="text-xs mute font-bold uppercase mb-2 d-block">Hari ini kamu berlatih:</span>
             <div class="lesson-skills-chips">
               ${(lesson.skills || []).map(skill => `
-                <span class="card-tag tunas mb-1">🌱 ${esc(skill)}</span>
+                <span class="card-tag tunas mb-1">${esc(skill)}</span>
               `).join(' ')}
             </div>
           </div>
@@ -940,7 +940,7 @@ export function buildSummaryStep(lesson, onDone, store) {
             <div class="badge-counter-row">
               <span class="badge-count-num" id="lessonWeeklyCountNum">${currentWeeklyCount}</span>
               <span class="badge-count-unit">kali</span>
-              <span class="badge-increment-pill" id="lessonWeeklyPill">+1 bermakna ✨</span>
+              <span class="badge-increment-pill" id="lessonWeeklyPill">+1 bermakna</span>
             </div>
           </div>
 

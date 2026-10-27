@@ -31,6 +31,8 @@ import { triggerCelebration } from '../ui/confetti.js';
 import { playTapSound, triggerHapticTap } from '../ui/feedback.js';
 import { getSeeds, calculateRitme } from '../rewards.js';
 import { COPY } from '../copy.js';
+import { renderIcon } from '../ui/icons.js';
+import { BottomSheet } from '../ui/bottomSheet.js';
 
 export { PATH_UNITS, getAllPathNodes, getNodeById, isNodeCompleted, getSuggestedNode, getNodeState };
 
@@ -110,13 +112,13 @@ export function renderHome(store) {
       <div class="path-sticky-content">
         ${enableRitme ? `
           <div class="path-weekly-pill" role="status" aria-label="Latihan minggu ini: ${weeklyCount} kali">
-            <span class="path-pill-icon" aria-hidden="true">🌿</span>
+            <span class="path-pill-icon" aria-hidden="true">${renderIcon('sprout')}</span>
             <span class="path-pill-text">${COPY.home.weeklyBadge} <b>${weeklyCount} kali</b></span>
           </div>
         ` : ''}
         ${enableRewards ? `
           <div class="path-seeds-pill" aria-label="Benih terkumpul: ${seeds} benih">
-            <span class="path-pill-icon" aria-hidden="true">🌱</span>
+            <span class="path-pill-icon" aria-hidden="true">${renderIcon('sprout')}</span>
             <span class="path-pill-text"><b>${seeds}</b> ${COPY.home.seedsBadge}</span>
           </div>
         ` : ''}
@@ -145,7 +147,7 @@ export function renderHome(store) {
       <!-- Weekly Encouragement Banner (No streaks, zero negative framing) -->
       ${enableRitme ? `
         <div class="weekly-practice-banner mb-3" role="status">
-          <span class="weekly-icon" aria-hidden="true">🌱</span>
+          <span class="weekly-icon" aria-hidden="true">${renderIcon('sprout')}</span>
           <span class="weekly-text">
             ${weeklyCount > 0
               ? COPY.home.weeklyEncouragementCount(weeklyCount)
@@ -165,10 +167,14 @@ export function renderHome(store) {
                   ${renderSpotIllustration(unit.spot, 48)}
                 </div>
                 <div class="unit-info">
-                  <span class="card-tag ${unit.accent} mb-1">Unit ${unitIdx + 1}</span>
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="card-tag ${unit.accent}">Unit ${unitIdx + 1}</span>
+                    <button type="button" class="unit-learn-btn" data-unit-id="${esc(unit.id)}" aria-label="Pelajari Unit ${unitIdx + 1}">
+                      Pelajari
+                    </button>
+                  </div>
                   <h2 id="heading-${unit.id}" class="unit-title">${esc(unit.title)}</h2>
-                  <div class="unit-subtitle mute text-xs mb-1">${esc(unit.subtitle)}</div>
-                  <p class="unit-goal text-xs mb-0">${esc(unit.goal)}</p>
+                  <div class="unit-subtitle mute text-xs">${esc(unit.subtitle)}</div>
                 </div>
               </div>
 
@@ -206,7 +212,7 @@ export function renderHome(store) {
                               class="path-node journey-node ${state} ${isDone ? 'completed' : ''} ${isSuggested ? 'is-suggested' : ''}"
                               data-node-id="${esc(node.id)}"
                               aria-label="${esc(node.title)} (${esc(node.duration)}): status ${state}">
-                        ${isSuggested ? `<div class="node-mulai-bubble">MULAI ✨</div>` : ''}
+                        ${isSuggested ? `<div class="node-mulai-bubble">MULAI</div>` : ''}
                         <div class="path-node-inner" aria-hidden="true">
                           ${isDone ? '✓' : (node.icon || '🌱')}
                         </div>
@@ -260,6 +266,37 @@ export function bindHome(container, store, navigate) {
     };
   });
 
+  // Pelajari Unit Bottom Sheet
+  container.querySelectorAll('.unit-learn-btn').forEach(btn => {
+    btn.onclick = () => {
+      playTapSound();
+      triggerHapticTap();
+      const unitId = btn.dataset.unitId;
+      const unit = PATH_UNITS.find(u => u.id === unitId);
+      if (!unit) return;
+      const sheet = new BottomSheet();
+      const content = document.createElement('div');
+      content.innerHTML = `
+        <div class="p-1">
+          <div class="unit-spot-wrap mb-2" aria-hidden="true">
+            ${renderSpotIllustration(unit.spot, 56)}
+          </div>
+          <span class="card-tag ${unit.accent} mb-1">Unit ${PATH_UNITS.indexOf(unit) + 1}</span>
+          <h3 class="mt-1 mb-2">${esc(unit.title)}</h3>
+          <p class="text-sm font-medium mb-3">${esc(unit.goal)}</p>
+          <div class="neutral-guidance-box text-xs mb-3">
+            <b>Fokus Pembelajaran:</b> ${esc(unit.subtitle)}
+          </div>
+          <button type="button" class="primary w-full btn-action-sm mt-2" id="closeUnitSheetBtn">
+            Mengerti
+          </button>
+        </div>
+      `;
+      content.querySelector('#closeUnitSheetBtn').onclick = () => sheet.close();
+      sheet.open({ title: `Pelajari: ${unit.title}`, content });
+    };
+  });
+
   // Auto-scroll the suggested next node into view on load
   const suggestedNodeEl = container.querySelector('.path-node.is-suggested, .path-node.tersedia');
   if (suggestedNodeEl) {
@@ -290,7 +327,7 @@ function openNodeBottomSheet(node, store, navigate, container) {
       <div class="node-modal-header">
         <span class="node-modal-icon" aria-hidden="true">${node.icon || '🌱'}</span>
         <div>
-          <span class="card-tag tunas mb-1">${node.type.toUpperCase()} • ⏱️ ${esc(node.duration)}</span>
+          <span class="card-tag tunas mb-1">${node.type.toUpperCase()} • ${esc(node.duration)}</span>
           <h2 class="node-modal-title mt-1 mb-0">${esc(node.title)}</h2>
         </div>
       </div>

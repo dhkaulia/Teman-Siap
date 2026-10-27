@@ -28,6 +28,8 @@ export function getPlantStage(practicesCount) {
   return TAMAN_KITA_STAGES[0];
 }
 
+export const stageForPractices = getPlantStage;
+
 export function createInitialState() {
   return {
     version: CURRENT_STORE_VERSION,
@@ -64,6 +66,7 @@ export function createInitialState() {
     },
     practices: [],
     completedPathNodes: [],
+    themeMode: 'auto', // 'auto' | 'light' | 'dark'
 
     // Couple & Shared Garden State ("Taman Kita")
     couple: {
@@ -115,6 +118,7 @@ export function migrate(savedData, targetVersion = CURRENT_STORE_VERSION) {
   }
 
   // Ensure arrays and objects exist
+  migrated.themeMode = savedData.themeMode || 'auto';
   migrated.goals = Array.isArray(savedData.goals) ? savedData.goals : [];
   migrated.checkins = Array.isArray(savedData.checkins) ? savedData.checkins : [];
   migrated.expenses = Array.isArray(savedData.expenses) ? savedData.expenses : [];
@@ -479,6 +483,17 @@ class Store {
           [sessionId]: sessionData
         }
       }
+    }));
+  }
+
+  setThemeMode(mode) {
+    const valid = ['auto', 'light', 'dark'].includes(mode) ? mode : 'auto';
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('temansiap_theme_mode', valid);
+    }
+    return this.set(state => ({
+      ...state,
+      themeMode: valid
     }));
   }
 

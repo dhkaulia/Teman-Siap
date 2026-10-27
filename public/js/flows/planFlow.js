@@ -26,7 +26,7 @@ export function createPlanFlow(onFinish = null) {
   return {
     id: 'plan',
     title: 'Rencana Jika-Maka',
-    completeLabel: 'Simpan Rencana ✨',
+    completeLabel: 'Simpan Rencana',
     steps: [
       // Step 1: Trigger ("Jika...")
       {

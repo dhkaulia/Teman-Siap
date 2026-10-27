@@ -124,5 +124,52 @@ describe('Accessibility: Contrast Ratio Measurements (WCAG 2.1 AA >= 4.5:1)', ()
       assert.ok(ratio >= 4.5, `Expected >= 4.5, got ${ratio.toFixed(2)}`);
       assert.ok(ratio >= 11.0);
     });
+
+    // Layered Dark Mode Surfaces & Dark Button Fills
+    it('primary text #E8F0EE on surface-1 (#182221) exceeds 12:1 (measures > 14:1)', () => {
+      const ratio = contrastRatio('#E8F0EE', '#182221');
+      assert.ok(ratio >= 12.0, `Expected >= 12.0, got ${ratio.toFixed(2)}`);
+      assert.ok(ratio >= 14.0);
+    });
+
+    it('secondary text #A8B8B4 on surface-1 (#182221) exceeds 7:1', () => {
+      const ratio = contrastRatio('#A8B8B4', '#182221');
+      assert.ok(ratio >= 7.0, `Expected >= 7.0, got ${ratio.toFixed(2)}`);
+    });
+
+    it('muted text #829591 on surface-1 (#182221) exceeds 4.5:1', () => {
+      const ratio = contrastRatio('#829591', '#182221');
+      assert.ok(ratio >= 4.5, `Expected >= 4.5, got ${ratio.toFixed(2)}`);
+    });
+
+    it('dark text on light teal button exceeds 7:1 (measures > 9:1)', () => {
+      const ratio = contrastRatio('#0A1C1A', '#6CD0C6');
+      assert.ok(ratio >= 7.0, `Expected >= 7.0, got ${ratio.toFixed(2)}`);
+    });
+
+    it('dark text on light plum button exceeds 7:1 (measures > 9:1)', () => {
+      const ratio = contrastRatio('#221226', '#D4B8DE');
+      assert.ok(ratio >= 7.0, `Expected >= 7.0, got ${ratio.toFixed(2)}`);
+    });
+
+    it('dark text on light saffron button exceeds 7:1 (measures > 11:1)', () => {
+      const ratio = contrastRatio('#261803', '#FCD34D');
+      assert.ok(ratio >= 7.0, `Expected >= 7.0, got ${ratio.toFixed(2)}`);
+    });
+
+    it('dark text on light tunas button exceeds 7:1 (measures > 11:1)', () => {
+      const ratio = contrastRatio('#092612', '#86EFAC');
+      assert.ok(ratio >= 7.0, `Expected >= 7.0, got ${ratio.toFixed(2)}`);
+    });
+
+    it('garden dusk scene partner chip names and status badges exceed 7:1', () => {
+      const nameRatio = contrastRatio('#E8F0EE', '#222E2C');
+      const activeBadgeRatio = contrastRatio('#78D2CA', '#15312E');
+      const inactiveBadgeRatio = contrastRatio('#B8C8C4', '#222E2C');
+
+      assert.ok(nameRatio >= 7.0, `Expected name >= 7.0, got ${nameRatio.toFixed(2)}`);
+      assert.ok(activeBadgeRatio >= 7.0, `Expected active badge >= 7.0, got ${activeBadgeRatio.toFixed(2)}`);
+      assert.ok(inactiveBadgeRatio >= 7.0, `Expected inactive badge >= 7.0, got ${inactiveBadgeRatio.toFixed(2)}`);
+    });
   });
 });

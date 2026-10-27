@@ -89,7 +89,7 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
               </p>
 
               <div class="neutral-guidance-box mb-4">
-                🌸 <b>Aturan Main:</b> Ini bukan ujian atau ajang penilaian. Tidak ada skor angka atau persentase kelulusan. Tujuannya adalah menemukan hal-hal baru yang menyenangkan tentang satu sama lain!
+                <b>Aturan Main:</b> Ini bukan ujian atau ajang penilaian. Tidak ada skor angka atau persentase kelulusan. Tujuannya adalah menemukan hal-hal baru yang menyenangkan tentang satu sama lain!
               </div>
 
               <div class="sticky-bottom-action">
@@ -448,7 +448,7 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
 
           return `
             <div class="card card-border-plum text-center py-4 px-3 mb-3">
-              <div class="handover-visual mb-3" aria-hidden="true">🤝 ➔ ✨</div>
+              <div class="handover-visual mb-3" aria-hidden="true">🤝 ➔ 📱</div>
               <h2 class="text-xl font-bold mb-2">Duduk Berdua Bersama</h2>
               <p class="mute text-sm mb-4">
                 Kalian sudah selesai mengisi dan menebak! Duduklah berdampingan untuk melihat hasilnya.
@@ -460,7 +460,7 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
                   <button type="button" class="choice-tile ${isShared ? 'selected' : ''}" id="tileShareLM" role="radio" aria-checked="${isShared}">
                     <span class="tile-icon" aria-hidden="true">📖</span>
                     <div class="tile-col">
-                      <div class="tile-label">Buka Kartu Penemuan Berdua ✨</div>
+                      <div class="tile-label">Buka Kartu Penemuan Berdua</div>
                       <div class="tile-hint">Menampilkan jawaban asli dan tebakan untuk saling bercerita santai.</div>
                     </div>
                   </button>
@@ -540,7 +540,7 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
 
                 <div class="sticky-bottom-action">
                   <button type="button" class="plum-btn w-full" id="finishLMBtn">
-                    Selesai & Kembali ke Kita ✨
+                    Selesai & Kembali ke Kita
                   </button>
                 </div>
 
@@ -556,7 +556,7 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
                   ${renderMascot('cheer', 64, { inlineStyle: false, label: 'Tunas Gembira' })}
                 </div>
                 <span class="card-tag tunas">Makin Dekat & Saling Memahami</span>
-                <h2 class="mt-2 mb-1">Hal Baru yang Kalian Pelajari 🌸</h2>
+                <h2 class="mt-2 mb-1">Hal Baru yang Kalian Pelajari</h2>
                 <p class="mute text-xs mb-3">
                   Gunakan kartu-kartu penemuan di bawah ini sebagai bahan obrolan hangat berdua:
                 </p>
@@ -600,12 +600,12 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
               </div>
 
               <div class="neutral-guidance-box mb-4 text-center">
-                🌱 <b>Pesan Gottman:</b> Setiap kali kamu mengetahui detail baru tentang pasanganmu, peta cintamu semakin kaya dan fondasi rumah tanggamu semakin kokoh.
+                <b>Pesan Gottman:</b> Setiap kali kamu mengetahui detail baru tentang pasanganmu, peta cintamu semakin kaya dan fondasi rumah tanggamu semakin kokoh.
               </div>
 
               <div class="sticky-bottom-action">
                 <button type="button" class="plum-btn w-full" id="finishLMBtn">
-                  Simpan ke Taman Kita ✨
+                  Simpan ke Taman Kita
                 </button>
               </div>
 

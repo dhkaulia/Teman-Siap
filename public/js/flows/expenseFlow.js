@@ -56,7 +56,7 @@ export function createExpenseFlow(store, onFinish = null) {
   return {
     id: 'expense',
     title: 'Catat Pengeluaran',
-    completeLabel: 'Selesai ✨',
+    completeLabel: 'Selesai',
     steps: [
       // Step 1: Keypad (amount) + date chip
       {

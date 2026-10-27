@@ -68,7 +68,7 @@ export function createCheckinFlow(faithPerspective = false, onTriggerExercise = 
   return {
     id: 'checkin',
     title: 'Cek Emosi',
-    completeLabel: 'Selesai ✨',
+    completeLabel: 'Selesai',
     steps: [
       // Step 1: feel (ChoiceTiles, tint screen, advance after 400ms)
       {

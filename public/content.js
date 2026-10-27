@@ -116,21 +116,30 @@ export const CONTENT = {
   // Cognitive Restructuring Cards for Impulsive Spending
   cognitiveReframes: [
     {
-      impulseThought: '“Aku kerja keras seharian, aku berhak belanja barang ini sekarang!”',
-      counterPerspective: 'Kamu sangat berhak merasa bahagia dan beristirahat. Tapi tanyakan pada diri: apakah kebahagiaan itu harus dibeli dengan mengorbankan ketenangan saldo tabunganmu besok?'
+      impulseThought: '“Aku lelah seharian, ingin belanja untuk hadiah diriku.”',
+      shortBalanced: 'Kamu berhak rileks. Tubuh lelah butuh istirahat tenang, bukan belanja terburu-buru.',
+      learnMore: 'Kelelahan fisik menurunkan kendali impulsif di otak. Istirahat 10 menit, minum teh hangat, atau rebahan sejenak membantu memulihkan energi tanpa beban pengeluaran mendadak.',
+      counterPerspective: 'Kamu berhak rileks. Tubuh lelah butuh istirahat tenang, bukan belanja terburu-buru.'
     },
     {
-      impulseThought: '“Diskonnya besar banget hari ini, kalau nggak beli sekarang rugi!”',
-      counterPerspective: 'Diskon 50% untuk barang yang belum direncanakan tetap menghabiskan 100% uangmu. Uang yang tetap di rekeningmu adalah diskon 100% untuk keamanan masa depan.'
+      impulseThought: '“Promonya besar hari ini, sayang kalau dilewatkan.”',
+      shortBalanced: 'Uang yang tetap tersimpan selalu bernilai penuh untuk kebutuhan masa depan kalian.',
+      learnMore: 'Diskon promosi dirancang memicu dorongan belanja mendadak. Menyimpan uang memberikan ketenangan nyata untuk rencana penting rumah tangga yang sudah kalian sepakati bersama.',
+      counterPerspective: 'Uang yang tetap tersimpan selalu bernilai penuh untuk kebutuhan masa depan kalian.'
     },
     {
-      impulseThought: '“Cuma nominal kecil kok, nggak bakal langsung bangkrut.”',
-      counterPerspective: 'Satu pengeluaran kecil memang tidak membuat miskin, tapi kebiasaan mengabaikannya bisa menunda impian besar kalian (seperti tempat tinggal mandiri atau dana darurat).'
+      impulseThought: '“Nominalnya kecil, tidak akan mengganggu rencana kita.”',
+      shortBalanced: 'Setiap rupiah yang terjaga mempercepat impian rumah tangga yang kalian tuju bersama.',
+      learnMore: 'Keputusan kecil yang diambil dengan sadar membangun rasa saling percaya dan memperkuat fondasi keuangan keluarga secara bertahap.',
+      counterPerspective: 'Setiap rupiah yang terjaga mempercepat impian rumah tangga yang kalian tuju bersama.'
     },
     {
-      impulseThought: '“Teman-temanku sudah punya barang ini, aku malu kalau ketinggalan.”',
-      counterPerspective: 'Masa depan bersama dibangun di atas ketenangan sendiri, bukan untuk penilaian orang lain. Hidup secukupnya adalah kunci kedamaian sejati.',
-      counterPerspectiveFaith: 'Pernikahan yang sakinah dibangun di atas ketenteraman bersama, bukan untuk panggung penonton. Sikap syukur dan qana\'ah adalah kunci ketenangan sejati.'
+      impulseThought: '“Orang lain sudah punya, aku ingin memilikinya juga.”',
+      shortBalanced: 'Ketenangan rumah tangga kalian tumbuh dari rasa cukup dan keselarasan berdua.',
+      shortBalancedFaith: 'Ketenangan rumah tangga berkah dari rasa syukur dan saling menjaga amanah rezeki.',
+      learnMore: 'Membandingkan diri dengan konsumsi orang lain hanya menciptakan lelah batin. Fokus pada ritme dan tujuan berdua menghadirkan kedamaian finansial yang kokoh.',
+      counterPerspective: 'Ketenangan rumah tangga kalian tumbuh dari rasa cukup dan keselarasan berdua.',
+      counterPerspectiveFaith: 'Ketenangan rumah tangga berkah dari rasa syukur dan saling menjaga amanah rezeki.'
     }
   ],
 

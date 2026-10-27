@@ -61,6 +61,18 @@ button:active {
   transform: scale(0.98);
 }
 
+button:focus-visible,
+a:focus-visible,
+.choice-tile:focus-visible,
+.partner-turn-chip:focus-visible,
+.unit-learn-btn:focus-visible,
+.theme-choice-btn:focus-visible,
+.icon-btn:focus-visible,
+.icon-btn-round:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
 button.primary {
   background-color: var(--teal);
   color: #FFFFFF;
@@ -89,6 +101,80 @@ button.plum-btn {
 
 button.plum-btn:active {
   filter: brightness(0.92);
+}
+
+/* -------------------------------------------------------------
+ * Dark Mode: Layered Surfaces, Dark Text on Light Fills
+ * ------------------------------------------------------------- */
+.theme-dark button.primary,
+body.theme-dark button.primary,
+.theme-dark .primary,
+body.theme-dark .primary {
+  background-color: var(--teal) !important;
+  color: #0A1C1A !important;
+  border-color: var(--teal) !important;
+  font-weight: 700;
+}
+
+.theme-dark button.saffron-btn,
+body.theme-dark button.saffron-btn,
+.theme-dark .saffron-btn,
+body.theme-dark .saffron-btn {
+  background-color: var(--saffron) !important;
+  color: #261803 !important;
+  border-color: var(--saffron) !important;
+  font-weight: 700;
+}
+
+.theme-dark button.plum-btn,
+body.theme-dark button.plum-btn,
+.theme-dark .plum-btn,
+body.theme-dark .plum-btn {
+  background-color: var(--plum) !important;
+  color: #221226 !important;
+  border-color: var(--plum) !important;
+  font-weight: 700;
+}
+
+.theme-dark button.tunas-btn,
+body.theme-dark button.tunas-btn,
+.theme-dark .tunas-btn,
+body.theme-dark .tunas-btn {
+  background-color: var(--tunas) !important;
+  color: #092612 !important;
+  border-color: var(--tunas) !important;
+  font-weight: 700;
+}
+
+.theme-dark button.secondary,
+body.theme-dark button.secondary,
+.theme-dark .secondary,
+body.theme-dark .secondary {
+  background-color: var(--surface-2);
+  color: var(--ink-primary);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.theme-dark button.secondary:active,
+body.theme-dark button.secondary:active {
+  background-color: var(--surface-3);
+  color: #FFFFFF;
+}
+
+.theme-dark .card,
+body.theme-dark .card {
+  background-color: var(--surface-1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.theme-dark .bottomsheet-panel,
+body.theme-dark .bottomsheet-panel,
+.theme-dark .answersheet-sheet,
+body.theme-dark .answersheet-sheet {
+  background: var(--surface-3);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.55);
 }
 
 button.secondary {
@@ -146,13 +232,11 @@ button.danger-btn:active {
 /* Sticky Bottom Thumb Zone Container */
 .sticky-bottom-action {
   position: sticky;
-  bottom: calc(56px + env(safe-area-inset-bottom));
-  padding: var(--space-3) var(--space-4);
-  background: var(--bg-card);
-  border-top: 1px solid var(--border-card);
-  margin: var(--space-4) calc(-1 * var(--space-4)) calc(-1 * var(--space-4));
-  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
-  z-index: 35;
+  bottom: calc(var(--nav-offset) + 8px);
+  padding: var(--space-2) var(--space-4);
+  background: transparent;
+  border-top: none;
+  z-index: 45;
 }
 
 /* Cards & Containers */
@@ -178,10 +262,12 @@ button.danger-btn:active {
 }
 
 .card-tag {
-  font-size: 0.76rem;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs); /* 0.8125rem */
   font-weight: 600;
-  letter-spacing: 0.02em;
-  padding: var(--space-1) var(--space-2);
+  text-transform: none; /* sentence case, no caps */
+  letter-spacing: normal;
+  padding: 3px 10px;
   border-radius: var(--radius-pill);
   background: var(--teal-light);
   color: var(--teal);
@@ -198,6 +284,21 @@ button.danger-btn:active {
   color: var(--saffron);
 }
 
+.card-tag.tunas {
+  background: var(--tunas-light);
+  color: var(--tunas-dark);
+}
+
+.card-tag.coral {
+  background: var(--coral-light);
+  color: var(--coral-dark);
+}
+
+.card-tag.sunny {
+  background: var(--sunny-light);
+  color: var(--sunny-dark);
+}
+
 /* Recommendation Hero Action */
 .hero-action {
   background: var(--teal);
@@ -212,7 +313,9 @@ button.danger-btn:active {
 .hero-action h2 {
   color: #FFFFFF;
   margin-top: 0;
-  font-size: 1.35rem;
+  font-size: var(--text-lg);
+  font-weight: 600;
+  line-height: var(--leading-heading);
 }
 
 .hero-action p {
@@ -252,11 +355,13 @@ button.danger-btn:active {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  font-size: 0.95rem;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 500;
   text-align: left;
   cursor: pointer;
   touch-action: manipulation;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
 .chip:active {
@@ -351,14 +456,16 @@ button.danger-btn:active {
 }
 
 .sub-nav button {
-  min-height: 40px;
-  padding: var(--space-1) var(--space-3);
-  font-size: 0.88rem;
+  min-height: 48px;
+  min-width: 48px;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
   border-radius: var(--radius-pill);
   white-space: nowrap;
   border: 1px solid var(--border-card);
   background: var(--bg-card);
   color: var(--ink-secondary);
+  touch-action: manipulation;
 }
 
 .sub-nav button.active {
@@ -382,7 +489,12 @@ details.clinical-note summary {
   font-weight: 600;
   color: var(--teal);
   user-select: none;
-  outline: none;
+}
+
+details.clinical-note summary:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
 
 details.clinical-note p {
@@ -596,13 +708,18 @@ details.clinical-note p {
   background: none;
   border: none;
   color: var(--ink-muted);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   font-weight: 500;
-  min-height: 36px;
-  padding: var(--space-1);
+  min-height: 48px;
+  min-width: 48px;
+  padding: var(--space-2);
   text-decoration: underline;
   cursor: pointer;
   align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
 }
 
 /* Utility classes replacing inline styles */
@@ -1106,6 +1223,7 @@ details.clinical-note p {
   padding: var(--space-4);
   max-height: 68vh;
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 /* 7. Bubble */
@@ -1307,15 +1425,12 @@ details.clinical-note p {
   background-color: var(--bg-card);
   color: var(--ink-primary);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  border-top: 4px solid var(--tunas);
+  border-top: 1px solid var(--border-card);
   padding: var(--space-4) var(--space-5) calc(var(--space-5) + env(safe-area-inset-bottom));
   box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.14);
   transform: translateY(100%);
   transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.answersheet-sheet.answersheet-coral {
-  border-top-color: var(--coral);
+  overscroll-behavior: contain;
 }
 
 .answersheet-overlay.is-open .answersheet-sheet {
@@ -1348,9 +1463,9 @@ details.clinical-note p {
 }
 
 .answersheet-message {
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   font-size: 1.05rem;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.3;
   color: var(--ink-primary);
 }

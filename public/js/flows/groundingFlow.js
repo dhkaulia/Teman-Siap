@@ -42,14 +42,14 @@ export function createGroundingFlow(onFinish = null) {
       count: '1 Rasa',
       title: 'Perhatikan 1 Rasa di Mulut',
       desc: 'Rasakan sisa rasa di lidahmu atau teguk air minum. Hembuskan satu napas panjang yang melepaskan sisa ketegangan.',
-      btnLabel: 'Selesai Latihan Grounding ✨'
+      btnLabel: 'Selesai Latihan Grounding'
     }
   ];
 
   return {
     id: 'grounding',
     title: 'Teknik Grounding',
-    completeLabel: 'Selesai ✨',
+    completeLabel: 'Selesai',
     steps: senses.map((s, idx) => ({
       id: s.id,
       type: 'custom',

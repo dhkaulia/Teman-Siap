@@ -382,7 +382,7 @@ class SessionRunner {
       case 'reflection':
       case 'textarea': {
         contentHTML = `
-          <textarea id="stepTextField" placeholder="${esc(step.placeholder || 'Tuliskan refleksimu...')}" rows="4">${esc(currentVal || '')}</textarea>
+          <textarea id="stepTextField" placeholder="${esc(step.placeholder || 'Tuliskan refleksimu…')}" rows="4">${esc(currentVal || '')}</textarea>
         `;
         break;
       }

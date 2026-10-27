@@ -9,7 +9,8 @@ import { CONTENT } from '../../content.js';
 import { Wave } from '../ui/wave.js';
 import { ChoiceTiles } from '../ui/choiceTiles.js';
 import { Bubble } from '../ui/bubble.js';
-import { announce } from '../ui/utils.js';
+import { announce, esc } from '../ui/utils.js';
+import { BottomSheet } from '../ui/bottomSheet.js';
 
 export function createUrgeFlow(faithPerspective = false, onFinish = null) {
   let timerInterval = null;
@@ -32,21 +33,22 @@ export function createUrgeFlow(faithPerspective = false, onFinish = null) {
 
   const reframeItems = CONTENT.cognitiveReframes;
   const chosenReframe = reframeItems[Math.floor(Math.random() * reframeItems.length)];
-  const reframeText = faithPerspective && chosenReframe.counterPerspectiveFaith 
-    ? chosenReframe.counterPerspectiveFaith 
-    : chosenReframe.counterPerspective;
+  const shortLine = faithPerspective && chosenReframe.shortBalancedFaith
+    ? chosenReframe.shortBalancedFaith
+    : (chosenReframe.shortBalanced || chosenReframe.counterPerspective);
+  const learnMoreText = chosenReframe.learnMore || 'Menunda dorongan belanja selama 10 menit membantu menenangkan amigdala dan mengembalikan kejernihan keputusan finansial secara alami.';
 
   return {
     id: 'urge',
     title: 'Jeda Belanja (Urge Surfing)',
-    completeLabel: 'Selesai ✨',
+    completeLabel: 'Selesai',
     steps: [
       // Step 1: Starting Intensity (Wave 1 to 10)
       {
         id: 'startIntensity',
         type: 'custom',
         title: 'Seberapa kuat dorongannya?',
-        subtitle: 'Sentuh dan geser ombak naik atau turun untuk menandai dorongan belanjamu saat ini:',
+        subtitle: 'Sentuh dan geser ombak naik atau turun:',
         renderCustom(answers) {
           return `
             <div id="urgeWaveStartMount"></div>
@@ -70,33 +72,37 @@ export function createUrgeFlow(faithPerspective = false, onFinish = null) {
         }
       },
 
-      // Step 2: 10-minute timer scene with stored end timestamp + Wake Lock + Midway CBT Bubble
+      // Step 2: 10-minute timer scene with stored end timestamp + Wake Lock + Reframe Card
       {
         id: 'surfing',
         type: 'custom',
         hideFooter: true,
         title: 'Jeda Sadar 10 Menit',
-        subtitle: 'Beri ruang sejenak agar amigdala mereda dan pikiran rasionalmu kembali jernih:',
+        subtitle: 'Beri jeda agar pikiran kembali tenang.',
         renderCustom() {
           return `
-            <div class="urge-scene-box">
-              <div class="timer-display mb-1" id="urgeSceneTimer">10:00</div>
-              <div class="mute text-xs mb-3" id="urgeSceneSubtext">Jeda sedang berjalan...</div>
-
-              <div id="urgeWaveSceneMount" class="mb-3"></div>
-
-              <!-- Midway CBT Reframe Bubble (appears around 5 minutes or tapped) -->
-              <div id="urgeMidwayBubble" class="mb-3">
-                ${Bubble.renderHTML({
-                  sender: 'Sudut Pandang Seimbang',
-                  role: 'guide',
-                  icon: '💡',
-                  text: `${chosenReframe.impulseThought} → ${reframeText}`
-                })}
+            <div class="urge-scene-box w-full">
+              <div class="urge-timer-block w-full text-center">
+                <div class="timer-display tabular-nums mb-1" id="urgeSceneTimer">10:00</div>
+                <div class="mute text-xs mb-3" id="urgeSceneSubtext">Jeda sedang berjalan…</div>
               </div>
 
-              <button type="button" class="secondary w-full btn-action-sm mt-2" id="finishUrgeEarlyBtn">
-                Selesaikan Jeda Sekarang
+              <div id="urgeWaveSceneMount" class="w-full mb-3"></div>
+
+              <!-- Reframe Card: User's Thought + 1 Short Balanced Line (<=20 words) + Pelajari -->
+              <div id="urgeReframeCard" class="card card-border-saffron urge-reframe-card w-full mb-3 text-left">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="card-tag saffron">Sudut Pandang Seimbang</span>
+                  <button type="button" class="unit-learn-btn" id="openReframeLearnBtn" aria-label="Pelajari sudut pandang seimbang">
+                    Pelajari
+                  </button>
+                </div>
+                <div class="reframe-thought font-semibold text-sm mb-1">${esc(chosenReframe.impulseThought)}</div>
+                <div class="reframe-balanced text-sm mute">${esc(shortLine)}</div>
+              </div>
+
+              <button type="button" class="primary w-full" id="finishUrgeEarlyBtn">
+                Selesai
               </button>
             </div>
           `;
@@ -105,6 +111,29 @@ export function createUrgeFlow(faithPerspective = false, onFinish = null) {
           const timerEl = container.querySelector('#urgeSceneTimer');
           const waveMount = container.querySelector('#urgeWaveSceneMount');
           const finishBtn = container.querySelector('#finishUrgeEarlyBtn');
+          const learnBtn = container.querySelector('#openReframeLearnBtn');
+
+          if (learnBtn) {
+            learnBtn.onclick = () => {
+              const sheet = new BottomSheet();
+              const sheetContent = document.createElement('div');
+              sheetContent.innerHTML = `
+                <p class="font-semibold text-sm mb-2">${esc(chosenReframe.impulseThought)}</p>
+                <p class="text-sm mb-3">${esc(shortLine)}</p>
+                <div class="card p-3 mb-3">
+                  <div class="text-xs font-bold text-teal mb-1">Prinsip Ilmiah:</div>
+                  <div class="text-sm mute">${esc(learnMoreText)}</div>
+                </div>
+                <button type="button" class="primary w-full mt-2" id="closeReframeSheetBtn">Tutup</button>
+              `;
+              const closeBtn = sheetContent.querySelector('#closeReframeSheetBtn');
+              if (closeBtn) closeBtn.onclick = () => sheet.close();
+              sheet.open({
+                title: 'Sudut Pandang Seimbang',
+                content: sheetContent
+              });
+            };
+          }
 
           // Initialize wave in scene
           if (waveMount) {

@@ -106,7 +106,7 @@ describe('Conversation Cards Deck & "Giliran [nama]" Turn Flow', () => {
     assert.ok(html.includes('Budi'), 'Must show Partner B custom name');
     assert.ok(html.includes('Sedang mengisi sebagai:'), 'Must display perspective');
     assert.ok(html.includes('id="convoDeckMount"'), 'Must render card deck mount');
-    assert.ok(html.includes('Intip Tips Gottman 🔄'), 'Must render flip prompt button');
+    assert.ok(html.includes('Intip Tips Gottman'), 'Must render flip prompt button');
     assert.ok(html.includes('id="prevDeckBtn"'));
     assert.ok(html.includes('id="nextDeckBtn"'));
   });
@@ -265,7 +265,7 @@ describe('Kuis Saling Kenal (Love Maps - Gottman Method)', () => {
     const html = revealStep.renderCustom(answers);
 
     // Must show discovery cards
-    assert.ok(html.includes('Hal Baru yang Kalian Pelajari 🌸'));
+    assert.ok(html.includes('Hal Baru yang Kalian Pelajari'));
     assert.ok(html.includes('Jalan santai sore hari'));
     assert.ok(html.includes('Tidur hening 20 menit'));
 
@@ -382,7 +382,7 @@ describe('Guardrails & Anti-Comparison Policy Verification', () => {
     const html = renderRelationship(store);
 
     // SVG must use responsive viewBox without rigid inline pixel widths > 360
-    assert.ok(html.includes('viewBox="0 0 340 170"'), 'SVG must use viewBox of 340 max width');
+    assert.ok(html.includes('viewBox="0 0 200 210"') || html.includes('viewBox="0 0 340 170"'), 'SVG must use responsive viewBox');
     assert.equal(html.includes('width="400"'), false);
     assert.equal(html.includes('width="500"'), false);
 

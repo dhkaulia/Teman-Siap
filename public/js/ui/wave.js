@@ -22,17 +22,15 @@ export class Wave {
 
   render() {
     this.container.innerHTML = `
-      <div class="wave-track" role="slider" tabindex="0"
-           aria-valuemin="0" aria-valuemax="10" aria-valuenow="${this.value}"
-           aria-label="Tingkat dorongan belanja" aria-valuetext="${this._getText(this.value)}">
-        <svg class="wave-svg" viewBox="0 0 300 120" preserveAspectRatio="none">
-          <path class="wave-path-back" d="" />
-          <path class="wave-path-front" d="" />
-        </svg>
+      <div class="wave-track" role="slider" tabindex="0" aria-valuemin="0" aria-valuemax="10" aria-valuenow="${this.value}" aria-label="Tingkat dorongan belanja" aria-valuetext="${this._getText(this.value)}">
+        <svg class="wave-svg" viewBox="0 0 300 120" preserveAspectRatio="none"><path class="wave-path-back" d="" /><path class="wave-path-front" d="" /></svg>
         <div class="wave-badge" aria-hidden="true">${this.value} / 10</div>
         <div class="wave-drag-zone" title="Tarik ke atas atau ke bawah untuk mengatur kekuatan dorongan"></div>
       </div>
-      <div class="wave-caption mute text-xs">${this._getText(this.value)} (Sentuh & seret naik/turun)</div>
+      <div class="wave-caption mute text-xs flex items-center justify-center gap-1">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="7 15 12 20 17 15"/><polyline points="7 9 12 4 17 9"/></svg>
+        <span>Sentuh & seret ombak</span>
+      </div>
     `;
   }
 
@@ -100,7 +98,6 @@ export class Wave {
         track.setAttribute('aria-valuetext', this._getText(this.value));
       }
       if (badge) badge.textContent = `${this.value} / 10`;
-      if (caption) caption.textContent = `${this._getText(this.value)} (Sentuh & seret naik/turun)`;
     }
     if (typeof this.onChange === 'function') this.onChange(this.value);
   }

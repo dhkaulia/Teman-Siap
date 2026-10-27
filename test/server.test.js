@@ -17,7 +17,8 @@ const MIME_TYPES = {
   '.json': 'application/json; charset=utf-8',
   '.webmanifest': 'application/manifest+json; charset=utf-8',
   '.svg': 'image/svg+xml',
-  '.png': 'image/png'
+  '.png': 'image/png',
+  '.woff2': 'font/woff2'
 };
 
 function createTestServer() {
@@ -118,6 +119,9 @@ describe('Static File Server & Module Loading', () => {
     await check('/dev/mascot.html', 'text/html');
     await check('/dev/lessons.html', 'text/html');
     await check('/content.js', 'text/javascript');
+    await check('/fonts/figtree-latin.woff2', 'font/woff2');
+    await check('/fonts/fraunces-latin.woff2', 'font/woff2');
+    await check('/js/ui/icons.js', 'text/javascript');
     await check('/support.js', 'text/javascript');
     await check('/sw.js', 'text/javascript');
     await check('/manifest.webmanifest', 'application/manifest+json');

@@ -1,5 +1,48 @@
 /* Teman Siap — Design Tokens v2.0 (Playful, Tactile & Accessible) */
 
+/* ==========================================================================
+   Self-Hosted Font Faces & Metric-Matched Fallbacks (Zero Third-Party Requests)
+   ========================================================================== */
+
+/* Metric-matched system fallbacks */
+@font-face {
+  font-family: 'Fraunces Fallback';
+  src: local('Georgia'), local('Times New Roman');
+  ascent-override: 95%;
+  descent-override: 25%;
+  line-gap-override: 0%;
+  size-adjust: 100%;
+}
+
+@font-face {
+  font-family: 'Figtree Fallback';
+  src: local('system-ui'), local('-apple-system'), local('Segoe UI'), local('Roboto');
+  ascent-override: 96%;
+  descent-override: 24%;
+  line-gap-override: 0%;
+  size-adjust: 100%;
+}
+
+/* Fraunces Variable Latin Subset (wght 600-700, opsz 9..144, SOFT 100) */
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 600 700;
+  font-display: swap;
+  src: url('/fonts/fraunces-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Figtree Variable Latin Subset (wght 400-700) */
+@font-face {
+  font-family: 'Figtree';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/figtree-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 :root {
   /* 1. Core Semantic Palette (WCAG 2.1 AA Verified >= 4.5:1) */
   --teal: #1B5E59;
@@ -36,9 +79,14 @@
   --sunny-dark: #B45309;
   --sunny-shadow: #B45309;
   
-  /* 3. Neutral Canvas & Card Surfaces */
-  --bg-canvas: #F4F6F5;
-  --bg-card: #FFFFFF;
+  /* 3. Layered Surfaces & Neutral Tokens */
+  --surface-0: #F4F6F5;
+  --surface-1: #FFFFFF;
+  --surface-2: #EAF0EE;
+  --surface-3: #DFE8E5;
+  
+  --bg-canvas: var(--surface-0);
+  --bg-card: var(--surface-1);
   --border-card: #DFE5E3;
   --border-focus: #D97706;
   --border-width: 2px;
@@ -54,10 +102,22 @@
   --danger-light: #F4EDF6;
   --danger-border: #DCD0E1;
 
-  /* 5. Typography Stacks (Nunito / Baloo 2 Display + Plus Jakarta Sans Body) */
-  --font-display: "Nunito", "Baloo 2", system-ui, -apple-system, sans-serif;
-  --font-serif: var(--font-display); /* Replaces Newsreader in headings while preserving legacy selectors */
-  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  /* 5. Typography Stacks (Fraunces Display + Figtree Body/UI) */
+  --font-display: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  --font-serif: var(--font-display);
+  --font-sans: "Figtree", "Figtree Fallback", system-ui, -apple-system, sans-serif;
+
+  /* Type Scale Tokens */
+  --text-xs: 0.8125rem;   /* 13px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg: 1.25rem;     /* 20px */
+  --text-xl: 1.75rem;     /* 28px */
+  --text-2xl: 2rem;       /* 32px */
+
+  /* Line Heights */
+  --leading-body: 1.5;
+  --leading-heading: 1.2;
 
   /* 6. Spacing Scale */
   --space-1: 4px;
@@ -82,92 +142,178 @@
   /* Animation Timings */
   --transition-step: 200ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-press: 80ms cubic-bezier(0.2, 0.8, 0.4, 1);
+
+  /* 9. Floating Navigation & System Bar Tokens */
+  --nav-h: 68px;
+  --nav-gap: 12px;
+  --nav-offset: calc(var(--nav-h) + var(--nav-gap) + env(safe-area-inset-bottom, 0px));
+
+  /* 9. Botanical Plant & Stoneware Garden Tokens (Taman Kita) */
+  --pot-1: #FBF6EF;            /* Stoneware light highlight */
+  --pot-mid: #EFE6D9;          /* Stoneware body cream */
+  --pot-2: #D8C7B4;            /* Stoneware base ring & shade */
+  --pot-shade: #CBB9A5;        /* Stoneware shadow */
+  --pot-rim: #E5D7C7;          /* Stoneware inner rim */
+  --pot-stroke: #B8A593;       /* Stoneware fine contour */
+  --pot-speckle: #7A6652;      /* Stoneware tactile speckles */
+
+  --soil: #342217;             /* Rich dark loam soil */
+  --soil-highlight: #462E20;   /* Soil surface mound contour */
+
+  --seed-1: #D9A06F;           /* Almond seed highlight */
+  --seed-2: #A06A3F;           /* Almond seed base */
+  --seed-3: #5C3215;           /* Almond seed crease & shadow */
+
+  --leaf-1: #98C97B;           /* Leaf highlight facet (upper-left light) */
+  --leaf-2: #549A5B;           /* Leaf base midtone */
+  --leaf-3: #265F33;           /* Leaf shade facet (lower-right) */
+  --leaf-vein: #1B4C26;        /* Crisp central leaf vein */
+
+  --petal-1: #6C3957;          /* Plum flower petal base & shadow */
+  --petal-2: #A85D8B;          /* Plum flower radiant inner petal */
+  --petal-core: #B96F9A;       /* Flower luminous center */
+  --petal-shade: #4E233E;      /* Deep petal occlusion */
+  --petal-stroke: #451F36;     /* Petal delicate outline */
+  --stamen: #F59E0B;           /* Golden-orange stamen filaments */
+  --stamen-core: #FCD34D;      /* Golden-yellow anthers */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-canvas: #101716;
-    --bg-card: #182322;
-    --border-card: #273735;
+    /* Layered Dark Mode Surfaces (4 to 5 lightness points apart, tinted with brand teal) */
+    --surface-0: #0E1514; /* Deep Canvas (L ~ 7%) */
+    --surface-1: #182221; /* Card Surface (L ~ 11.5%) */
+    --surface-2: #222E2C; /* Raised Items / Active Chips (L ~ 15.7%) */
+    --surface-3: #2D3A38; /* Bottom Sheets & Modals (L ~ 20.2%) */
+
+    --bg-canvas: var(--surface-0);
+    --bg-card: var(--surface-1);
+    --border-card: rgba(255, 255, 255, 0.08); /* 8% white, non-harsh boundary */
+    --border-card-subtle: rgba(255, 255, 255, 0.05);
+
+    /* Inks */
+    --ink-primary: #E8F0EE;   /* > 14:1 on surface-1 */
+    --ink-secondary: #A8B8B4; /* > 7.8:1 on surface-1 */
+    --ink-muted: #829591;     /* > 5.1:1 on surface-1 */
+    --ink-on-color: #0A1C1A;  /* Dark text on light accent fills */
+    --ink-dark-btn: #0A1C1A;
     
-    --teal: #4FB0A8;
-    --teal-light: #183330;
+    /* Desaturated & Lightened Accent Fills for Dark Mode */
+    --teal: #6CD0C6;
+    --teal-light: #15312E;
     --teal-dark: #8AD2CB;
-    --teal-shadow: #0A2E2B;
+    --teal-shadow: #0A1E1C;
     
-    --saffron: #FBBF24;
-    --saffron-light: #362912;
-    --saffron-dark: #F59E0B;
-    --saffron-shadow: #78350F;
+    --saffron: #FCD34D;
+    --saffron-light: #32250E;
+    --saffron-dark: #FDE047;
+    --saffron-shadow: #1E1602;
     
-    --plum: #B396B9;
-    --plum-light: #2D2130;
-    --plum-dark: #CEB5D3;
-    --plum-shadow: #4A3050;
+    --plum: #D4B8DE;
+    --plum-light: #251B28;
+    --plum-dark: #E4C8ED;
+    --plum-shadow: #190F1C;
 
-    --tunas: #4ADE80;
-    --tunas-light: #143522;
-    --tunas-dark: #86EFAC;
-    --tunas-shadow: #166534;
+    --tunas: #86EFAC;
+    --tunas-light: #12321E;
+    --tunas-dark: #A7F3D0;
+    --tunas-shadow: #081F0F;
 
-    --coral: #FB923C;
-    --coral-light: #3D1E0C;
-    --coral-dark: #FDBA74;
-    --coral-shadow: #9A3412;
+    --coral: #FDBA74;
+    --coral-light: #351C12;
+    --coral-dark: #FED7AA;
+    --coral-shadow: #210F07;
 
     --sunny: #FCD34D;
-    --sunny-light: #3B3008;
+    --sunny-light: #32250E;
     --sunny-dark: #FDE047;
-    --sunny-shadow: #78350F;
+    --sunny-shadow: #1E1602;
     
-    --ink-primary: #F0F6F5;
-    --ink-secondary: #9EABA9;
-    --ink-muted: #7A8C8A;
+    --danger: #D4B8DE;
+    --danger-light: #251B28;
+    --danger-border: rgba(212, 184, 222, 0.25);
     
-    --danger: #B396B9;
-    --danger-light: #2D2130;
-    --danger-border: #4D3852;
-    
-    --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.2);
-    --shadow-elevation: 0 8px 24px rgba(0, 0, 0, 0.35);
+    --shadow-subtle: 0 4px 16px rgba(0, 0, 0, 0.28);
+    --shadow-elevation: 0 10px 32px rgba(0, 0, 0, 0.45);
+
+    /* Plant Garden Tokens (Dark Scheme - calibrated for dark ceramic contrast) */
+    --pot-1: #EDE4D8;
+    --pot-mid: #DFD4C4;
+    --pot-2: #C5B5A2;
+    --pot-shade: #A69683;
+    --pot-rim: #D5C7B6;
+    --pot-stroke: #A89582;
+    --pot-speckle: #5A4836;
+    --soil: #26160F;
+    --soil-highlight: #362217;
   }
 }
 
 .theme-dark,
 body.theme-dark {
-  --bg-canvas: #101716;
-  --bg-card: #182322;
-  --border-card: #273735;
-  --teal: #4FB0A8;
-  --teal-light: #183330;
+  /* Layered Dark Mode Surfaces (4 to 5 lightness points apart, tinted with brand teal) */
+  --surface-0: #0E1514;
+  --surface-1: #182221;
+  --surface-2: #222E2C;
+  --surface-3: #2D3A38;
+
+  --bg-canvas: var(--surface-0);
+  --bg-card: var(--surface-1);
+  --border-card: rgba(255, 255, 255, 0.08);
+  --border-card-subtle: rgba(255, 255, 255, 0.05);
+
+  --ink-primary: #E8F0EE;
+  --ink-secondary: #A8B8B4;
+  --ink-muted: #829591;
+  --ink-on-color: #0A1C1A;
+  --ink-dark-btn: #0A1C1A;
+
+  --teal: #6CD0C6;
+  --teal-light: #15312E;
   --teal-dark: #8AD2CB;
-  --teal-shadow: #0A2E2B;
-  --saffron: #FBBF24;
-  --saffron-light: #362912;
-  --saffron-dark: #F59E0B;
-  --saffron-shadow: #78350F;
-  --plum: #B396B9;
-  --plum-light: #2D2130;
-  --plum-dark: #CEB5D3;
-  --plum-shadow: #4A3050;
-  --tunas: #4ADE80;
-  --tunas-light: #143522;
-  --tunas-dark: #86EFAC;
-  --tunas-shadow: #166534;
-  --coral: #FB923C;
-  --coral-light: #3D1E0C;
-  --coral-dark: #FDBA74;
-  --coral-shadow: #9A3412;
+  --teal-shadow: #0A1E1C;
+
+  --saffron: #FCD34D;
+  --saffron-light: #32250E;
+  --saffron-dark: #FDE047;
+  --saffron-shadow: #1E1602;
+
+  --plum: #D4B8DE;
+  --plum-light: #251B28;
+  --plum-dark: #E4C8ED;
+  --plum-shadow: #190F1C;
+
+  --tunas: #86EFAC;
+  --tunas-light: #12321E;
+  --tunas-dark: #A7F3D0;
+  --tunas-shadow: #081F0F;
+
+  --coral: #FDBA74;
+  --coral-light: #351C12;
+  --coral-dark: #FED7AA;
+  --coral-shadow: #210F07;
+
   --sunny: #FCD34D;
-  --sunny-light: #3B3008;
+  --sunny-light: #32250E;
   --sunny-dark: #FDE047;
-  --sunny-shadow: #78350F;
-  --ink-primary: #F0F6F5;
-  --ink-secondary: #9EABA9;
-  --ink-muted: #7A8C8A;
-  --danger: #B396B9;
-  --danger-light: #2D2130;
-  --danger-border: #4D3852;
+  --sunny-shadow: #1E1602;
+
+  --danger: #D4B8DE;
+  --danger-light: #251B28;
+  --danger-border: rgba(212, 184, 222, 0.25);
+
+  --shadow-subtle: 0 4px 16px rgba(0, 0, 0, 0.28);
+  --shadow-elevation: 0 10px 32px rgba(0, 0, 0, 0.45);
+
+  --pot-1: #EDE4D8;
+  --pot-mid: #DFD4C4;
+  --pot-2: #C5B5A2;
+  --pot-shade: #A69683;
+  --pot-rim: #D5C7B6;
+  --pot-stroke: #A89582;
+  --pot-speckle: #5A4836;
+  --soil: #26160F;
+  --soil-highlight: #362217;
 }
 
 .theme-light,
@@ -210,6 +356,7 @@ body.theme-light {
 /* -------------------------------------------------------------
  * Tactile Chunky Button System (Duolingo-style Pressed Bottom Shadow)
  * 4px solid bottom shadow that collapses to 0 on click/touch
+ * Hierarchy rule: buttons Figtree 600
  * ----------------------------------------------------------- */
 button.btn-chunky {
   position: relative;
@@ -220,9 +367,10 @@ button.btn-chunky {
   min-height: 48px;
   min-width: 48px;
   padding: var(--space-3) var(--space-5);
-  font-family: var(--font-display);
-  font-size: 1rem;
-  font-weight: 700;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: 600;
+  line-height: var(--leading-heading);
   border-radius: var(--radius-md);
   border-width: var(--border-width);
   border-style: solid;
@@ -395,4 +543,34 @@ body.effects-disabled *::after {
   animation-duration: 0.01ms !important;
   animation-iteration-count: 1 !important;
   transition-duration: 0.01ms !important;
+}
+
+/* -------------------------------------------------------------
+ * Standardized Type Scale & Typography Hierarchy Utilities
+ * ----------------------------------------------------------- */
+.text-xs   { font-size: var(--text-xs) !important; line-height: var(--leading-body); }
+.text-sm   { font-size: var(--text-sm) !important; line-height: var(--leading-body); }
+.text-base { font-size: var(--text-base) !important; line-height: var(--leading-body); }
+.text-lg   { font-size: var(--text-lg) !important; line-height: var(--leading-heading); }
+.text-xl   { font-size: var(--text-xl) !important; line-height: var(--leading-heading); }
+.text-2xl  { font-size: var(--text-2xl) !important; line-height: var(--leading-heading); }
+
+/* Display Font for Numbers Only */
+.font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-variation-settings: "SOFT" 100, "opsz" auto;
+}
+
+/* Rupiah Totals: Display font, --text-2xl, tabular-nums */
+.month-amount-display,
+.rupiah-total,
+.keypad-display-val {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl) !important;
+  font-weight: 700;
+  line-height: var(--leading-heading);
+  font-variant-numeric: tabular-nums;
+  font-optical-sizing: auto;
+  font-variation-settings: "SOFT" 100, "opsz" auto;
 }

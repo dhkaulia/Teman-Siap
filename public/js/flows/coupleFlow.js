@@ -161,7 +161,7 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
   return {
     id: `couple-${convoId}`,
     title: convo.title,
-    completeLabel: 'Selesai ✨',
+    completeLabel: 'Selesai',
     steps: [
       // -------------------------------------------------------------
       // Step 1: Intro (Gottman Tip Bubble + Turn-Based Rules)
@@ -709,7 +709,7 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
 
               <div class="sticky-bottom-action">
                 <button type="button" class="plum-btn w-full" id="completeCoupleConvoBtn">
-                  Simpan & Selesaikan Sesi ✨
+                  Simpan & Selesaikan Sesi
                 </button>
               </div>
 

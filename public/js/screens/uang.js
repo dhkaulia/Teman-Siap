@@ -1,11 +1,9 @@
 /**
  * Screen: Keuangan Sadar (My Money)
- * Calm hub + short flows:
- * - One large number "Tercatat bulan ini" with caption "Dari catatanmu, bukan saldo bank"
- * - Empty state when no data: "Belum ada catatan. Mulai dari satu."
- * - Big "+ Catat" button fixed in the thumb zone
- * - Three rows below: Tujuan tabungan, Jeda belanja, Rencana jika-maka
- * Acceptance: One-thumb logging, timer survives screen lock & reload, no red colors, amounts formatted as Rupiah.
+ * Calm hub + tiles:
+ * - One large number "Rp 0" with a single-line caption "Dari catatanmu"
+ * - Three icon tiles (Tabungan, Jeda, Rencana) with a status chip
+ * - Fixed "+ Catat" button with enough bottom padding so no row is hidden
  */
 import { sessionRunner } from '../session.js';
 import { createExpenseFlow } from '../flows/expenseFlow.js';
@@ -16,6 +14,8 @@ import { BottomSheet } from '../ui/bottomSheet.js';
 import { Keypad } from '../ui/keypad.js';
 import { esc, idr, monthKey, today } from '../ui/utils.js';
 import { COPY } from '../copy.js';
+import { renderIcon } from '../ui/icons.js';
+import { playTapSound, triggerHapticTap } from '../ui/feedback.js';
 
 export function cleanupUang() {
   // Hub has no background timers
@@ -34,124 +34,109 @@ export function renderMoney(store) {
   const plans = d.plans || [];
 
   return `
-    <div class="card-title-row mb-1">
-      <div>
-        <span class="card-tag">${COPY.uang.tag}</span>
-        <h1 class="mt-1 mb-1">${COPY.uang.title}</h1>
-      </div>
-    </div>
-    <p class="mute text-sm mb-3">${COPY.uang.subtitle}</p>
-
-    <!-- Monthly Summary Hub Card -->
-    <div class="card mt-1 mb-3">
-      <div class="card-title-row">
-        <h2 class="text-xs font-bold text-ink-primary mb-0">${COPY.uang.hubTitle}</h2>
-        <span class="card-tag">${new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</span>
+    <div class="uang-screen-wrap">
+      <!-- Screen Header -->
+      <div class="card-title-row mb-2">
+        <h1 class="text-xl display font-bold mb-0">${COPY.uang.title}</h1>
+        <span class="card-tag saffron">${COPY.uang.tag}</span>
       </div>
 
-      ${currentMonthExpenses.length ? `
-        <div class="month-amount-display">
-          ${idr(totalSpent)}
-        </div>
-        <p class="mute text-xs mb-1">Tercatat ${currentMonthExpenses.length} transaksi mandiri bulan ini.</p>
-        <div class="month-note">${COPY.uang.hubCaption}</div>
-      ` : `
-        <div class="month-amount-display">
-          Rp 0
-        </div>
-        <p class="mute text-sm mb-1 font-medium">${COPY.uang.hubEmpty}</p>
-        <div class="month-note">${COPY.uang.hubCaption}</div>
-      `}
-    </div>
-
-    <!-- Three Rows: Tujuan Tabungan, Jeda Belanja, Rencana Jika-Maka -->
-    <div class="exercise-rows mb-4">
-      <!-- Row 1: Tujuan Tabungan -->
-      <div class="exercise-row" id="hubGoalRow" role="button" tabindex="0" aria-label="Tujuan Tabungan">
-        <span class="exercise-icon" aria-hidden="true">🛡️</span>
-        <div class="exercise-row-content">
-          <div class="flex justify-between items-center">
-            <div class="exercise-row-title">Tujuan Tabungan</div>
-            ${goal ? `<span class="text-xs font-bold text-teal">${idr(goal.saved)} / ${idr(goal.target)}</span>` : ''}
-          </div>
-          ${goal ? `
-            <div class="bar-track mt-1 mb-1">
-              <div class="bar-fill" data-progress="${Math.min(100, Math.round((goal.saved / (goal.target || 1)) * 100))}"></div>
-            </div>
-            <div class="flex justify-between items-center text-xs mute">
-              <span>${esc(goal.name)}</span>
-              <span>Tercapai ${Math.min(100, Math.round((goal.saved / (goal.target || 1)) * 100))}%</span>
-            </div>
-          ` : `
-            <div class="exercise-row-desc">Belum ada tujuan tabungan aktif. Ketuk untuk membuat tujuan pertama.</div>
-          `}
-        </div>
-        <span class="exercise-row-arrow" aria-hidden="true">${goal ? '+' : '→'}</span>
-      </div>
-
-      <!-- Row 2: Jeda Belanja (Urge Surfing) -->
-      <div class="exercise-row" id="hubUrgeRow" role="button" tabindex="0" aria-label="Jeda Belanja (Urge Surfing)">
-        <span class="exercise-icon" aria-hidden="true">🌊</span>
-        <div class="exercise-row-content">
-          <div class="exercise-row-title">Jeda Belanja (Urge Surfing)</div>
-          <div class="exercise-row-desc">Tunda dorongan belanja 10 menit untuk menjernihkan pikiran</div>
-        </div>
-        <span class="exercise-row-arrow" aria-hidden="true">→</span>
-      </div>
-
-      <!-- Row 3: Rencana Jika-Maka -->
-      <div class="exercise-row" id="hubPlanRow" role="button" tabindex="0" aria-label="Rencana Jika-Maka">
-        <span class="exercise-icon" aria-hidden="true">💡</span>
-        <div class="exercise-row-content">
-          <div class="exercise-row-title">Rencana Jika-Maka</div>
-          <div class="exercise-row-desc">${plans.length ? `${plans.length} rencana aktif untuk otomatisasi respon sehat` : 'Susun rencana otomatis saat godaan belanja muncul'}</div>
-        </div>
-        <span class="exercise-row-arrow" aria-hidden="true">→</span>
-      </div>
-    </div>
-
-    <!-- Active If-Then Plans List (if any) -->
-    ${plans.length ? `
-      <div class="card mb-4">
-        <div class="card-title-row mb-2">
-          <h3 class="text-sm font-bold text-ink-primary mb-0">Rencana Jika-Maka Aktif</h3>
-          <button type="button" class="secondary btn-action-sm" id="addNewPlanBtn">+ Tambah</button>
-        </div>
-        <div class="flex flex-col gap-2">
-          ${plans.map((p, idx) => `
-            <div class="plan-item">
-              <div class="text-sm font-medium"><b>Jika</b> ${esc(p.i)}, <b>maka</b> ${esc(p.t)}</div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    ` : ''}
-
-    <!-- Recent Conscious Expenses List (if any) -->
-    ${currentMonthExpenses.length ? `
-      <div class="card mb-5">
+      <!-- One Large Number with Single-Line Caption "Dari catatanmu" -->
+      <div class="card uang-hero-card mb-3">
         <div class="card-title-row mb-1">
-          <h3 class="text-sm font-bold text-ink-primary mb-0">Catatan Terakhir</h3>
-          <span class="text-xs mute">${currentMonthExpenses.length} catatan</span>
+          <span class="card-tag">Tercatat Bulan Ini</span>
+          <span class="text-xs mute">${new Date().toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })}</span>
         </div>
-        <div class="flex flex-col">
-          ${currentMonthExpenses.slice(-5).reverse().map(exp => `
-            <div class="recent-expense-row">
-              <div>
-                <div class="font-medium text-sm text-ink-primary">${esc(exp.category)}</div>
-                <div class="mute text-xs">${esc(exp.date)}${exp.note ? ' • ' + esc(exp.note) : ''}</div>
-              </div>
-              <div class="font-bold text-teal text-sm">${idr(exp.amount)}</div>
-            </div>
-          `).join('')}
+        <div class="uang-amount-display display tabular-nums">
+          ${currentMonthExpenses.length ? idr(totalSpent) : 'Rp 0'}
         </div>
+        <div class="uang-caption">Dari catatanmu</div>
       </div>
-    ` : ''}
+
+      <!-- Three Icon Tiles (Tabungan, Jeda, Rencana) with Status Chips -->
+      <div class="uang-tiles-grid mb-3">
+        <!-- Tile 1: Tabungan -->
+        <button type="button" class="uang-tile-btn" id="hubGoalRow" aria-label="Tabungan">
+          <div class="uang-tile-icon teal" aria-hidden="true">${renderIcon('goal')}</div>
+          <div class="uang-tile-title">Tabungan</div>
+          <span class="card-tag ${goal ? 'tunas' : ''}">
+            ${goal ? `${Math.round((goal.saved / (goal.target || 1)) * 100)}%` : 'Belum ada'}
+          </span>
+        </button>
+
+        <!-- Tile 2: Jeda -->
+        <button type="button" class="uang-tile-btn" id="hubUrgeRow" aria-label="Jeda">
+          <div class="uang-tile-icon saffron" aria-hidden="true">${renderIcon('urge')}</div>
+          <div class="uang-tile-title">Jeda</div>
+          <span class="card-tag saffron">Urge Surfing</span>
+        </button>
+
+        <!-- Tile 3: Rencana -->
+        <button type="button" class="uang-tile-btn" id="hubPlanRow" aria-label="Rencana">
+          <div class="uang-tile-icon plum" aria-hidden="true">${renderIcon('plan')}</div>
+          <div class="uang-tile-title">Rencana</div>
+          <span class="card-tag ${plans.length ? 'tunas' : ''}">
+            ${plans.length ? `${plans.length} aktif` : 'Belum ada'}
+          </span>
+        </button>
+      </div>
+
+      <!-- Active Goal Progress Details (if active) -->
+      ${goal ? `
+        <div class="card p-3 mb-3">
+          <div class="flex justify-between items-center text-xs mb-1">
+            <span class="font-bold text-ink-primary">${esc(goal.name)}</span>
+            <span class="font-bold text-teal">${idr(goal.saved)} / ${idr(goal.target)}</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" data-progress="${Math.min(100, Math.round((goal.saved / (goal.target || 1)) * 100))}"></div>
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- Active If-Then Plans (if any) -->
+      ${plans.length ? `
+        <div class="card mb-3">
+          <div class="card-title-row mb-2">
+            <h3 class="text-sm font-bold text-ink-primary mb-0">Rencana Jika-Maka</h3>
+            <button type="button" class="secondary btn-action-sm" id="addNewPlanBtn">+ Tambah</button>
+          </div>
+          <div class="flex flex-col gap-2">
+            ${plans.map((p) => `
+              <div class="plan-item">
+                <div class="text-xs font-medium"><b>Jika</b> ${esc(p.i)}, <b>maka</b> ${esc(p.t)}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- Recent Transactions List (if any) -->
+      ${currentMonthExpenses.length ? `
+        <div class="card mb-3">
+          <div class="card-title-row mb-1">
+            <h3 class="text-sm font-bold text-ink-primary mb-0">Catatan Terakhir</h3>
+            <span class="text-xs mute">${currentMonthExpenses.length} transaksi</span>
+          </div>
+          <div class="flex flex-col">
+            ${currentMonthExpenses.slice(-4).reverse().map(exp => `
+              <div class="recent-expense-row">
+                <div>
+                  <div class="font-medium text-xs text-ink-primary">${esc(exp.category)}</div>
+                  <div class="mute text-xs">${esc(exp.date)}${exp.note ? ' • ' + esc(exp.note) : ''}</div>
+                </div>
+                <div class="font-bold text-teal text-xs">${idr(exp.amount)}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      ` : ''}
+    </div>
 
     <!-- Fixed Big "+ Catat" Button in Thumb Zone -->
     <div class="sticky-bottom-action">
       <button type="button" class="primary w-full btn-lg font-bold" id="openQuickLogBtn">
-        + Catat Pengeluaran
+        + Catat
       </button>
     </div>
   `;
@@ -167,14 +152,18 @@ export function bindMoney(container, store, navigate, rerender) {
   const quickLogBtn = container.querySelector('#openQuickLogBtn');
   if (quickLogBtn) {
     quickLogBtn.onclick = () => {
+      playTapSound();
+      triggerHapticTap();
       sessionRunner.start(createExpenseFlow(store, () => rerender()));
     };
   }
 
-  // Row 1: Goal Row
+  // Tile 1: Goal Tile / Row
   const goalRow = container.querySelector('#hubGoalRow');
   if (goalRow) {
     goalRow.onclick = () => {
+      playTapSound();
+      triggerHapticTap();
       const currentGoal = store.d.goal;
       if (!currentGoal) {
         // Create new goal flow
@@ -183,7 +172,7 @@ export function bindMoney(container, store, navigate, rerender) {
         // Open quick top-up bottom sheet
         const sheet = new BottomSheet();
         sheet.open({
-          title: `+ Tabung untuk ${currentGoal.name}`,
+          title: `+ Tabung: ${currentGoal.name}`,
           content: `
             <div class="card card-border-teal p-2 mb-3">
               <div class="flex justify-between items-center text-xs mute mb-1">
@@ -198,7 +187,7 @@ export function bindMoney(container, store, navigate, rerender) {
             <label class="text-sm font-medium">Masukkan nominal tabungan tambahan:</label>
             <div id="topupKeypadMount"></div>
             <button type="button" class="primary w-full mt-3 btn-lg font-bold" id="confirmTopupBtn">
-              Simpan Tabungan ✨
+              Simpan Tabungan
             </button>
           `,
           onClose: () => {}
@@ -218,6 +207,8 @@ export function bindMoney(container, store, navigate, rerender) {
           const confirmBtn = document.getElementById('confirmTopupBtn');
           if (confirmBtn) {
             confirmBtn.onclick = () => {
+              playTapSound();
+              triggerHapticTap();
               if (topupAmt > 0) {
                 store.setGoal({
                   ...currentGoal,
@@ -241,18 +232,22 @@ export function bindMoney(container, store, navigate, rerender) {
     };
   }
 
-  // Row 2: Urge Surfing Row
+  // Tile 2: Urge Surfing Tile / Row
   const urgeRow = container.querySelector('#hubUrgeRow');
   if (urgeRow) {
     urgeRow.onclick = () => {
+      playTapSound();
+      triggerHapticTap();
       sessionRunner.start(createUrgeFlow(store.d.faithPerspective, () => rerender()));
     };
   }
 
-  // Row 3: Plan Row
+  // Tile 3: Plan Tile / Row
   const planRow = container.querySelector('#hubPlanRow');
   if (planRow) {
     planRow.onclick = () => {
+      playTapSound();
+      triggerHapticTap();
       sessionRunner.start(createPlanFlow(() => rerender()));
     };
   }
@@ -260,6 +255,8 @@ export function bindMoney(container, store, navigate, rerender) {
   const addPlanBtn = container.querySelector('#addNewPlanBtn');
   if (addPlanBtn) {
     addPlanBtn.onclick = () => {
+      playTapSound();
+      triggerHapticTap();
       sessionRunner.start(createPlanFlow(() => rerender()));
     };
   }

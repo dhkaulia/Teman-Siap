@@ -212,7 +212,7 @@ describe('End Screen Summary: Cheering Mascot, Skills, Animated Counter (NO % Sc
     // Weekly counter update
     assert.ok(html.includes('lesson-weekly-badge'));
     assert.ok(html.includes('id="lessonWeeklyCountNum"'));
-    assert.ok(html.includes('+1 bermakna ✨'));
+    assert.ok(html.includes('+1 bermakna'));
 
     // STRICTLY NO percentage score
     assert.equal(html.includes('%'), false, 'Summary screen must NEVER show a percentage score');

@@ -4,7 +4,7 @@
  * TODO: Push notifications for daily check-in reminders (out of scope for v1 — do not request Notification.permission).
  */
 
-const CACHE_NAME = 'temansiap-shell-v1';
+const CACHE_NAME = 'temansiap-shell-v2';
 
 const APP_SHELL_FILES = [
   '/',
@@ -12,6 +12,8 @@ const APP_SHELL_FILES = [
   '/manifest.webmanifest',
   '/content.js',
   '/support.js',
+  '/fonts/figtree-latin.woff2',
+  '/fonts/fraunces-latin.woff2',
   '/css/tokens.css',
   '/css/base.css',
   '/css/components.css',
@@ -53,6 +55,7 @@ const APP_SHELL_FILES = [
   '/js/ui/confetti.js',
   '/js/ui/feedback.js',
   '/js/ui/toast.js',
+  '/js/ui/icons.js',
   '/icons/icon.svg',
   '/icons/icon-192.png',
   '/icons/icon-512.png'

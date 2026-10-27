@@ -20,7 +20,7 @@ export function createGoalFlow(onFinish = null) {
   return {
     id: 'goal',
     title: 'Tujuan Tabungan',
-    completeLabel: 'Simpan Tujuan ✨',
+    completeLabel: 'Simpan Tujuan',
     steps: [
       // Step 1: Goal Name
       {
