@@ -121,6 +121,39 @@ describe('Privacy Hardening Unit Tests (In-Memory Privacy & Mid-Flow Refresh)', 
     assert.equal(raw.includes('Rahasia_Teh_Hangat'), false);
   });
 
+  it('strict allowlist: unknown new fields are never persisted for couple and love-maps flows', () => {
+    const convo = CONTENT.conversations[0];
+    const coupleFlow = createCoupleFlow(convo, {});
+    const runner = new SessionRunner();
+    runner.registerFlow(coupleFlow);
+
+    runner.start(coupleFlow, {
+      sharedA: true,
+      answerA: 'private text',
+      secret_financial_detail: 'tabungan_emas_100gr',
+      unknown_future_field: 'untested_custom_data',
+      arbitraryPartnerSecret: 'super_secret_value'
+    });
+
+    runner._state.stepIndex = 1;
+    runner._persist();
+
+    const raw = global.localStorage.getItem(SESSION_STORAGE_KEY);
+    assert.ok(raw);
+    const parsed = JSON.parse(raw);
+
+    // Allowlisted field is kept
+    assert.equal(parsed.answers.sharedA, true, 'sharedA must be preserved by allowlist');
+
+    // Unknown new fields must NOT be persisted
+    assert.equal(parsed.answers.secret_financial_detail, undefined, 'unknown field must not be persisted');
+    assert.equal(parsed.answers.unknown_future_field, undefined, 'unknown field must not be persisted');
+    assert.equal(parsed.answers.arbitraryPartnerSecret, undefined, 'unknown field must not be persisted');
+    assert.equal(raw.includes('tabungan_emas_100gr'), false, 'unknown field value must not be in raw storage');
+    assert.equal(raw.includes('untested_custom_data'), false, 'unknown field value must not be in raw storage');
+    assert.equal(raw.includes('super_secret_value'), false, 'unknown field value must not be in raw storage');
+  });
+
   it('restarts at Partner A answer step with calm notice if page is refreshed mid-flow', () => {
     const convo = CONTENT.conversations[0];
     const flow = createCoupleFlow(convo, {});

@@ -116,6 +116,15 @@ export function sessionReducer(state, action) {
   }
 }
 
+export const ALLOWED_PRIVATE_FLOW_PERSIST_KEYS = new Set([
+  'sharedA',
+  'sharedB',
+  'loveMapsShared',
+  'nextStep',
+  'reviewDate',
+  '_refreshedNotice'
+]);
+
 export class SessionRunner {
   constructor() {
     this._state = null;
@@ -212,33 +221,20 @@ export class SessionRunner {
     }
 
     const flow = this._state.flow;
-    const answersToPersist = { ...(this._state.answers || {}) };
+    let answersToPersist = {};
 
     // Privacy rule: Never persist a partner's private answer text in the resumable session or localStorage
-    // Strip private answer text for couple conversations and love maps mid-flow
+    // Strict allowlist for couple conversations and love maps mid-flow
     const isPrivateFlow = flow?.id?.startsWith('couple-') || flow?.id === 'flow-love-maps' || this._state.flowId?.startsWith('couple-') || this._state.flowId === 'flow-love-maps';
     if (isPrivateFlow) {
-      delete answersToPersist.answerA;
-      delete answersToPersist.answerB;
-      if (answersToPersist.partnerA && typeof answersToPersist.partnerA === 'object') {
-        const pA = { ...answersToPersist.partnerA };
-        delete pA.answerA;
-        delete pA.text;
-        delete pA.answer;
-        answersToPersist.partnerA = pA;
-      }
-      if (answersToPersist.partnerB && typeof answersToPersist.partnerB === 'object') {
-        const pB = { ...answersToPersist.partnerB };
-        delete pB.answerB;
-        delete pB.text;
-        delete pB.answer;
-        answersToPersist.partnerB = pB;
-      }
-      for (const key of Object.keys(answersToPersist)) {
-        if (key.startsWith('selfA') || key.startsWith('selfB') || key.startsWith('guessA') || key.startsWith('guessB')) {
-          delete answersToPersist[key];
+      const sourceAnswers = this._state.answers || {};
+      for (const key of Object.keys(sourceAnswers)) {
+        if (ALLOWED_PRIVATE_FLOW_PERSIST_KEYS.has(key)) {
+          answersToPersist[key] = sourceAnswers[key];
         }
       }
+    } else {
+      answersToPersist = { ...(this._state.answers || {}) };
     }
 
     const payload = {
