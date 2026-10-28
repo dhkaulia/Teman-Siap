@@ -148,6 +148,7 @@ export function createBicaraLembutFlow(store, onComplete = null, onSafetyExit = 
     steps.push({
       id: round.id,
       title: `Bicara Lembut: ${round.pattern}`,
+      type: 'custom',
       canGoBack: roundIdx > 0,
       renderCustom: (answers) => {
         return `
@@ -248,6 +249,7 @@ export function createBicaraLembutFlow(store, onComplete = null, onSafetyExit = 
   steps.push({
     id: 'complete',
     title: 'Latihan Selesai',
+    type: 'custom',
     canGoBack: false,
     renderCustom: () => {
       return `

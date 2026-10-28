@@ -445,6 +445,7 @@ export class SessionRunner {
       }
 
       default:
+        console.error('[SessionRunner] Unknown or missing step type for step:', step ? step.id : step, step);
         contentHTML = `<p class="mute">Langkah tanpa tipe input.</p>`;
     }
 
