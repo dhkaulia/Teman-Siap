@@ -187,6 +187,31 @@ export function renderRelationship(store) {
     <!-- Taman Kita (Shared Garden Scene, ~200px) -->
     ${renderTamanKitaScene(couple, currentPerspective)}
 
+    <!-- Two Big Tiles: Kuis Saling Kenal & Bicara Lembut (Icon + 3-Word Title, No Subtitles) -->
+    <div class="kita-tiles-grid mb-3">
+      <!-- Tile 1: Kuis Saling Kenal -->
+      <button type="button" class="kita-tile-btn" id="startLoveMapsBtn" aria-label="Mulai Kuis Saling Kenal">
+        <div class="kita-tile-header">
+          <span class="kita-tile-icon plum" aria-hidden="true">${renderIcon('sparkle')}</span>
+          <span class="card-tag">5 Menit</span>
+        </div>
+        <div>
+          <div class="kita-tile-title">${COPY.kita.loveMapsTitle}</div>
+        </div>
+      </button>
+
+      <!-- Tile 2: Bicara Lembut -->
+      <button type="button" class="kita-tile-btn" id="startBicaraLembutBtn" aria-label="Mulai Latihan Bicara Lembut">
+        <div class="kita-tile-header">
+          <span class="kita-tile-icon teal" aria-hidden="true">${renderIcon('chat')}</span>
+          <span class="card-tag saffron">4 Ronde</span>
+        </div>
+        <div>
+          <div class="kita-tile-title">Bicara Lembut</div>
+        </div>
+      </button>
+    </div>
+
     <!-- Non-Pushy "Colek" Feature (Single Opt-in Suggestion, Never Repeated) -->
     ${!couple.colekDismissed ? `
       <div class="card colek-card mb-3" id="colekCard">
@@ -208,33 +233,6 @@ export function renderRelationship(store) {
       </div>
     ` : ''}
 
-    <!-- Two Big Tiles: Kuis Saling Kenal & Bicara Lembut -->
-    <div class="kita-tiles-grid">
-      <!-- Tile 1: Kuis Saling Kenal -->
-      <button type="button" class="kita-tile-btn" id="startLoveMapsBtn" aria-label="Mulai Kuis Saling Kenal (Peta Cinta)">
-        <div class="kita-tile-header">
-          <span class="kita-tile-icon plum" aria-hidden="true">${renderIcon('sparkle')}</span>
-          <span class="card-tag">5 Menit</span>
-        </div>
-        <div>
-          <div class="kita-tile-title">${COPY.kita.loveMapsTitle}</div>
-          <div class="kita-tile-sub">Peta Cinta</div>
-        </div>
-      </button>
-
-      <!-- Tile 2: Bicara Lembut -->
-      <button type="button" class="kita-tile-btn" id="startBicaraLembutBtn" aria-label="Mulai Latihan Bicara Lembut">
-        <div class="kita-tile-header">
-          <span class="kita-tile-icon teal" aria-hidden="true">${renderIcon('chat')}</span>
-          <span class="card-tag saffron">4 Ronde</span>
-        </div>
-        <div>
-          <div class="kita-tile-title">Bicara Lembut</div>
-          <div class="kita-tile-sub">Latihan</div>
-        </div>
-      </button>
-    </div>
-
     <!-- Tile 3 / Section: Percakapan Stacked Cards Deck -->
     <div class="card-title-row mb-1">
       <h2 class="text-sm font-bold mb-0">Percakapan</h2>
@@ -254,11 +252,7 @@ export function renderRelationship(store) {
             ) : `<span class="text-xs mute">5 Menit</span>`}
           </div>
 
-          <h3 class="text-base font-bold mt-1 mb-1">${esc(currentConvo.title)}</h3>
-
-          <div class="convo-prompt-box text-xs mb-3">
-            "${esc(currentConvo.prompt)}"
-          </div>
+          <h3 class="text-base font-bold mt-1 mb-3">${esc(currentConvo.title)}</h3>
 
           <div class="flex items-center justify-between mt-auto pt-1">
             <button type="button" class="secondary btn-action-sm" id="flipToBackBtn" aria-label="Intip tips Gottman">

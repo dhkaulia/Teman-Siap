@@ -24,7 +24,6 @@ import { applyTheme } from '../main.js';
 
 export function renderSelf(store) {
   const d = store.d || {};
-  const support = typeof SUPPORT_DATA !== 'undefined' ? SUPPORT_DATA : null;
   const totalPractices = getTotalPractices(d);
   const mascotStage = getMascotStage(totalPractices);
 
@@ -34,37 +33,18 @@ export function renderSelf(store) {
   const ritme = calculateRitme(d);
   const milestones = checkMilestones(d);
 
-  const inventory = Array.isArray(d.inventory) ? d.inventory : ['pot-clay', 'outfit-default', 'bg-default'];
-  const equipped = d.equippedCosmetics || { pot: 'pot-clay', outfit: 'outfit-default', background: 'bg-default' };
+  const currentThemeMode = d.themeMode || (typeof localStorage !== 'undefined' ? localStorage.getItem('temansiap_theme_mode') : null) || 'auto';
 
   return `
-    <div class="card-title-row mb-1">
-      <div>
-        <span class="card-tag">${COPY.saya.tag}</span>
-        <h1 class="mt-1 mb-1">${COPY.saya.title}</h1>
-      </div>
-    </div>
-    <p class="mute text-sm mb-3">
-      ${COPY.saya.subtitle}
-    </p>
-
-    <!-- Mascot Growth Companion Card -->
-    <div class="card mb-3" style="display: flex; align-items: center; gap: var(--space-3);">
-      <div style="flex-shrink: 0;">
-        ${renderMascot('cheer', 64, { stage: mascotStage.id, label: `Tunas ${mascotStage.name}` })}
-      </div>
-      <div>
-        <span class="card-tag tunas mb-1">Fase: ${esc(mascotStage.name)}</span>
-        <h3 class="mt-1 mb-1">${COPY.saya.companionTitle}</h3>
-        <span class="mute text-xs">${totalPractices} latihan selesai</span>
-      </div>
+    <div class="card-title-row mb-2">
+      <h1 class="text-xl display font-bold mb-0">${COPY.saya.title}</h1>
+      <span class="card-tag tunas">${esc(mascotStage.name)}</span>
     </div>
 
-    <!-- Kebun Saya (Private Milestones Grid, No Sharing, No Ranking) -->
+    <!-- Kebun Saya (Private Milestones Grid, Under 90 Words Budget) -->
     <section class="card mb-3" aria-labelledby="kebunSayaHeading">
       <div class="card-title-row mb-2">
         <h3 id="kebunSayaHeading" class="mb-0">${COPY.saya.kebunTitle}</h3>
-        <span class="card-tag tunas">${COPY.saya.kebunTag}</span>
       </div>
 
       <div class="kebun-grid">
@@ -80,52 +60,28 @@ export function renderSelf(store) {
       </div>
     </section>
 
-    <!-- Target & Ritme Mingguan (Gentle, No Daily Streak, 2 Libur/Bulan) -->
+    <!-- Target & Ritme Mingguan (Gentle Count & Libur Row) -->
     <section class="card mb-3" aria-labelledby="ritmeHeading">
       <div class="card-title-row mb-2">
         <h3 id="ritmeHeading" class="mb-0">${COPY.saya.ritmeTitle}</h3>
-        <span class="card-tag saffron">${COPY.saya.ritmeTag}</span>
       </div>
 
       ${enableRitme ? `
-        <!-- Current Status Box -->
-        <div class="ritme-status-box mb-3">
-          <div class="flex items-center justify-between mb-1">
-            <div class="font-bold text-sm">${esc(ritme.statusText)}</div>
-            <button type="button" class="unit-learn-btn" id="learnLiburBtn" aria-label="Pelajari Libur Otomatis">
-              Pelajari
-            </button>
-          </div>
-          <div class="flex gap-2 flex-wrap mt-2">
-            <span class="card-tag tunas">${ritme.currentWeekPractices} dari ${ritme.weeklyGoal} langkah</span>
+        <div class="ritme-status-box mb-2">
+          <div class="font-bold text-xs mb-1">${esc(ritme.statusText)}</div>
+          <div class="flex gap-2 flex-wrap items-center justify-between">
+            <span class="mute text-xs">${ritme.currentWeekPractices} dari ${ritme.weeklyGoal} langkah</span>
             <span class="card-tag saffron">Libur: ${ritme.liburRemainingThisMonth} pekan</span>
           </div>
         </div>
 
-        <!-- Weekly Goal Selector Chips -->
-        <div class="weekly-goal-card mb-2">
-          <div class="text-xs font-bold mb-2">Ubah Target Pekanan:</div>
-          <div class="weekly-goal-options" role="radiogroup" aria-label="Pilih target ritme mingguan">
-            ${WEEKLY_GOAL_OPTIONS.map(opt => {
-              const isSelected = (Number(d.weeklyGoal) || 3) === opt.value;
-              return `
-                <button type="button"
-                        class="weekly-goal-option ${isSelected ? 'active' : ''}"
-                        data-goal-val="${opt.value}"
-                        role="radio"
-                        aria-checked="${isSelected}">
-                  <div class="flex items-center justify-between w-full">
-                    <div>
-                      <div class="weekly-goal-label"><b>${esc(opt.label)}</b></div>
-                      <div class="mute text-xs">${esc(opt.hint)}</div>
-                    </div>
-                    <div class="goal-radio-circle" aria-hidden="true">${isSelected ? '✓' : ''}</div>
-                  </div>
-                </button>
-              `;
-            }).join('')}
+        <button type="button" class="exercise-row w-full text-left" id="learnLiburBtn" aria-label="Pelajari Libur Otomatis">
+          <span class="exercise-icon" aria-hidden="true">${renderIcon('info')}</span>
+          <div class="exercise-row-content">
+            <div class="exercise-row-title">Tentang Libur Otomatis</div>
           </div>
-        </div>
+          <span class="exercise-row-arrow" aria-hidden="true">${renderIcon('arrowRight')}</span>
+        </button>
       ` : `
         <div class="ritme-status-box">
           <div class="mute text-sm">
@@ -135,125 +91,70 @@ export function renderSelf(store) {
       `}
     </section>
 
-    <!-- Koleksi Taman & Benih (Cosmetics for Tunas & Garden) -->
-    <section class="card mb-3" aria-labelledby="koleksiHeading">
-      <div class="card-title-row mb-2">
-        <h3 id="koleksiHeading" class="mb-0">${COPY.saya.koleksiTitle}</h3>
-        ${enableRewards ? `<span class="path-seeds-pill"><b>${seeds}</b> Benih</span>` : '<span class="card-tag">Nonaktif</span>'}
-      </div>
+    <!-- Rows that open bottom sheets: Riwayat Latihan & Koleksi Taman -->
+    <div class="card mb-3">
+      <button type="button" class="exercise-row w-full text-left mb-2" id="openHistorySheetBtn" aria-label="Buka Riwayat Latihan">
+        <span class="exercise-icon" aria-hidden="true">${renderIcon('plan')}</span>
+        <div class="exercise-row-content">
+          <div class="exercise-row-title">Riwayat Latihan</div>
+        </div>
+        <span class="card-tag">${totalPractices}</span>
+        <span class="exercise-row-arrow" aria-hidden="true">${renderIcon('arrowRight')}</span>
+      </button>
 
       ${enableRewards ? `
-        <!-- Cosmetic Categories -->
-        <div class="cosmetics-section">
-          <!-- Pots -->
-          <h4 class="text-sm font-bold mt-2 mb-2">Pilihan Pot</h4>
-          <div class="cosmetics-grid mb-3">
-            ${COSMETICS_CATALOG.filter(c => c.category === 'pot').map(item => {
-              const isOwned = inventory.includes(item.id);
-              const isEquipped = equipped.pot === item.id;
-              return `
-                <div class="cosmetic-item-card ${isEquipped ? 'is-equipped' : ''}">
-                  <div class="cosmetic-icon-wrap" aria-hidden="true">${item.icon}</div>
-                  <div class="cosmetic-name">${esc(item.name)}</div>
-                  <div class="cosmetic-action-row">
-                    ${!isOwned ? `<span class="cosmetic-price-pill">${item.price} Benih</span>` : ''}
-                    ${isEquipped ? `
-                      <button type="button" class="btn-sm soft w-full" disabled>Dipakai ✓</button>
-                    ` : isOwned ? `
-                      <button type="button" class="btn-sm secondary w-full equip-cosmetic-btn" data-cat="pot" data-id="${esc(item.id)}">Pakai</button>
-                    ` : `
-                      <button type="button" class="btn-sm primary w-full buy-cosmetic-btn" data-id="${esc(item.id)}" ${seeds < item.price ? 'disabled' : ''}>Dapatkan</button>
-                    `}
-                  </div>
-                </div>
-              `;
-            }).join('')}
+        <button type="button" class="exercise-row w-full text-left" id="openKoleksiSheetBtn" aria-label="Buka Koleksi Taman">
+          <span class="exercise-icon" aria-hidden="true">${renderIcon('sprout')}</span>
+          <div class="exercise-row-content">
+            <div class="exercise-row-title">Koleksi Taman</div>
           </div>
-
-          <!-- Outfits -->
-          <h4 class="text-sm font-bold mt-2 mb-2">Aksesoris</h4>
-          <div class="cosmetics-grid mb-3">
-            ${COSMETICS_CATALOG.filter(c => c.category === 'outfit').map(item => {
-              const isOwned = inventory.includes(item.id);
-              const isEquipped = equipped.outfit === item.id;
-              return `
-                <div class="cosmetic-item-card ${isEquipped ? 'is-equipped' : ''}">
-                  <div class="cosmetic-icon-wrap" aria-hidden="true">${item.icon}</div>
-                  <div class="cosmetic-name">${esc(item.name)}</div>
-                  <div class="cosmetic-action-row">
-                    ${!isOwned ? `<span class="cosmetic-price-pill">${item.price} Benih</span>` : ''}
-                    ${isEquipped ? `
-                      <button type="button" class="btn-sm soft w-full" disabled>Dipakai ✓</button>
-                    ` : isOwned ? `
-                      <button type="button" class="btn-sm secondary w-full equip-cosmetic-btn" data-cat="outfit" data-id="${esc(item.id)}">Pakai</button>
-                    ` : `
-                      <button type="button" class="btn-sm primary w-full buy-cosmetic-btn" data-id="${esc(item.id)}" ${seeds < item.price ? 'disabled' : ''}>Dapatkan</button>
-                    `}
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-
-          <!-- Backgrounds -->
-          <h4 class="text-sm font-bold mt-2 mb-2">Latar</h4>
-          <div class="cosmetics-grid mb-2">
-            ${COSMETICS_CATALOG.filter(c => c.category === 'background').map(item => {
-              const isOwned = inventory.includes(item.id);
-              const isEquipped = equipped.background === item.id;
-              return `
-                <div class="cosmetic-item-card ${isEquipped ? 'is-equipped' : ''}">
-                  <div class="cosmetic-icon-wrap" aria-hidden="true">${item.icon}</div>
-                  <div class="cosmetic-name">${esc(item.name)}</div>
-                  <div class="cosmetic-action-row">
-                    ${!isOwned ? `<span class="cosmetic-price-pill">${item.price} 🌱</span>` : ''}
-                    ${isEquipped ? `
-                      <button type="button" class="btn-sm soft w-full" disabled>Dipakai ✓</button>
-                    ` : isOwned ? `
-                      <button type="button" class="btn-sm secondary w-full equip-cosmetic-btn" data-cat="background" data-id="${esc(item.id)}">Pakai</button>
-                    ` : `
-                      <button type="button" class="btn-sm primary w-full buy-cosmetic-btn" data-id="${esc(item.id)}" ${seeds < item.price ? 'disabled' : ''}>Dapatkan</button>
-                    `}
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-        </div>
+          <span class="path-seeds-pill"><b>${seeds}</b> Benih</span>
+          <span class="exercise-row-arrow" aria-hidden="true">${renderIcon('arrowRight')}</span>
+        </button>
       ` : `
-        <div class="ritme-status-box">
-          <div class="mute text-sm">
-            Sistem hadiah Benih dan kosmetik taman sedang dinonaktifkan. Kamu dapat mengaktifkannya kembali di bagian Pengaturan di bawah.
-          </div>
+        <div class="mute text-xs">
+          Sistem hadiah Benih dan kosmetik taman sedang dinonaktifkan.
         </div>
       `}
-    </section>
-
-    <!-- Habit Log Summary -->
-    <div class="card mb-3">
-      <div class="card-title-row mb-2">
-        <h3 class="mb-0">${COPY.saya.historyTitle}</h3>
-        <span class="card-tag saffron">${COPY.saya.historyTag}</span>
-      </div>
-
-      <ul class="profile-history-list">
-        <li>Cek emosi tersimpan: <b>${d.checkins ? d.checkins.length : 0} kali</b></li>
-        <li>Pengeluaran sadar tercatat: <b>${d.expenses ? d.expenses.length : 0} transaksi</b></li>
-        <li>Jeda belanja (Urge Surfing): <b>${d.pauses ? d.pauses.length : 0} kali</b></li>
-        <li>Rencana Jika-Maka aktif: <b>${d.plans ? d.plans.length : 0} rencana</b></li>
-        <li>Topik percakapan terisi: <b>${Object.keys(d.partnerA || {}).length} topik</b></li>
-        <li>Langkah kurikulum selesai: <b>${d.completedPathNodes ? d.completedPathNodes.length : 0} modul</b></li>
-      </ul>
     </div>
 
-    <!-- Preferences & Admin Controls Tile (Opens Bottom Sheet) -->
+    <!-- Short Settings List on Main Screen -->
     <div class="card mb-4">
-      <button type="button" class="exercise-row w-full text-left" id="openSettingsSheetBtn" aria-label="Buka Pengaturan & Privasi">
+      <div class="card-title-row mb-2">
+        <h3 class="mb-0">Pengaturan</h3>
+      </div>
+
+      <!-- Manual Theme Switch (Otomatis / Terang / Gelap) -->
+      <div class="mb-3">
+        <div class="text-xs font-bold mb-2">Tema:</div>
+        <div class="theme-choice-group flex gap-2">
+          <button type="button" class="theme-choice-btn ${currentThemeMode === 'auto' ? 'is-active' : ''}" data-theme-val="auto">
+            Otomatis
+          </button>
+          <button type="button" class="theme-choice-btn ${currentThemeMode === 'light' ? 'is-active' : ''}" data-theme-val="light">
+            Terang
+          </button>
+          <button type="button" class="theme-choice-btn ${currentThemeMode === 'dark' ? 'is-active' : ''}" data-theme-val="dark">
+            Gelap
+          </button>
+        </div>
+      </div>
+
+      <!-- Data Backup & Delete Row (Opens Bottom Sheet) -->
+      <button type="button" class="exercise-row w-full text-left mb-2" id="openDataSheetBtn" aria-label="Buka Cadangan & Hapus Data">
         <span class="exercise-icon" aria-hidden="true">${renderIcon('settings')}</span>
         <div class="exercise-row-content">
-          <div class="exercise-row-title">Pengaturan & Data</div>
+          <div class="exercise-row-title">Cadangan & Data</div>
         </div>
-        <span class="card-tag saffron">Preferensi</span>
+        <span class="exercise-row-arrow" aria-hidden="true">${renderIcon('arrowRight')}</span>
+      </button>
+
+      <!-- Support Row (Opens Bottom Sheet) -->
+      <button type="button" class="exercise-row w-full text-left" id="openSupportSheetBtn" aria-label="Buka Kontak Bantuan">
+        <span class="exercise-icon" aria-hidden="true">${renderIcon('info')}</span>
+        <div class="exercise-row-content">
+          <div class="exercise-row-title">Kontak Bantuan</div>
+        </div>
         <span class="exercise-row-arrow" aria-hidden="true">${renderIcon('arrowRight')}</span>
       </button>
     </div>
@@ -261,13 +162,17 @@ export function renderSelf(store) {
 }
 
 export function bindSelf(container, store, navigate, rerender) {
-  // Weekly Goal Options Selection
-  container.querySelectorAll('.weekly-goal-option').forEach(btn => {
+  // Manual Theme Selector on Main Screen
+  container.querySelectorAll('.theme-choice-btn').forEach(btn => {
     btn.onclick = () => {
       playTapSound();
       triggerHapticTap();
-      const val = Number(btn.dataset.goalVal);
-      store.setWeeklyGoal(val);
+      const mode = btn.dataset.themeVal;
+      store.setThemeMode(mode);
+      applyTheme(mode);
+      container.querySelectorAll('.theme-choice-btn').forEach(b => {
+        b.classList.toggle('is-active', b.dataset.themeVal === mode);
+      });
       rerender();
     };
   });
@@ -334,14 +239,154 @@ export function bindSelf(container, store, navigate, rerender) {
     };
   }
 
-  // Cosmetic Buy Buttons
-  container.querySelectorAll('.buy-cosmetic-btn').forEach(btn => {
+  // Riwayat Latihan Bottom Sheet
+  const openHistorySheetBtn = container.querySelector('#openHistorySheetBtn');
+  if (openHistorySheetBtn) {
+    openHistorySheetBtn.onclick = () => {
+      playTapSound();
+      triggerHapticTap();
+      const d = store.d || {};
+      const sheet = new BottomSheet();
+      const content = document.createElement('div');
+      content.innerHTML = `
+        <div class="p-1">
+          <div class="card-title-row mb-2">
+            <h3 class="mt-0 mb-0">Riwayat Latihan Pribadi</h3>
+            <span class="card-tag saffron">Catatan</span>
+          </div>
+          <ul class="profile-history-list mb-3">
+            <li>Cek emosi tersimpan: <b>${d.checkins ? d.checkins.length : 0} kali</b></li>
+            <li>Pengeluaran sadar tercatat: <b>${d.expenses ? d.expenses.length : 0} transaksi</b></li>
+            <li>Jeda belanja (Urge Surfing): <b>${d.pauses ? d.pauses.length : 0} kali</b></li>
+            <li>Rencana Jika-Maka aktif: <b>${d.plans ? d.plans.length : 0} rencana</b></li>
+            <li>Topik percakapan terisi: <b>${Object.keys(d.partnerA || {}).length} topik</b></li>
+            <li>Langkah kurikulum selesai: <b>${d.completedPathNodes ? d.completedPathNodes.length : 0} modul</b></li>
+          </ul>
+          <button type="button" class="primary w-full btn-action-sm" id="closeHistorySheetBtn">
+            Tutup
+          </button>
+        </div>
+      `;
+      content.querySelector('#closeHistorySheetBtn').onclick = () => sheet.close();
+      sheet.open({ title: 'Riwayat Latihan', content });
+    };
+  }
+
+  // Koleksi Taman Bottom Sheet
+  const openKoleksiSheetBtn = container.querySelector('#openKoleksiSheetBtn');
+  if (openKoleksiSheetBtn) {
+    openKoleksiSheetBtn.onclick = () => {
+      playTapSound();
+      triggerHapticTap();
+      openKoleksiBottomSheet(store, rerender);
+    };
+  }
+
+  // Data Backup & Delete Bottom Sheet
+  const openDataSheetBtn = container.querySelector('#openDataSheetBtn');
+  if (openDataSheetBtn) {
+    openDataSheetBtn.onclick = () => {
+      playTapSound();
+      triggerHapticTap();
+      openDataBottomSheet(store, rerender);
+    };
+  }
+
+  // Support Hotlines Bottom Sheet
+  const openSupportSheetBtn = container.querySelector('#openSupportSheetBtn');
+  if (openSupportSheetBtn) {
+    openSupportSheetBtn.onclick = () => {
+      playTapSound();
+      triggerHapticTap();
+      openSupportBottomSheet();
+    };
+  }
+}
+
+/**
+ * Koleksi Taman Bottom Sheet (Pots, Outfits, Backgrounds)
+ */
+function openKoleksiBottomSheet(store, rerender) {
+  const d = store.d || {};
+  const seeds = getSeeds(d);
+  const inventory = Array.isArray(d.inventory) ? d.inventory : ['pot-clay', 'outfit-default', 'bg-default'];
+  const equipped = d.equippedCosmetics || { pot: 'pot-clay', outfit: 'outfit-default', background: 'bg-default' };
+
+  const sheet = new BottomSheet();
+  const content = document.createElement('div');
+  content.innerHTML = `
+    <div class="p-1">
+      <div class="card-title-row mb-2">
+        <h3 class="mt-0 mb-0">Koleksi Taman & Benih</h3>
+        <span class="path-seeds-pill"><b>${seeds}</b> Benih</span>
+      </div>
+
+      <div class="cosmetics-section mb-3">
+        <h4 class="text-sm font-bold mt-2 mb-2">Pilihan Pot</h4>
+        <div class="cosmetics-grid mb-3">
+          ${COSMETICS_CATALOG.filter(c => c.category === 'pot').map(item => {
+            const isOwned = inventory.includes(item.id);
+            const isEquipped = equipped.pot === item.id;
+            return `
+              <div class="cosmetic-item-card ${isEquipped ? 'is-equipped' : ''}">
+                <div class="cosmetic-icon-wrap" aria-hidden="true">${item.icon}</div>
+                <div class="cosmetic-name">${esc(item.name)}</div>
+                <div class="cosmetic-action-row">
+                  ${!isOwned ? `<span class="cosmetic-price-pill">${item.price} Benih</span>` : ''}
+                  ${isEquipped ? `
+                    <button type="button" class="btn-sm soft w-full" disabled>Dipakai ✓</button>
+                  ` : isOwned ? `
+                    <button type="button" class="btn-sm secondary w-full equip-cosmetic-btn" data-cat="pot" data-id="${esc(item.id)}">Pakai</button>
+                  ` : `
+                    <button type="button" class="btn-sm primary w-full buy-cosmetic-btn" data-id="${esc(item.id)}" ${seeds < item.price ? 'disabled' : ''}>Dapatkan</button>
+                  `}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+
+        <h4 class="text-sm font-bold mt-2 mb-2">Aksesoris</h4>
+        <div class="cosmetics-grid mb-3">
+          ${COSMETICS_CATALOG.filter(c => c.category === 'outfit').map(item => {
+            const isOwned = inventory.includes(item.id);
+            const isEquipped = equipped.outfit === item.id;
+            return `
+              <div class="cosmetic-item-card ${isEquipped ? 'is-equipped' : ''}">
+                <div class="cosmetic-icon-wrap" aria-hidden="true">${item.icon}</div>
+                <div class="cosmetic-name">${esc(item.name)}</div>
+                <div class="cosmetic-action-row">
+                  ${!isOwned ? `<span class="cosmetic-price-pill">${item.price} Benih</span>` : ''}
+                  ${isEquipped ? `
+                    <button type="button" class="btn-sm soft w-full" disabled>Dipakai ✓</button>
+                  ` : isOwned ? `
+                    <button type="button" class="btn-sm secondary w-full equip-cosmetic-btn" data-cat="outfit" data-id="${esc(item.id)}">Pakai</button>
+                  ` : `
+                    <button type="button" class="btn-sm primary w-full buy-cosmetic-btn" data-id="${esc(item.id)}" ${seeds < item.price ? 'disabled' : ''}>Dapatkan</button>
+                  `}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+
+      <button type="button" class="primary w-full btn-action-sm" id="closeKoleksiSheetBtn">
+        Selesai
+      </button>
+    </div>
+  `;
+
+  content.querySelector('#closeKoleksiSheetBtn').onclick = () => sheet.close();
+
+  content.querySelectorAll('.buy-cosmetic-btn').forEach(btn => {
     btn.onclick = () => {
       playTapSound();
       triggerHapticTap();
       const itemId = btn.dataset.id;
       const res = purchaseCosmetic(store, itemId);
       if (res.success) {
+        sheet.close();
         rerender();
       } else {
         alert(res.message);
@@ -349,124 +394,31 @@ export function bindSelf(container, store, navigate, rerender) {
     };
   });
 
-  // Cosmetic Equip Buttons
-  container.querySelectorAll('.equip-cosmetic-btn').forEach(btn => {
+  content.querySelectorAll('.equip-cosmetic-btn').forEach(btn => {
     btn.onclick = () => {
       playTapSound();
       triggerHapticTap();
       const cat = btn.dataset.cat;
       const itemId = btn.dataset.id;
       equipCosmetic(store, cat, itemId);
+      sheet.close();
       rerender();
     };
   });
 
-  // Settings & Data Bottom Sheet Trigger
-  const openSettingsSheetBtn = container.querySelector('#openSettingsSheetBtn');
-  if (openSettingsSheetBtn) {
-    openSettingsSheetBtn.onclick = () => {
-      playTapSound();
-      triggerHapticTap();
-      openSettingsBottomSheet(store, rerender);
-    };
-  }
+  sheet.open({ title: 'Koleksi Taman', content });
 }
 
 /**
- * Settings & Data Bottom Sheet
- * Moves admin controls, preferences, and data sovereignty off primary view into bottom sheet.
+ * Data Sovereignty Bottom Sheet (Backup & Delete)
  */
-function openSettingsBottomSheet(store, rerender) {
-  const d = store.d || {};
-  const support = typeof SUPPORT_DATA !== 'undefined' ? SUPPORT_DATA : null;
-  const enableRitme = d.enableRitme !== false;
-  const enableRewards = d.enableRewards !== false;
-  const enableEffects = d.enableEffects !== false && isCelebrationEnabled();
-  const enableSound = Boolean(d.enableSound || isSoundEnabled());
-  const enableHaptics = Boolean(d.enableHaptics || isHapticsEnabled());
-  const currentThemeMode = d.themeMode || (typeof localStorage !== 'undefined' ? localStorage.getItem('temansiap_theme_mode') : null) || 'auto';
-
+function openDataBottomSheet(store, rerender) {
   const sheet = new BottomSheet();
   const content = document.createElement('div');
   content.innerHTML = `
     <div class="p-1">
       <div class="card-title-row mb-2">
-        <h3 class="mt-0 mb-0">Preferensi & Pengaturan</h3>
-        <span class="card-tag">Pengaturan</span>
-      </div>
-
-      <!-- Manual Theme Choice (Otomatis / Terang / Gelap) -->
-      <div class="mb-4">
-        <div class="font-bold text-xs text-ink-primary mb-2">Tema Tampilan:</div>
-        <div class="theme-choice-group flex gap-2">
-          <button type="button" class="theme-choice-btn ${currentThemeMode === 'auto' ? 'is-active' : ''}" data-theme-val="auto">
-            Otomatis
-          </button>
-          <button type="button" class="theme-choice-btn ${currentThemeMode === 'light' ? 'is-active' : ''}" data-theme-val="light">
-            Terang
-          </button>
-          <button type="button" class="theme-choice-btn ${currentThemeMode === 'dark' ? 'is-active' : ''}" data-theme-val="dark">
-            Gelap
-          </button>
-        </div>
-      </div>
-
-      <!-- Ritme Tracker Toggle -->
-      <label class="faith-toggle-label mb-3" style="display: flex; gap: var(--space-3); align-items: flex-start; cursor: pointer;">
-        <input type="checkbox" id="sheetEnableRitmeToggle" class="faith-toggle-input" ${enableRitme ? 'checked' : ''}>
-        <span class="text-sm">
-          <b>Lacak ritme mingguan</b><br>
-          <span class="mute text-xs">Hitungan mingguan santai dengan perlindungan libur.</span>
-        </span>
-      </label>
-
-      <!-- Rewards / Seeds Toggle -->
-      <label class="faith-toggle-label mb-3" style="display: flex; gap: var(--space-3); align-items: flex-start; cursor: pointer;">
-        <input type="checkbox" id="sheetEnableRewardsToggle" class="faith-toggle-input" ${enableRewards ? 'checked' : ''}>
-        <span class="text-sm">
-          <b>Sistem Benih & kosmetik</b><br>
-          <span class="mute text-xs">Kumpulkan benih dari latihan untuk Tunas.</span>
-        </span>
-      </label>
-
-      <!-- Celebration & Animation Effects Toggle -->
-      <label class="faith-toggle-label mb-3" style="display: flex; gap: var(--space-3); align-items: flex-start; cursor: pointer;">
-        <input type="checkbox" id="sheetEnableEffectsToggle" class="faith-toggle-input" ${enableEffects ? 'checked' : ''}>
-        <span class="text-sm">
-          <b>Efek perayaan & animasi</b><br>
-          <span class="mute text-xs">Animasi konfeti saat menyelesaikan sesi.</span>
-        </span>
-      </label>
-
-      <!-- Sound Effects Toggle -->
-      <label class="faith-toggle-label mb-3" style="display: flex; gap: var(--space-3); align-items: flex-start; cursor: pointer;">
-        <input type="checkbox" id="sheetEnableSoundToggle" class="faith-toggle-input" ${enableSound ? 'checked' : ''}>
-        <span class="text-sm">
-          <b>Efek suara lembut</b><br>
-          <span class="mute text-xs">Nada akustik lembut saat memilih opsi.</span>
-        </span>
-      </label>
-
-      <!-- Haptics Toggle -->
-      <label class="faith-toggle-label mb-3" style="display: flex; gap: var(--space-3); align-items: flex-start; cursor: pointer;">
-        <input type="checkbox" id="sheetEnableHapticsToggle" class="faith-toggle-input" ${enableHaptics ? 'checked' : ''}>
-        <span class="text-sm">
-          <b>Getaran sentuhan (Haptics)</b><br>
-          <span class="mute text-xs">Getaran mikro 10ms saat menyentuh tombol.</span>
-        </span>
-      </label>
-
-      <!-- Faith Perspective Toggle -->
-      <label class="faith-toggle-label mb-4" style="display: flex; gap: var(--space-3); align-items: flex-start; cursor: pointer;">
-        <input type="checkbox" id="sheetFaithPerspectiveToggle" class="faith-toggle-input" ${d.faithPerspective ? 'checked' : ''}>
-        <span class="text-sm">
-          <b>Sudut pandang nilai iman</b><br>
-          <span class="mute text-xs">Sertakan perspektif sabar, syukur, dan qanaah.</span>
-        </span>
-      </label>
-
-      <div class="card-title-row mb-2">
-        <h3 class="mt-0 mb-0">Kedaulatan Data & Cadangan</h3>
+        <h3 class="mt-0 mb-0">Cadangan & Hapus Data</h3>
         <span class="card-tag saffron">Lokal</span>
       </div>
       <p class="mute text-xs mb-3">Seluruh catatan tersimpan aman di browsermu.</p>
@@ -475,105 +427,18 @@ function openSettingsBottomSheet(store, rerender) {
         <button type="button" class="secondary w-full btn-action-sm" id="sheetExportDataJsonBtn">Unduh Cadangan</button>
         <button type="button" class="secondary text-danger w-full btn-action-sm" id="sheetWipeAllDataBtn">Hapus Semua</button>
       </div>
+
       <div class="mute text-xs mb-4">
         Sinkronisasi privat dua ponsel jarak jauh (E2EE) sedang disiapkan.
       </div>
 
-      <div class="card card-border-teal p-3 mb-3">
-        <h4 class="text-teal font-bold text-xs mt-0 mb-1">Bantuan & Dukungan Darurat</h4>
-        <p class="mute text-xs mb-2">${support ? esc(support.disclaimer) : 'Aplikasi ini adalah sarana edukasi mandiri.'}</p>
-        ${support && support.hotlines ? `
-          <div class="support-hotline-list">
-            ${support.hotlines.map(h => `
-              <div class="support-hotline-item text-xs mb-1">
-                <b>${esc(h.name)}:</b> ${esc(h.contact)}
-              </div>
-            `).join('')}
-          </div>
-        ` : ''}
-      </div>
-
-      <button type="button" class="primary w-full btn-action-sm" id="closeSettingsSheetBtn">
-        Tutup Pengaturan
+      <button type="button" class="primary w-full btn-action-sm" id="closeDataSheetBtn">
+        Tutup
       </button>
     </div>
   `;
 
-  sheet.open({ title: 'Pengaturan & Privasi', content });
-
-  content.querySelector('#closeSettingsSheetBtn').onclick = () => sheet.close();
-
-  // Manual Theme Selector (Otomatis / Terang / Gelap)
-  content.querySelectorAll('.theme-choice-btn').forEach(btn => {
-    btn.onclick = () => {
-      playTapSound();
-      triggerHapticTap();
-      const mode = btn.dataset.themeVal;
-      store.setThemeMode(mode);
-      applyTheme(mode);
-      content.querySelectorAll('.theme-choice-btn').forEach(b => {
-        b.classList.toggle('is-active', b.dataset.themeVal === mode);
-      });
-      rerender();
-    };
-  });
-
-  const ritmeToggle = content.querySelector('#sheetEnableRitmeToggle');
-  if (ritmeToggle) {
-    ritmeToggle.onchange = () => {
-      store.setEnableRitme(ritmeToggle.checked);
-      rerender();
-    };
-  }
-
-  const rewardsToggle = content.querySelector('#sheetEnableRewardsToggle');
-  if (rewardsToggle) {
-    rewardsToggle.onchange = () => {
-      store.setEnableRewards(rewardsToggle.checked);
-      rerender();
-    };
-  }
-
-  const effectsToggle = content.querySelector('#sheetEnableEffectsToggle');
-  if (effectsToggle) {
-    effectsToggle.onchange = () => {
-      const active = effectsToggle.checked;
-      store.setEnableEffects(active);
-      setCelebrationEnabled(active);
-      if (typeof document !== 'undefined') {
-        document.body.classList.toggle('effects-disabled', !active);
-      }
-      rerender();
-    };
-  }
-
-  const soundToggle = content.querySelector('#sheetEnableSoundToggle');
-  if (soundToggle) {
-    soundToggle.onchange = () => {
-      const active = soundToggle.checked;
-      store.setEnableSound(active);
-      setSoundEnabled(active);
-      rerender();
-    };
-  }
-
-  const hapticsToggle = content.querySelector('#sheetEnableHapticsToggle');
-  if (hapticsToggle) {
-    hapticsToggle.onchange = () => {
-      const active = hapticsToggle.checked;
-      store.setEnableHaptics(active);
-      setHapticsEnabled(active);
-      rerender();
-    };
-  }
-
-  const faithToggle = content.querySelector('#sheetFaithPerspectiveToggle');
-  if (faithToggle) {
-    faithToggle.onchange = () => {
-      store.setFaithPerspective(faithToggle.checked);
-      rerender();
-    };
-  }
+  content.querySelector('#closeDataSheetBtn').onclick = () => sheet.close();
 
   const exportBtn = content.querySelector('#sheetExportDataJsonBtn');
   if (exportBtn) {
@@ -597,4 +462,37 @@ function openSettingsBottomSheet(store, rerender) {
       }
     };
   }
+
+  sheet.open({ title: 'Cadangan & Data', content });
+}
+
+/**
+ * Professional Support Bottom Sheet
+ */
+function openSupportBottomSheet() {
+  const support = typeof SUPPORT_DATA !== 'undefined' ? SUPPORT_DATA : null;
+  const sheet = new BottomSheet();
+  const content = document.createElement('div');
+  content.innerHTML = `
+    <div class="p-1">
+      <h3 class="mt-0 mb-2">Kontak Bantuan & Dukungan</h3>
+      <p class="mute text-xs mb-3">${support ? esc(support.disclaimer) : 'Aplikasi ini adalah sarana edukasi mandiri.'}</p>
+      ${support && support.hotlines ? `
+        <div class="support-hotline-list mb-3">
+          ${support.hotlines.map(h => `
+            <div class="support-hotline-item text-xs mb-2">
+              <b>${esc(h.name)}:</b> ${esc(h.contact)}
+              <div class="mute">${esc(h.desc)}</div>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+      <button type="button" class="primary w-full btn-action-sm" id="closeSupportSheetBtn">
+        Tutup
+      </button>
+    </div>
+  `;
+
+  content.querySelector('#closeSupportSheetBtn').onclick = () => sheet.close();
+  sheet.open({ title: 'Kontak Bantuan', content });
 }

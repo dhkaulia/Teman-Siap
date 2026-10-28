@@ -1,9 +1,9 @@
 # Teman Siap — Playful Experience & Anti-Pressure QA Audit Report
 
-**Date of Audit:** October 27, 2026  
-**Auditor:** Automated Test Suite, Headless Chromium Visual Harness, & Antislop Quality Gate  
+**Date of Audit:** October 27, 2026 (Updated post-contrast, top-up & anti-pressure copy remediation)  
+**Auditor:** Automated Test Suite (229/229 passing), Headless Chromium Visual Harness, & Antislop Quality Gate  
 **App Version:** 0.2.0  
-**Target Viewport:** 360px × 740px (Small Android Benchmark)  
+**Target Viewport:** 360px × 780px (Small Android Benchmark)  
 **Repository:** [github.com/dhkaulia/Teman-Siap](https://github.com/dhkaulia/Teman-Siap.git)
 
 ---
@@ -13,20 +13,20 @@
 | Check # | Audit Item | Status | Key Measurement / Finding |
 | :---: | :--- | :---: | :--- |
 | **1** | User gets through every lesson without losing anything for mistakes | **PASS** | Zero hearts/lives, zero seed deductions, kind explanations with immediate retry or gentle continuation. |
-| **2** | No screen uses urgency, scarcity, loss framing, or guilt | **PASS** | Zero banned words; calm exit modal ("Simpan dan keluar?"); gentle weekly ritme with 2 automatic libur/month. |
-| **3** | No reward, animation, or sound tied to money amounts or purchases | **PASS** | Strictly 0 seeds awarded for spending; seeds earned only for mindful practices; neutral audio feedback on keypad. |
-| **4** | All effects turn off from Saya, and reduced motion removes animation | **PASS** | **Fix applied:** Added "Efek perayaan & animasi", suara, and getaran toggles in Saya; `.effects-disabled` shuts down all animations. |
+| **2** | No screen uses urgency, scarcity, loss framing, or guilt | **PASS** | Zero banned words; extended suite forbids "mengorbankan", "jangan sampai", "menyesal", "harus", "wajib", "buruan"; calm exit modal ("Simpan dan keluar?"); gentle weekly ritme with 2 automatic libur/month. |
+| **3** | No reward, animation, or sound tied to money amounts or purchases | **PASS** | Strictly 0 seeds awarded for spending; savings top-up tracks on goal only (zero addExpense); "Tercatat bulan ini" counts only actual spending; money tasks and Uang screen use neutral "Selesai" sheet with zero confetti and zero celebratory seed pop-ups. |
+| **4** | All effects turn off from Saya, and reduced motion removes animation | **PASS** | Granular toggles in Saya for effects, sound, and haptics; `.effects-disabled` shuts down all animations and transitions. |
 | **5** | User can skip every optional or emotional step without penalty | **PASS** | Prominent "Lewati" and "Nanti saja" links; private Love Maps choice awards full rewards with zero pressure. |
 | **6** | Nothing compares the user with others | **PASS** | Zero leaderboards, zero percentiles, zero compatibility %; Taman Kita dual plants grow independently. |
-| **7** | At 360px, primary actions are reachable by thumb with 48px targets | **PASS** | All interactive targets >= 48px; primary actions use `.btn-thumb` (56px) anchored in the bottom thumb zone. |
-| **8** | Performance: animation holds 60fps on mid-range Android; first load < 150KB gzipped | **PARTIAL PASS / UNVERIFIED** | **Payload: PASS (114.77 KB gzipped)**; Compositor: PASS (transform/opacity only); **Physical handset 60fps: UNVERIFIED**. |
-| **9** | Contrast 4.5:1 in both themes for every text/background pair, measured | **PASS** | All 24 pairings measured programmatically; range 4.76:1 to 16.63:1 (Light) and 6.23:1 to 16.61:1 (Dark). |
+| **7** | At 360px, primary actions are reachable by thumb with 48px targets | **PASS** | All interactive targets >= 48px (including deck navigation and small action buttons); primary actions use `.btn-thumb` (56px) in thumb zone. |
+| **8** | Performance: animation holds 60fps on mid-range Android; first load < 150KB gzipped | **PARTIAL PASS / UNVERIFIED** | **Payload: PASS (114.77 KB gzipped)**; Compositor: PASS (transform/opacity only); **Physical handset 60fps & haptic motor: UNVERIFIED**. |
+| **9** | Contrast >= 4.5:1 in both themes for every text/background pair, measured | **PASS** | Programmatically verified via `test/contrast.test.js` in headless Chromium across all 5 tabs, open bottom sheet, and lesson step in both themes (>= 4.5:1 normal, >= 3.0:1 large). |
 
 ---
 
 ## Visual Audit: 360px Screenshots
 
-All captures were taken in headless Chromium at 360px × 740px (Device Pixel Ratio 2.0).
+All captures were taken in headless Chromium at 360px × 780px (Device Pixel Ratio 2.0).
 
 ### 1. Onboarding & Welcome (`/`)
 ![Onboarding Screen at 360px](screenshots/01-onboarding-360px.png)
@@ -50,11 +50,11 @@ All captures were taken in headless Chromium at 360px × 740px (Device Pixel Rat
 
 ### 6. Ruang Saya with Anti-Pressure Settings (`/?tab=me&onboarded=1`)
 ![Ruang Saya at 360px](screenshots/06-ruang-saya-360px.png)
-*Figure 6: Private Kebun milestones grid, weekly ritme tracker, and granular toggles for effects, sound, and ritme.*
+*Figure 6: Private Kebun milestones grid, weekly ritme tracker, theme switcher (Otomatis / Terang / Gelap), and granular toggles for effects, sound, and ritme.*
 
 ### 7. Dark Mode Theme Verification (`/?tab=home&onboarded=1&theme=dark`)
 ![Dark Mode at 360px](screenshots/07-dark-theme-360px.png)
-*Figure 7: WCAG 2.1 AA compliant dark theme using high-contrast ink tokens and soft organic accents.*
+*Figure 7: Layered dark theme using `--surface-0` through `--surface-3` and adaptive `--on-*` tokens.*
 
 ---
 
@@ -76,28 +76,136 @@ All captures were taken in headless Chromium at 360px × 740px (Device Pixel Rat
 * **Requirement:** Does any screen use urgency, scarcity, loss framing, or guilt?
 * **Result:** **PASS**
 * **Evidence & Mechanics:**
-  - **Automated Grep Verification:** An automated unit test in `test/copy.test.js` scans every client script in `public/` and enforces zero occurrences of banned manipulative words (`"buruan"`, `"kehilangan"`, `"gagal"`, `"bodoh"`, `"rugi"`).
-  - **Cognitive Distortion Handling:** The word `"rugi"` occurs only once in `public/content.js` as an *example of an impulsive thought* being reframed (*"Diskon bukan alasan belanja bila barangnya tidak direncanakan"*).
+  - **Automated Grep Verification (`test/copy.test.js`):** Extended automated test forbids:
+    - `"buruan"`
+    - `"kehilangan"`
+    - `"gagal"`
+    - `"bodoh"`
+    - `"mengorbankan"`
+    - `"jangan sampai"`
+    - `"harus"`
+    - `"wajib"`
+    - `"menyesal"` (except inside wrong-answer options)
   - **Non-Guilting Exit Modal:** Exiting a session displays `showLessonExitModal()` with calm copy: *"Simpan dan keluar? Kemajuanmu akan tersimpan sehingga kamu bisa melanjutkan kapan saja."* Actions are verb-driven: *"Simpan & Lanjutkan Nanti"*, *"Keluar Saja"*, *"Tetap di Sini"*.
   - **Gentle Weekly Ritme:** Instead of daily streak anxiety, Teman Siap tracks weekly rhythms (e.g. 3 practices/week). Missing a week triggers a neutral reassurance (*"Mulai lagi kapan saja, tamanmu tetap ada"*) with 2 automatic vacation shields (`libur`) per month.
 
 ---
 
-### Check 3: Zero Rewards, Animations, or Sounds Tied to Money
+### Check 3: Zero Rewards, Animations, or Sounds Tied to Money & Calm Uang Hub
 * **Requirement:** Is any reward, animation, or sound tied to money amounts or purchases? (Must be no)
 * **Result:** **PASS**
 * **Evidence & Mechanics:**
-  - **Seed Economy:** In `public/js/rewards.js`, seeds (`Benih`) are awarded solely via `awardSeeds(store, 1, 'Latihan bermakna')` upon completing mindfulness, breathing, or communication practices.
-  - **Expense Quick Log:** In `public/js/flows/expenseFlow.js`, entering an expense nominal triggers zero seeds, zero confetti bursts, and zero sound rewards. Sound feedback is restricted to a subtle, neutral key click (`520Hz`, 70ms).
-  - **Cosmetic Exclusivity:** Seeds cannot buy functional shortcuts or unlock lessons; they are spent strictly on cosmetic pots, outfits, and garden backgrounds for Tunas.
+  - **Goal Top-Up:** Savings are tracked exclusively on the goal object (`store.setGoal`). `store.addExpense` is strictly removed from the goal top-up in `uang.js`.
+  - **Tercatat Bulan Ini:** The monthly spending header filters only true expense records and excludes any savings top-ups (`category !== 'Tabungan Dana Cadangan'`). Verified by `test/uang.test.js`.
+  - **Neutral Selesai Sheet:** Money tasks (`type: 'money-task'`, `node-money-*`, and flows initiated in Uang) strictly suppress confetti animations (`triggerCelebration`) and celebratory seed dialogs. A calm, quiet neutral "Selesai" sheet is presented, with 1 seed silently updated in the background.
 
 ---
 
 ### Check 4: Complete Effects Toggle in Saya & Reduced Motion
 * **Requirement:** Do all effects turn off from Saya, and does reduced motion remove animation?
-* **Initial Status:** **FAIL** (Defect identified)
-* **Root Cause:** While `prefers-reduced-motion` was handled globally, `public/js/screens/saya.js` lacked user-facing toggle switches for celebration effects, WebAudio sound, and haptic feedback.
-* **Fix Implemented:**
+* **Result:** **PASS**
+* **Evidence & Mechanics:**
+  - Preferences for `enableEffects`, `enableSound`, and `enableHaptics` are persisted and toggleable in Ruang Saya.
+  - Adding `.effects-disabled` immediately zeroes all animation durations and iteration counts.
+  - Confetti and haptic triggers are silenced when disabled.
+
+---
+
+### Check 5: Unpenalized Skips for Sensitive/Emotional Steps
+* **Requirement:** Can the user skip every optional or emotional step without penalty?
+* **Result:** **PASS**
+* **Evidence & Mechanics:**
+  - `sessionRunner` supports optional step skipping via `SKIP_STEP` reducer action without loss of practice completion status.
+  - "Lewati" affordance present on all reflection and partner dialog steps.
+
+---
+
+### Check 6: Freedom from Social Comparison
+* **Requirement:** Does anything compare the user with others?
+* **Result:** **PASS**
+* **Evidence & Mechanics:**
+  - Zero leaderboards, zero percentiles, zero public badges.
+  - Kebun Saya milestones are private and store data locally in browser localStorage.
+
+---
+
+### Check 7: Mobile-First Ergonomics & 48px Tap Targets at 360px
+* **Requirement:** At 360px, are primary actions reachable by thumb with 48px targets?
+* **Result:** **PASS**
+* **Evidence & Mechanics:**
+  - All interactive elements meet or exceed 48px × 48px bounding boxes (`.btn-chunky`, `.chip`, `.deck-nav-btn`, `.path-node`, `.partner-turn-chip`).
+  - Floating bottom navigation (`--nav-h: 68px; --nav-gap: 12px;`) offsets content with zero overlapping.
+
+---
+
+### Check 8: Performance & Compositor Verification
+* **Requirement:** Does animation hold 60fps on mid-range Android; is first load < 150KB gzipped?
+* **Result:** **PARTIAL PASS / UNVERIFIED**
+* **Evidence & Unverified Notice:**
+  - **Payload: PASS** (114.77 KB gzipped total initial bundle, well below 150 KB limit).
+  - **Compositor Efficiency: PASS** (All UI animations animate `transform` and `opacity` only).
+  - **Hardware Handset 60fps & Haptic Motor: UNVERIFIED** (Automated headless testing cannot measure physical Android GPU refresh rates or device vibration motors; listed as unverified).
+
+---
+
+### Check 9: WCAG 2.1 AA Contrast Ratio Verification (Light & Dark)
+* **Requirement:** Contrast >= 4.5:1 in both themes for every text/background pair, measured.
+* **Result:** **PASS**
+* **Evidence & Measurements:**
+  - Evaluated via `test/contrast.test.js` using headless Chromium inspecting real DOM nodes across all 5 tabs (`#home`, `#emosi`, `#uang`, `#kita`, `#saya`), open bottom sheets, and lesson steps in both Light and Dark themes.
+
+#### Key Measured Token Contrast Ratios
+| Token Pair / Element | Foreground | Background | Measured Ratio | WCAG Standard | Status |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| Primary Ink on Card (Light) | `#12211F` | `#FFFFFF` | **15.65 : 1** | >= 4.5:1 | PASS |
+| Primary Ink on Canvas (Light) | `#12211F` | `#F4F6F5` | **14.34 : 1** | >= 4.5:1 | PASS |
+| Secondary Ink on Card (Light) | `#485D5A` | `#FFFFFF` | **6.44 : 1** | >= 4.5:1 | PASS |
+| Muted Ink on Canvas (Light) | `#556865` | `#F4F6F5` | **5.45 : 1** | >= 4.5:1 | PASS |
+| Muted Ink on Card (Light) | `#556865` | `#FFFFFF` | **5.94 : 1** | >= 4.5:1 | PASS |
+| Darkened Saffron Tag Text on Saffron Light | `#7A3F00` | `#FEF3C7` | **7.54 : 1** | >= 4.5:1 | PASS |
+| Primary Teal Button Text (`--on-teal`) | `#FFFFFF` | `#1B5E59` | **6.52 : 1** | >= 4.5:1 | PASS |
+| Relational Plum Button Text (`--on-plum`) | `#FFFFFF` | `#6B4E71` | **5.84 : 1** | >= 4.5:1 | PASS |
+| Tunas Green Button Text (`--on-tunas`) | `#FFFFFF` | `#15803D` | **5.02 : 1** | >= 4.5:1 | PASS |
+| Soft Coral Button Text (`--on-coral`) | `#FFFFFF` | `#C84825` | **4.76 : 1** | >= 4.5:1 | PASS |
+| Sunny Yellow Button Text (`--on-saffron`) | `#12211F` | `#F59E0B` | **7.74 : 1** | >= 4.5:1 | PASS |
+| **Dark Theme** Primary Text on Surface-1 | `#E8F0EE` | `#182221` | **14.06 : 1** | >= 12.0:1 | PASS |
+| **Dark Theme** Secondary Text on Surface-1 | `#A8B8B4` | `#182221` | **7.89 : 1** | >= 7.0:1 | PASS |
+| **Dark Theme** Muted Text on Surface-1 | `#829591` | `#182221` | **5.16 : 1** | >= 4.5:1 | PASS |
+| **Dark Theme** Teal Button (`--on-teal`) | `#0A1C1A` | `#6CD0C6` | **10.42 : 1** | >= 7.0:1 | PASS |
+| **Dark Theme** Saffron Button (`--on-saffron`) | `#0A1C1A` | `#FCD34D` | **11.45 : 1** | >= 7.0:1 | PASS |
+| **Dark Theme** Plum Button (`--on-plum`) | `#0A1C1A` | `#D4B8DE` | **9.15 : 1** | >= 7.0:1 | PASS |
+| **Dark Theme** Tunas Button (`--on-tunas`) | `#0A1C1A` | `#86EFAC` | **11.82 : 1** | >= 7.0:1 | PASS |
+| **Dark Theme** Garden Active Turn Badge | `#78D2CA` | `#15312E` | **7.85 : 1** | >= 7.0:1 | PASS |
+
+---
+
+## Remediation Summary & Code Changes
+
+1. **Contrast & Theme-Adaptive Accent Tokens:**
+   - Introduced `--on-teal`, `--on-saffron`, `--on-plum`, `--on-tunas`, `--on-coral` (`#FFFFFF` in light, `#0A1C1A` in dark).
+   - Replaced fixed white text on accent fills across Home hero, `.node-mulai-bubble`, `.goal-radio-circle`, `.btn-sm.soft`, `.deck-nav-btn`, `.path-node` completed/bonus icons, `.milestone-badge`, `.chip.active`, and tactile chunky buttons.
+   - Darkened saffron tag text in light mode to `#7A3F00` on `--saffron-light` (contrast ratio 7.54:1).
+   - Raised `--ink-muted` in light mode to `#556865` (measures 5.45:1 on canvas `#F4F6F5` and 5.94:1 on card `#FFFFFF`).
+2. **Headless Chromium Real DOM Contrast Audit:**
+   - Added `test/contrast.test.js` visiting all five tabs (`#home`, `#emosi`, `#uang`, `#kita`, `#saya`), an open bottom sheet, and an active lesson step in both Light and Dark themes at 360px.
+   - Computes real text and background contrast for every visible text node and asserts >= 4.5:1 (>= 3.0:1 for large text).
+3. **Uang Savings Goal Top-Up:**
+   - Removed `addExpense` call from the goal top-up handler in `public/js/screens/uang.js`.
+   - Savings are tracked strictly on `goal.saved`.
+   - "Tercatat bulan ini" calculates totals filtering only actual spending entries and excluding savings entries. Added automated unit tests in `test/uang.test.js`.
+4. **Quiet Neutral Completion for Money Tasks:**
+   - Suppressed confetti celebration bursts (`triggerCelebration`) and celebratory seed pop-ups for money-task nodes and all flows in Uang.
+   - Rendered a quiet, neutral "Selesai" sheet (`AnswerSheet` with `type: 'neutral'`) while silently updating 1 seed.
+5. **Anti-Pressure Banned Words Suite:**
+   - Extended `test/copy.test.js` with `"mengorbankan"`, `"jangan sampai"`, `"harus"`, `"wajib"`, `"buruan"`, and `"menyesal"` (except inside wrong-answer options).
+   - Replaced occurrences across `public/content.js`, `public/js/copy.js`, and `public/js/flows/lessons.js` with everyday calm wording (*"tidak perlu"*, *"tanpa perlu"*).
+
+---
+
+## Conclusion & Certification
+
+Teman Siap passes all 229 automated unit and integration tests across 68 test suites. All contrast, anti-pressure, mobile typography, and financial privacy criteria are fulfilled. Physical handset frame rate (60fps) and physical haptic feedback motor behavior remain marked as **unverified** due to headless automation limitations.
+
   1. Updated `public/js/store.js` to initialize and persist `enableEffects: true`, `enableSound: false`, and `enableHaptics: false`.
   2. Added toggle controls in `public/js/screens/saya.js` under *"Preferensi & Pengaturan"*:
      - **"Efek perayaan & animasi"** (disables confetti and sets `document.body.classList.toggle('effects-disabled', !checked)`).

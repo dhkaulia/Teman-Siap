@@ -32,6 +32,7 @@ export class AnswerSheet {
 
   constructor({
     type = 'success',
+    title = '',
     message = 'Mantap, kamu menamai perasaanmu.',
     explanation = '',
     mascotState = null,
@@ -41,10 +42,13 @@ export class AnswerSheet {
     onSecondary = null,
     stage = 'tunas'
   } = {}) {
-    this.type = type === 'belum_pas' || type === 'gentle' ? 'belum_pas' : 'success';
+    const isNeutral = type === 'neutral' || type === 'selesai';
+    const isGentle = type === 'belum_pas' || type === 'gentle';
+    this.type = isNeutral ? 'neutral' : (isGentle ? 'belum_pas' : 'success');
+    this.title = title;
     this.message = message;
     this.explanation = explanation;
-    this.mascotState = mascotState || (this.type === 'belum_pas' ? 'think' : 'cheer');
+    this.mascotState = mascotState || (isNeutral ? 'calm' : (isGentle ? 'think' : 'cheer'));
     this.buttonText = buttonText;
     this.onContinue = onContinue;
     this.secondaryButtonText = secondaryButtonText;
@@ -57,17 +61,31 @@ export class AnswerSheet {
   open() {
     this.close(); // remove existing if any
 
+    const isNeutral = this.type === 'neutral';
     const isGentle = this.type === 'belum_pas';
-    const accentClass = isGentle ? 'answersheet-coral' : 'answersheet-success';
-    const btnClass = isGentle ? 'btn-chunky btn-coral btn-thumb' : 'btn-chunky primary btn-thumb';
-    const bannerTag = isGentle ? 'Belum Pas' : 'Bagus Sekali';
-    const tagClass = isGentle ? 'card-tag coral' : 'card-tag tunas';
+
+    let accentClass = 'answersheet-success';
+    let btnClass = 'btn-chunky primary btn-thumb';
+    let bannerTag = 'Bagus Sekali';
+    let tagClass = 'card-tag tunas';
+
+    if (isNeutral) {
+      accentClass = 'answersheet-neutral';
+      bannerTag = this.title || 'Selesai';
+      tagClass = 'card-tag';
+      btnClass = 'btn-chunky primary btn-thumb';
+    } else if (isGentle) {
+      accentClass = 'answersheet-coral';
+      bannerTag = 'Belum Pas';
+      tagClass = 'card-tag coral';
+      btnClass = 'btn-chunky btn-coral btn-thumb';
+    }
 
     const overlay = document.createElement('div');
     overlay.className = 'answersheet-overlay';
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
-    overlay.setAttribute('aria-label', isGentle ? 'Ulasan Lembut' : 'Langkah Selesai');
+    overlay.setAttribute('aria-label', isNeutral ? 'Selesai' : (isGentle ? 'Ulasan Lembut' : 'Langkah Selesai'));
 
     overlay.innerHTML = `
       <div class="answersheet-backdrop"></div>

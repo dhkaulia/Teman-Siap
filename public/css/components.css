@@ -75,7 +75,7 @@ a:focus-visible,
 
 button.primary {
   background-color: var(--teal);
-  color: #FFFFFF;
+  color: var(--on-teal);
   border-color: var(--teal);
 }
 
@@ -85,7 +85,7 @@ button.primary:active {
 
 button.saffron-btn {
   background-color: var(--saffron);
-  color: #FFFFFF;
+  color: var(--on-saffron);
   border-color: var(--saffron);
 }
 
@@ -95,7 +95,7 @@ button.saffron-btn:active {
 
 button.plum-btn {
   background-color: var(--plum);
-  color: #FFFFFF;
+  color: var(--on-plum);
   border-color: var(--plum);
 }
 
@@ -111,7 +111,7 @@ body.theme-dark button.primary,
 .theme-dark .primary,
 body.theme-dark .primary {
   background-color: var(--teal) !important;
-  color: #0A1C1A !important;
+  color: var(--on-teal) !important;
   border-color: var(--teal) !important;
   font-weight: 700;
 }
@@ -121,7 +121,7 @@ body.theme-dark button.saffron-btn,
 .theme-dark .saffron-btn,
 body.theme-dark .saffron-btn {
   background-color: var(--saffron) !important;
-  color: #261803 !important;
+  color: var(--on-saffron) !important;
   border-color: var(--saffron) !important;
   font-weight: 700;
 }
@@ -131,7 +131,7 @@ body.theme-dark button.plum-btn,
 .theme-dark .plum-btn,
 body.theme-dark .plum-btn {
   background-color: var(--plum) !important;
-  color: #221226 !important;
+  color: var(--on-plum) !important;
   border-color: var(--plum) !important;
   font-weight: 700;
 }
@@ -141,7 +141,7 @@ body.theme-dark button.tunas-btn,
 .theme-dark .tunas-btn,
 body.theme-dark .tunas-btn {
   background-color: var(--tunas) !important;
-  color: #092612 !important;
+  color: var(--on-tunas) !important;
   border-color: var(--tunas) !important;
   font-weight: 700;
 }
@@ -158,7 +158,7 @@ body.theme-dark .secondary {
 .theme-dark button.secondary:active,
 body.theme-dark button.secondary:active {
   background-color: var(--surface-3);
-  color: #FFFFFF;
+  color: var(--ink-primary);
 }
 
 .theme-dark .card,
@@ -281,7 +281,7 @@ button.danger-btn:active {
 
 .card-tag.saffron {
   background: var(--saffron-light);
-  color: var(--saffron);
+  color: #7A3F00;
 }
 
 .card-tag.tunas {
@@ -296,13 +296,13 @@ button.danger-btn:active {
 
 .card-tag.sunny {
   background: var(--sunny-light);
-  color: var(--sunny-dark);
+  color: #78350F;
 }
 
 /* Recommendation Hero Action */
 .hero-action {
   background: var(--teal);
-  color: var(--ink-on-color);
+  color: var(--on-teal);
   border: none;
   border-radius: var(--radius-md);
   padding: var(--space-5) var(--space-4);
@@ -310,8 +310,16 @@ button.danger-btn:active {
   box-shadow: var(--shadow-elevation);
 }
 
+.hero-action .hero-label {
+  color: var(--on-teal);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-1);
+}
+
 .hero-action h2 {
-  color: #FFFFFF;
+  color: var(--on-teal);
   margin-top: 0;
   font-size: var(--text-lg);
   font-weight: 600;
@@ -319,7 +327,8 @@ button.danger-btn:active {
 }
 
 .hero-action p {
-  color: rgba(255, 255, 255, 0.92);
+  color: var(--on-teal);
+  opacity: 0.92;
   font-size: 0.96rem;
 }
 
@@ -334,6 +343,28 @@ button.danger-btn:active {
 
 .hero-action button:active {
   background: #E8F2F0;
+}
+
+.theme-dark .hero-action,
+body.theme-dark .hero-action {
+  background: var(--teal);
+  color: var(--on-teal);
+}
+
+.theme-dark .hero-action .hero-label,
+body.theme-dark .hero-action .hero-label,
+.theme-dark .hero-action h2,
+body.theme-dark .hero-action h2,
+.theme-dark .hero-action p,
+body.theme-dark .hero-action p {
+  color: var(--on-teal);
+}
+
+.theme-dark .hero-action button,
+body.theme-dark .hero-action button {
+  background: #0A1C1A;
+  color: #6CD0C6;
+  border-color: #0A1C1A;
 }
 
 /* Chips & Pills */
@@ -372,9 +403,15 @@ button.danger-btn:active {
 .chip[aria-pressed="true"],
 .chip.active {
   background: var(--teal);
-  color: #FFFFFF;
+  color: var(--on-teal);
   border-color: var(--teal);
   font-weight: 600;
+}
+
+.chip[aria-pressed="true"] .chip-hint,
+.chip.active .chip-hint {
+  color: var(--on-teal);
+  opacity: 0.9;
 }
 
 .chip .chip-icon {
@@ -470,7 +507,7 @@ button.danger-btn:active {
 
 .sub-nav button.active {
   background: var(--teal);
-  color: #FFFFFF;
+  color: var(--on-teal);
   border-color: var(--teal);
 }
 
@@ -861,7 +898,7 @@ details.clinical-note p {
 .choice-tile.selected .choice-tile-check {
   background-color: var(--teal);
   border-color: var(--teal-dark);
-  color: #FFFFFF;
+  color: var(--on-teal);
   transform: scale(1.05);
 }
 
@@ -917,7 +954,7 @@ details.clinical-note p {
 .bodymap-icon {
   font-size: 13px;
   font-weight: 700;
-  fill: #FFFFFF;
+  fill: var(--on-teal);
   pointer-events: none;
 }
 

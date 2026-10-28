@@ -378,13 +378,29 @@ function openNodeBottomSheet(node, store, navigate, container) {
 
     const onDone = () => {
       markNodeCompleted(node.id, store);
-      triggerCelebration({ sessionId: node.id });
-      AnswerSheet.show({
-        message: `Mantap, langkah "${node.title}" telah kamu selesaikan!`,
-        onContinue: () => {
-          navigate('home');
-        }
-      });
+      const isMoneyTask = node.type === 'money-task' || 
+                          node.spot === 'uang' || 
+                          (node.id && node.id.startsWith('node-money-'));
+      if (!isMoneyTask) {
+        triggerCelebration({ sessionId: node.id });
+        AnswerSheet.show({
+          message: `Mantap, langkah "${node.title}" telah kamu selesaikan!`,
+          onContinue: () => {
+            navigate('home');
+          }
+        });
+      } else {
+        // Quiet neutral "Selesai" sheet for money tasks, NO confetti, NO seed pop-up
+        AnswerSheet.show({
+          type: 'neutral',
+          title: 'Selesai',
+          message: `Langkah "${node.title}" telah tercatat.`,
+          buttonText: 'Selesai',
+          onContinue: () => {
+            navigate('home');
+          }
+        });
+      }
     };
 
     const flow = createFlowForNode(node, onDone, store);

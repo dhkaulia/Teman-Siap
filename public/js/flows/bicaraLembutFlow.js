@@ -17,6 +17,7 @@ import { esc } from '../ui/utils.js';
 import { playTapSound, triggerHapticTap } from '../ui/feedback.js';
 import { triggerCelebration } from '../ui/confetti.js';
 import { BottomSheet } from '../ui/bottomSheet.js';
+import { renderIcon } from '../ui/icons.js';
 
 export const BICARA_ROUNDS = [
   {
@@ -122,7 +123,7 @@ export function createBicaraLembutFlow(store, onComplete = null, onSafetyExit = 
     return `
       <div class="safety-exit-row mt-4">
         <button type="button" class="safety-trigger-link" data-safety-exit="true" aria-label="Hentikan latihan jika terasa tidak nyaman">
-          🛡️ Ini terasa tidak nyaman
+          ${renderIcon('shield')} Ini terasa tidak nyaman
         </button>
       </div>
     `;

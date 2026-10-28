@@ -15,30 +15,19 @@ import { CONTENT } from '../../content.js';
 import { renderMascot } from '../ui/mascot.js';
 import { esc } from '../ui/utils.js';
 import { awardSeeds } from '../rewards.js';
+import { renderIcon } from '../ui/icons.js';
 
 export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null) {
   const nameA = store?.d?.couple?.partnerA?.name || 'Partner A';
   const nameB = store?.d?.couple?.partnerB?.name || 'Partner B';
   const questions = (CONTENT.loveMapsQuestions && CONTENT.loveMapsQuestions.length)
-    ? CONTENT.loveMapsQuestions.slice(0, 3)
+    ? CONTENT.loveMapsQuestions.slice(0, 1)
     : [
         {
           id: 'lm-calm',
           title: 'Ketenangan Diri',
           question: 'Apa hal sederhana yang paling cepat membuatmu merasa tenang setelah hari yang panjang?',
-          hint: 'Misal: Seduhan teh hangat hening, jalan santai sore, atau rebahan tanpa suara.'
-        },
-        {
-          id: 'lm-comfort-food',
-          title: 'Comfort Food',
-          question: 'Apa makanan atau minuman penghibur favoritmu saat sedang lelah?',
-          hint: 'Misal: Soto ayam hangat, cokelat manis, martabak manis, atau es buah.'
-        },
-        {
-          id: 'lm-dream',
-          title: 'Impian Terpendam',
-          question: 'Apa impian atau harapan masa depan yang paling jarang kamu ceritakan ke orang lain?',
-          hint: 'Misal: Membuka usaha kecil bersama, punya ruang baca sendiri, atau keliling Indonesia.'
+          hint: 'Misal: Seduhan teh hangat, jalan sore, atau rebahan hening.'
         }
       ];
 
@@ -46,7 +35,7 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
     return `
       <div class="safety-exit-row mt-3">
         <button type="button" class="safety-trigger-link" data-safety-exit="true" aria-label="Hentikan latihan jika terasa tidak nyaman">
-          🛡️ Ini terasa tidak nyaman
+          ${renderIcon('shield')} Ini terasa tidak nyaman
         </button>
       </div>
     `;
@@ -80,17 +69,13 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
           return `
             <div class="card card-border-plum p-4 mb-3">
               <div class="card-title-row">
-                <span class="card-tag plum">Gottman Method</span>
+                <span class="card-tag plum">Peta Cinta</span>
                 <span class="text-xs mute">~5 Menit</span>
               </div>
-              <h1 class="text-xl font-bold mt-2 mb-1">Peta Dunia Batin (Love Maps)</h1>
+              <h1 class="text-xl font-bold mt-2 mb-1">Kuis Saling Kenal</h1>
               <p class="mute text-sm mb-3">
-                Menurut riset Dr. John Gottman, pasangan yang paling tangguh bukanlah yang tidak pernah bertengkar, melainkan yang saling mengenali detail dunia batin pasangannya: hal yang menenangkan, kesukaan kecil, dan impian tersembunyi.
+                Kenali dunia batin pasanganmu tanpa penilaian atau skor.
               </p>
-
-              <div class="neutral-guidance-box mb-4">
-                <b>Aturan Main:</b> Ini bukan ujian atau ajang penilaian. Tidak ada skor angka atau persentase kelulusan. Tujuannya adalah menemukan hal-hal baru yang menyenangkan tentang satu sama lain!
-              </div>
 
               <div class="sticky-bottom-action">
                 <button type="button" class="plum-btn w-full" id="startLoveMapsBtn">
@@ -118,29 +103,31 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
         hideFooter: true,
         title: `Giliran ${nameA}`,
         renderCustom(answers) {
+          const showNotice = Boolean(answers._refreshedNotice);
+
           return `
             <div class="card card-border-plum p-4 mb-3">
+              ${showNotice ? `
+                <div class="calm-notice-box mb-3">
+                  ${renderIcon('info')}
+                  <div>Sesi dimulai ulang demi menjaga privasi jawabanmu.</div>
+                </div>
+              ` : ''}
               <div class="turn-banner mb-3">
                 <span>👤</span>
-                <span>Giliran: <b>${esc(nameA)}</b> (Tentang Dirimu)</span>
+                <span>Giliran: <b>${esc(nameA)}</b></span>
               </div>
-              <p class="mute text-xs mb-3">
-                Jawab pertanyaan berikut tentang <b>dirimu sendiri</b> secara jujur:
-              </p>
 
-              ${questions.map((q, idx) => `
+              ${questions.map((q) => `
                 <div class="mb-3">
-                  <label for="qSelfA_${q.id}" class="font-bold text-sm block mb-1">
-                    ${idx + 1}. ${esc(q.question)}
-                  </label>
-                  <p class="mute text-xs mb-1">💡 ${esc(q.hint)}</p>
-                  <textarea id="qSelfA_${q.id}" class="w-full text-sm" placeholder="Tulis jawabanmu...">${esc(answers[`selfA_${q.id}`] || '')}</textarea>
+                  <div class="font-bold text-sm mb-1">${esc(q.question)}</div>
+                  <textarea id="qSelfA_${q.id}" class="w-full text-sm" aria-label="${esc(q.question)}" placeholder="Tulis jawabanmu...">${esc(answers[`selfA_${q.id}`] || '')}</textarea>
                 </div>
               `).join('')}
 
               <div class="sticky-bottom-action">
                 <button type="button" class="plum-btn w-full" id="submitSelfABtn">
-                  Simpan & Serahkan Ponsel ke ${esc(nameB)} →
+                  Lanjut ke ${esc(nameB)} →
                 </button>
               </div>
 
@@ -157,6 +144,7 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
                 const el = container.querySelector(`#qSelfA_${q.id}`);
                 res[`selfA_${q.id}`] = el ? el.value.trim() : '';
               });
+              delete answers._refreshedNotice;
               runner.setAnswer(res);
               runner.next();
             };
@@ -179,14 +167,13 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
             <div class="card card-border-plum text-center py-4 px-3 mb-3">
               <div class="handover-visual mb-3" aria-hidden="true">📱 ➔ 🤝</div>
               <h2 class="text-xl font-bold mb-2">Serahkan Ponsel ke ${esc(nameB)}</h2>
-              <p class="mute text-sm mb-4">
-                Jawaban ${esc(nameA)} telah tersimpan aman dan tersembunyi.<br>
-                Sekarang giliran ${esc(nameB)} menjawab tentang diri sendiri.
+              <p class="mute text-sm mb-3">
+                Jawaban ${esc(nameA)} tersimpan aman. Giliran ${esc(nameB)} menjawab.
               </p>
 
               <div class="sticky-bottom-action">
                 <button type="button" class="plum-btn w-full" id="readyBBtn">
-                  Saya ${esc(nameB)}, Siap Mulai →
+                  Saya ${esc(nameB)}, Siap →
                 </button>
               </div>
 
@@ -211,29 +198,31 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
         hideFooter: true,
         title: `Giliran ${nameB}`,
         renderCustom(answers) {
+          const showNotice = Boolean(answers._refreshedNotice);
+
           return `
             <div class="card card-border-plum p-4 mb-3">
+              ${showNotice ? `
+                <div class="calm-notice-box mb-3">
+                  ${renderIcon('info')}
+                  <div>Sesi dimulai ulang demi menjaga privasi jawabanmu.</div>
+                </div>
+              ` : ''}
               <div class="turn-banner mb-3">
                 <span>👤</span>
-                <span>Giliran: <b>${esc(nameB)}</b> (Tentang Dirimu)</span>
+                <span>Giliran: <b>${esc(nameB)}</b></span>
               </div>
-              <p class="mute text-xs mb-3">
-                Jawab pertanyaan berikut tentang <b>dirimu sendiri</b> secara jujur:
-              </p>
 
-              ${questions.map((q, idx) => `
+              ${questions.map((q) => `
                 <div class="mb-3">
-                  <label for="qSelfB_${q.id}" class="font-bold text-sm block mb-1">
-                    ${idx + 1}. ${esc(q.question)}
-                  </label>
-                  <p class="mute text-xs mb-1">💡 ${esc(q.hint)}</p>
-                  <textarea id="qSelfB_${q.id}" class="w-full text-sm" placeholder="Tulis jawabanmu...">${esc(answers[`selfB_${q.id}`] || '')}</textarea>
+                  <div class="font-bold text-sm mb-1">${esc(q.question)}</div>
+                  <textarea id="qSelfB_${q.id}" class="w-full text-sm" aria-label="${esc(q.question)}" placeholder="Tulis jawabanmu...">${esc(answers[`selfB_${q.id}`] || '')}</textarea>
                 </div>
               `).join('')}
 
               <div class="sticky-bottom-action">
                 <button type="button" class="plum-btn w-full" id="submitSelfBBtn">
-                  Simpan & Lanjut ke Fase Tebak Jawaban →
+                  Lanjut ke Tebakan →
                 </button>
               </div>
 
@@ -250,6 +239,7 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
                 const el = container.querySelector(`#qSelfB_${q.id}`);
                 res[`selfB_${q.id}`] = el ? el.value.trim() : '';
               });
+              delete answers._refreshedNotice;
               runner.setAnswer(res);
               runner.next();
             };
@@ -271,9 +261,8 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
             <div class="card card-border-plum text-center py-4 px-3 mb-3">
               <div class="handover-visual mb-3" aria-hidden="true">🎯 ➔ 📱</div>
               <h2 class="text-xl font-bold mb-2">Fase Tebak: Serahkan ke ${esc(nameA)}</h2>
-              <p class="mute text-sm mb-4">
-                Sekarang saatnya ${esc(nameA)} menebak apa yang dijawab oleh ${esc(nameB)}!<br>
-                Tidak perlu takut salah; ini adalah sarana belajar mengenal dunia pasangan.
+              <p class="mute text-sm mb-3">
+                Saatnya ${esc(nameA)} menebak jawaban ${esc(nameB)}.
               </p>
 
               <div class="sticky-bottom-action">
@@ -307,22 +296,19 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
             <div class="card card-border-plum p-4 mb-3">
               <div class="turn-banner mb-3">
                 <span>💭</span>
-                <span><b>${esc(nameA)}</b> menebak jawaban <b>${esc(nameB)}</b>:</span>
+                <span><b>${esc(nameA)}</b> menebak <b>${esc(nameB)}</b>:</span>
               </div>
-              <p class="mute text-xs mb-3">
-                Menurutmu, apa jawaban yang ditulis oleh ${esc(nameB)}?
-              </p>
 
-              ${questions.map((q, idx) => `
+              ${questions.map((q) => `
                 <div class="mb-3">
-                  <div class="font-bold text-sm mb-1">${idx + 1}. ${esc(q.question)}</div>
-                  <textarea id="qGuessA_${q.id}" class="w-full text-sm" placeholder="Menurutku jawaban ${esc(nameB)} adalah...">${esc(answers[`guessA_${q.id}`] || '')}</textarea>
+                  <div class="font-bold text-sm mb-1">${esc(q.question)}</div>
+                  <textarea id="qGuessA_${q.id}" class="w-full text-sm" aria-label="Tebakan jawaban ${esc(nameB)}" placeholder="Menurutku jawaban ${esc(nameB)}...">${esc(answers[`guessA_${q.id}`] || '')}</textarea>
                 </div>
               `).join('')}
 
               <div class="sticky-bottom-action">
                 <button type="button" class="plum-btn w-full" id="submitGuessABtn">
-                  Simpan & Serahkan Ponsel ke ${esc(nameB)} →
+                  Lanjut ke ${esc(nameB)} →
                 </button>
               </div>
 
@@ -360,8 +346,8 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
             <div class="card card-border-plum text-center py-4 px-3 mb-3">
               <div class="handover-visual mb-3" aria-hidden="true">🎯 ➔ 📱</div>
               <h2 class="text-xl font-bold mb-2">Fase Tebak: Serahkan ke ${esc(nameB)}</h2>
-              <p class="mute text-sm mb-4">
-                Sekarang giliran ${esc(nameB)} menebak apa yang dijawab oleh ${esc(nameA)}!
+              <p class="mute text-sm mb-3">
+                Giliran ${esc(nameB)} menebak jawaban ${esc(nameA)}.
               </p>
 
               <div class="sticky-bottom-action">
@@ -395,22 +381,19 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
             <div class="card card-border-plum p-4 mb-3">
               <div class="turn-banner mb-3">
                 <span>💭</span>
-                <span><b>${esc(nameB)}</b> menebak jawaban <b>${esc(nameA)}</b>:</span>
+                <span><b>${esc(nameB)}</b> menebak <b>${esc(nameA)}</b>:</span>
               </div>
-              <p class="mute text-xs mb-3">
-                Menurutmu, apa jawaban yang ditulis oleh ${esc(nameA)}?
-              </p>
 
-              ${questions.map((q, idx) => `
+              ${questions.map((q) => `
                 <div class="mb-3">
-                  <div class="font-bold text-sm mb-1">${idx + 1}. ${esc(q.question)}</div>
-                  <textarea id="qGuessB_${q.id}" class="w-full text-sm" placeholder="Menurutku jawaban ${esc(nameA)} adalah...">${esc(answers[`guessB_${q.id}`] || '')}</textarea>
+                  <div class="font-bold text-sm mb-1">${esc(q.question)}</div>
+                  <textarea id="qGuessB_${q.id}" class="w-full text-sm" aria-label="Tebakan jawaban ${esc(nameA)}" placeholder="Menurutku jawaban ${esc(nameA)}...">${esc(answers[`guessB_${q.id}`] || '')}</textarea>
                 </div>
               `).join('')}
 
               <div class="sticky-bottom-action">
                 <button type="button" class="plum-btn w-full" id="submitGuessBBtn">
-                  Simpan & Masuk ke Penyingkapan Bersama →
+                  Lanjut ke Hasil →
                 </button>
               </div>
 
@@ -444,40 +427,43 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
         hideFooter: true,
         title: 'Persetujuan Membuka Hasil',
         renderCustom(answers) {
-          const isShared = answers.loveMapsShared !== false;
+          const hasChoice = answers.loveMapsShared === true || answers.loveMapsShared === false;
+          const isShareSelected = answers.loveMapsShared === true;
+          const isPrivateSelected = answers.loveMapsShared === false;
 
           return `
             <div class="card card-border-plum text-center py-4 px-3 mb-3">
               <div class="handover-visual mb-3" aria-hidden="true">🤝 ➔ 📱</div>
-              <h2 class="text-xl font-bold mb-2">Duduk Berdua Bersama</h2>
-              <p class="mute text-sm mb-4">
-                Kalian sudah selesai mengisi dan menebak! Duduklah berdampingan untuk melihat hasilnya.
+              <h2 class="text-xl font-bold mb-2">Duduk Berdua</h2>
+              <p class="mute text-sm mb-3">
+                Duduklah berdampingan untuk melihat hasil:
               </p>
 
-              <div class="sharing-choice-box mb-4 text-left">
-                <div class="font-bold text-sm mb-2 text-ink-primary">Pilihan Membuka:</div>
+              <div class="sharing-choice-box mb-3 text-left">
                 <div class="choice-tiles-vertical" role="radiogroup" aria-label="Pilihan Membuka Love Maps">
-                  <button type="button" class="choice-tile ${isShared ? 'selected' : ''}" id="tileShareLM" role="radio" aria-checked="${isShared}">
+                  <button type="button" class="choice-tile ${isShareSelected ? 'selected' : ''}" id="tileShareLM" role="radio" aria-checked="${isShareSelected}">
                     <span class="tile-icon" aria-hidden="true">📖</span>
                     <div class="tile-col">
-                      <div class="tile-label">Buka Kartu Penemuan Berdua</div>
-                      <div class="tile-hint">Menampilkan jawaban asli dan tebakan untuk saling bercerita santai.</div>
+                      <div class="tile-label">Buka kartu berdua</div>
+                      <div class="tile-hint">Lihat tebakan bersama.</div>
                     </div>
                   </button>
 
-                  <button type="button" class="choice-tile ${!isShared ? 'selected' : ''}" id="tilePrivateLM" role="radio" aria-checked="${!isShared}">
+                  <button type="button" class="choice-tile ${isPrivateSelected ? 'selected' : ''}" id="tilePrivateLM" role="radio" aria-checked="${isPrivateSelected}">
                     <span class="tile-icon" aria-hidden="true">🔒</span>
                     <div class="tile-col">
-                      <div class="tile-label">Simpan Pribadi untuk Saat Ini</div>
-                      <div class="tile-hint">Tidak menampilkan kartu saat ini, selesai dengan tenang.</div>
+                      <div class="tile-label">Simpan pribadi</div>
+                      <div class="tile-hint">Selesai tanpa membuka.</div>
                     </div>
                   </button>
                 </div>
               </div>
 
+              <div class="mute text-xs mb-3 text-center">Di satu ponsel, jawaban pribadi hanya seaman ponselnya.</div>
+
               <div class="sticky-bottom-action">
-                <button type="button" class="plum-btn w-full" id="confirmConsentBtn">
-                  Lanjut ke Hasil →
+                <button type="button" class="plum-btn w-full" id="confirmConsentBtn" ${!hasChoice ? 'disabled' : ''}>
+                  Lanjut →
                 </button>
               </div>
 
@@ -490,17 +476,20 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
           const tilePrivate = container.querySelector('#tilePrivateLM');
           const confirmBtn = container.querySelector('#confirmConsentBtn');
 
-          let sharedVal = answers.loveMapsShared !== false;
+          let sharedVal = (answers.loveMapsShared === true || answers.loveMapsShared === false) ? answers.loveMapsShared : null;
 
           const updateSelection = (val) => {
             sharedVal = val;
             if (tileShare) {
-              tileShare.classList.toggle('selected', sharedVal);
-              tileShare.setAttribute('aria-checked', String(sharedVal));
+              tileShare.classList.toggle('selected', sharedVal === true);
+              tileShare.setAttribute('aria-checked', String(sharedVal === true));
             }
             if (tilePrivate) {
-              tilePrivate.classList.toggle('selected', !sharedVal);
-              tilePrivate.setAttribute('aria-checked', String(!sharedVal));
+              tilePrivate.classList.toggle('selected', sharedVal === false);
+              tilePrivate.setAttribute('aria-checked', String(sharedVal === false));
+            }
+            if (confirmBtn) {
+              confirmBtn.disabled = sharedVal === null;
             }
           };
 
@@ -509,6 +498,7 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
 
           if (confirmBtn) {
             confirmBtn.onclick = () => {
+              if (sharedVal === null) return;
               runner.setAnswer({ loveMapsShared: sharedVal });
               runner.next();
             };
@@ -527,7 +517,7 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
         hideFooter: true,
         title: 'Penemuan Saling Kenal',
         renderCustom(answers) {
-          const isShared = answers.loveMapsShared !== false;
+          const isShared = answers.loveMapsShared === true;
 
           if (!isShared) {
             return `
@@ -535,8 +525,10 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
                 <div class="text-3xl mb-2" aria-hidden="true">🔒</div>
                 <h2 class="text-lg font-bold mb-1">Catatan tersimpan dengan aman.</h2>
                 <p class="mute text-sm mb-3">
-                  Saling mengenal adalah proses bertahap tanpa paksaan. Terima kasih sudah meluangkan waktu sejenak untuk memikirkan satu sama lain hari ini.
+                  Saling mengenal adalah proses bertahap tanpa paksaan.
                 </p>
+
+                <div class="mute text-xs mb-3 text-center">Di satu ponsel, jawaban pribadi hanya seaman ponselnya.</div>
 
                 <div class="sticky-bottom-action">
                   <button type="button" class="plum-btn w-full" id="finishLMBtn">
@@ -551,56 +543,26 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
 
           return `
             <div class="card card-border-plum p-4 mb-3">
-              <div class="text-center mb-3">
-                <div class="mb-2">
-                  ${renderMascot('cheer', 64, { inlineStyle: false, label: 'Tunas Gembira' })}
-                </div>
-                <span class="card-tag tunas">Makin Dekat & Saling Memahami</span>
-                <h2 class="mt-2 mb-1">Hal Baru yang Kalian Pelajari</h2>
-                <p class="mute text-xs mb-3">
-                  Gunakan kartu-kartu penemuan di bawah ini sebagai bahan obrolan hangat berdua:
-                </p>
+              <div class="text-center mb-2">
+                ${renderMascot('cheer', 48, { inlineStyle: false, label: '' })}
               </div>
+              <h2 class="text-lg font-bold mb-1 text-center">Hal Baru yang Kalian Pelajari</h2>
 
-              <!-- Discovery Cards (No numbers, no scores, no percentage) -->
-              <div class="flex flex-col gap-3 mb-4">
-                ${questions.map((q, idx) => {
+              <div class="flex flex-col gap-2 mb-3">
+                ${questions.map((q) => {
                   const actualA = answers[`selfA_${q.id}`] || '(Belum diisi)';
                   const guessB = answers[`guessB_${q.id}`] || '(Belum ditebak)';
                   const actualB = answers[`selfB_${q.id}`] || '(Belum diisi)';
                   const guessA = answers[`guessA_${q.id}`] || '(Belum ditebak)';
 
                   return `
-                    <div class="love-maps-discovery-card p-3">
-                      <div class="font-bold text-sm text-plum mb-2">
-                        Topik ${idx + 1}: ${esc(q.title)}
-                      </div>
-                      <p class="text-xs text-ink-primary mb-3"><i>"${esc(q.question)}"</i></p>
-
-                      <!-- About Partner A -->
-                      <div class="discovery-section mb-2">
-                        <div class="text-xs font-bold text-ink-primary">Tentang ${esc(nameA)}:</div>
-                        <div class="text-xs mute">Jawaban asli ${esc(nameA)}:</div>
-                        <div class="discovery-answer-box mb-1">${esc(actualA)}</div>
-                        <div class="text-xs mute">Tebakan ${esc(nameB)}:</div>
-                        <div class="discovery-guess-box">${esc(guessB)}</div>
-                      </div>
-
-                      <!-- About Partner B -->
-                      <div class="discovery-section">
-                        <div class="text-xs font-bold text-ink-primary">Tentang ${esc(nameB)}:</div>
-                        <div class="text-xs mute">Jawaban asli ${esc(nameB)}:</div>
-                        <div class="discovery-answer-box mb-1">${esc(actualB)}</div>
-                        <div class="text-xs mute">Tebakan ${esc(nameA)}:</div>
-                        <div class="discovery-guess-box">${esc(guessA)}</div>
-                      </div>
+                    <div class="love-maps-discovery-card p-2 text-xs">
+                      <div class="font-bold text-plum mb-1">${esc(q.title)}</div>
+                      <div class="mb-1"><b>${esc(nameA)}:</b> ${esc(actualA)} <span class="mute">(tebak: ${esc(guessB)})</span></div>
+                      <div><b>${esc(nameB)}:</b> ${esc(actualB)} <span class="mute">(tebak: ${esc(guessA)})</span></div>
                     </div>
                   `;
                 }).join('')}
-              </div>
-
-              <div class="neutral-guidance-box mb-4 text-center">
-                <b>Pesan Gottman:</b> Setiap kali kamu mengetahui detail baru tentang pasanganmu, peta cintamu semakin kaya dan fondasi rumah tanggamu semakin kokoh.
               </div>
 
               <div class="sticky-bottom-action">
@@ -630,8 +592,8 @@ export function createLoveMapsFlow(store, onComplete = null, onSafetyExit = null
       if (typeof storeRef.saveLoveMapsSession === 'function') {
         storeRef.saveLoveMapsSession(sessionId, {
           at: Date.now(),
-          shared: answers.loveMapsShared !== false,
-          answers
+          shared: answers.loveMapsShared === true,
+          answers: answers.loveMapsShared === true ? answers : {}
         });
       }
 

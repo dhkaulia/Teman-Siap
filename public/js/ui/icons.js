@@ -80,8 +80,8 @@ export const ICONS = {
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M7 20h10"/>
       <path d="M12 20v-8"/>
-      <path d="M12 12c0-4 3-6 7-6-1 4-3 6-7 6z"/>
-      <path d="M12 12c0-3-2-5-5-5 1 3 2 5 5 5z"/>
+      <path d="M12 12c0-4 3-6 7-6-1 4-3 6-7 6z" fill="currentColor"/>
+      <path d="M12 12c0-3-2-5-5-5 1 3 2 5 5 5z" fill="currentColor"/>
     </svg>
   `,
   smartphone: `

@@ -36,10 +36,10 @@ export const LESSON_NAMING_FEELINGS = {
       options: [
         { id: 'opt-a', label: 'Tubuh sedang bersiap menghadapi rasa kaget atau cemas.', isCorrect: true },
         { id: 'opt-b', label: 'Pasti ada yang salah dengan kepribadian saya.', isCorrect: false },
-        { id: 'opt-c', label: 'Saya harus segera membalas pesan dengan marah.', isCorrect: false }
+        { id: 'opt-c', label: 'Saya langsung meluapkan amarah seketika itu juga.', isCorrect: false }
       ],
       correctExplanation: 'Tepat sekali! Detak jantung dan rahang yang tegang adalah respon protektif sistem saraf menghadapi ketidakpastian. Menyadari alarm ini membantumu merespons dengan tenang.',
-      incorrectExplanation: 'Belum pas. Reaksi fisik itu bukanlah kekurangan dirimu atau tanda harus marah, melainkan respon protektif alami tubuh saat terkejut.'
+      incorrectExplanation: 'Belum pas. Reaksi fisik itu bukanlah kekurangan dirimu atau tanda perlu marah, melainkan respon protektif alami tubuh saat terkejut.'
     },
     {
       id: 'step-match',

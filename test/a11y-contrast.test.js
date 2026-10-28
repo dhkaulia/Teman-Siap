@@ -76,6 +76,24 @@ describe('Accessibility: Contrast Ratio Measurements (WCAG 2.1 AA >= 4.5:1)', ()
       assert.ok(ratio >= 4.5, `Expected >= 4.5, got ${ratio.toFixed(2)}`);
       assert.ok(ratio >= 7.0);
     });
+
+    it('ink-muted #556865 on bg-card exceeds 4.5:1 (measures > 5.5:1)', () => {
+      const ratio = contrastRatio('#556865', bgCard);
+      assert.ok(ratio >= 4.5, `Expected >= 4.5, got ${ratio.toFixed(2)}`);
+      assert.ok(ratio >= 5.5);
+    });
+
+    it('ink-muted #556865 on bg-canvas exceeds 4.5:1 (measures > 5.0:1)', () => {
+      const ratio = contrastRatio('#556865', bgCanvas);
+      assert.ok(ratio >= 4.5, `Expected >= 4.5, got ${ratio.toFixed(2)}`);
+      assert.ok(ratio >= 5.0);
+    });
+
+    it('darkened saffron tag text #7A3F00 on saffron-light #FEF3C7 exceeds 4.5:1 (measures > 7:1)', () => {
+      const ratio = contrastRatio('#7A3F00', '#FEF3C7');
+      assert.ok(ratio >= 4.5, `Expected >= 4.5, got ${ratio.toFixed(2)}`);
+      assert.ok(ratio >= 7.0);
+    });
   });
 
   // Dark Theme Pairs

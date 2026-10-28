@@ -14,6 +14,7 @@ import { createPlanFlow } from './flows/planFlow.js';
 import { createCoupleFlow } from './flows/coupleFlow.js';
 import { CONTENT } from '../content.js';
 import { announce } from './ui/utils.js';
+import { createLessonFlow, getLessonById } from './flows/lessonPlayer.js';
 
 import { renderOnboarding, bindOnboarding } from './screens/onboarding.js';
 import { renderHome, bindHome } from './screens/home.js';
@@ -352,15 +353,13 @@ export function boot() {
     }
     const lessonParam = params.get('lesson');
     if (lessonParam) {
-      import('./flows/lessons.js').then(({ getLessonById }) => {
-        import('./flows/lessonPlayer.js').then(({ createLessonFlow }) => {
-          const lId = lessonParam === '1' ? 'lesson-naming-feelings' : lessonParam;
-          const lesson = getLessonById(lId) || getLessonById('lesson-naming-feelings');
-          if (lesson) {
-            sessionRunner.start(createLessonFlow(lesson, () => navigate('home'), store));
-          }
-        });
-      });
+      store.d.onboardingComplete = true;
+      sessionRunner.forceExit();
+      const lId = lessonParam === '1' ? 'lesson-naming-feelings' : lessonParam;
+      const lesson = getLessonById(lId) || getLessonById('lesson-naming-feelings');
+      if (lesson) {
+        sessionRunner.start(createLessonFlow(lesson, () => navigate('home'), store));
+      }
     }
   }
 

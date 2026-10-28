@@ -116,7 +116,7 @@ export function sessionReducer(state, action) {
   }
 }
 
-class SessionRunner {
+export class SessionRunner {
   constructor() {
     this._state = null;
     this._overlayEl = null;
@@ -161,6 +161,7 @@ class SessionRunner {
    * Resume an in-progress session if one was saved
    */
   restoreIfAvailable() {
+    if (this._state) return false;
     if (typeof localStorage === 'undefined') return false;
     const raw = localStorage.getItem(SESSION_STORAGE_KEY);
     if (!raw) return false;
@@ -171,6 +172,19 @@ class SessionRunner {
       if (!flow) {
         this._clearPersistence();
         return false;
+      }
+
+      // Privacy hardening: if a couple or love-maps flow is restored mid-flow,
+      // private answer text was kept in memory only and is now absent from disk.
+      // Restart that partner's answer step with a calm notice.
+      if (saved.flowId.startsWith('couple-') && saved.stepIndex >= 1) {
+        saved.stepIndex = 1; // Restart at partnerA answer step
+        saved.answers = saved.answers || {};
+        saved.answers._refreshedNotice = true;
+      } else if (saved.flowId === 'flow-love-maps' && saved.stepIndex >= 1) {
+        saved.stepIndex = 1; // Restart at selfA answer step
+        saved.answers = saved.answers || {};
+        saved.answers._refreshedNotice = true;
       }
 
       this._state = sessionReducer(null, {
@@ -197,10 +211,40 @@ class SessionRunner {
       return;
     }
 
+    const flow = this._state.flow;
+    const answersToPersist = { ...(this._state.answers || {}) };
+
+    // Privacy rule: Never persist a partner's private answer text in the resumable session or localStorage
+    // Strip private answer text for couple conversations and love maps mid-flow
+    const isPrivateFlow = flow?.id?.startsWith('couple-') || flow?.id === 'flow-love-maps' || this._state.flowId?.startsWith('couple-') || this._state.flowId === 'flow-love-maps';
+    if (isPrivateFlow) {
+      delete answersToPersist.answerA;
+      delete answersToPersist.answerB;
+      if (answersToPersist.partnerA && typeof answersToPersist.partnerA === 'object') {
+        const pA = { ...answersToPersist.partnerA };
+        delete pA.answerA;
+        delete pA.text;
+        delete pA.answer;
+        answersToPersist.partnerA = pA;
+      }
+      if (answersToPersist.partnerB && typeof answersToPersist.partnerB === 'object') {
+        const pB = { ...answersToPersist.partnerB };
+        delete pB.answerB;
+        delete pB.text;
+        delete pB.answer;
+        answersToPersist.partnerB = pB;
+      }
+      for (const key of Object.keys(answersToPersist)) {
+        if (key.startsWith('selfA') || key.startsWith('selfB') || key.startsWith('guessA') || key.startsWith('guessB')) {
+          delete answersToPersist[key];
+        }
+      }
+    }
+
     const payload = {
       flowId: this._state.flowId,
       stepIndex: this._state.stepIndex,
-      answers: this._state.answers,
+      answers: answersToPersist,
       updatedAt: this._state.updatedAt
     };
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(payload));

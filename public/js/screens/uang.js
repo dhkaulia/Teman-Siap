@@ -16,6 +16,8 @@ import { esc, idr, monthKey, today } from '../ui/utils.js';
 import { COPY } from '../copy.js';
 import { renderIcon } from '../ui/icons.js';
 import { playTapSound, triggerHapticTap } from '../ui/feedback.js';
+import { AnswerSheet } from '../ui/answerSheet.js';
+import { awardSeeds } from '../rewards.js';
 
 export function cleanupUang() {
   // Hub has no background timers
@@ -28,7 +30,11 @@ export function setMoneySubView() {
 export function renderMoney(store) {
   const d = store.d;
   const currentMonthKey = monthKey();
-  const currentMonthExpenses = (d.expenses || []).filter(e => e.date && e.date.startsWith(currentMonthKey));
+  const currentMonthExpenses = (d.expenses || []).filter(e => 
+    e.date && 
+    e.date.startsWith(currentMonthKey) && 
+    e.category !== 'Tabungan Dana Cadangan'
+  );
   const totalSpent = currentMonthExpenses.reduce((acc, e) => acc + (Number(e.amount) || 0), 0);
   const goal = d.goal;
   const plans = d.plans || [];
@@ -154,7 +160,18 @@ export function bindMoney(container, store, navigate, rerender) {
     quickLogBtn.onclick = () => {
       playTapSound();
       triggerHapticTap();
-      sessionRunner.start(createExpenseFlow(store, () => rerender()));
+      sessionRunner.start(createExpenseFlow(store, () => {
+        awardSeeds(store, 1, 'Mencatat pengeluaran');
+        AnswerSheet.show({
+          type: 'neutral',
+          title: 'Selesai',
+          message: 'Pengeluaran telah tercatat.',
+          buttonText: 'Selesai',
+          onContinue: () => {
+            rerender();
+          }
+        });
+      }));
     };
   }
 
@@ -167,7 +184,18 @@ export function bindMoney(container, store, navigate, rerender) {
       const currentGoal = store.d.goal;
       if (!currentGoal) {
         // Create new goal flow
-        sessionRunner.start(createGoalFlow(() => rerender()));
+        sessionRunner.start(createGoalFlow(() => {
+          awardSeeds(store, 1, 'Membuat tujuan tabungan');
+          AnswerSheet.show({
+            type: 'neutral',
+            title: 'Selesai',
+            message: 'Tujuan tabungan bersama telah tersimpan.',
+            buttonText: 'Selesai',
+            onContinue: () => {
+              rerender();
+            }
+          });
+        }));
       } else {
         // Open quick top-up bottom sheet
         const sheet = new BottomSheet();
@@ -214,17 +242,18 @@ export function bindMoney(container, store, navigate, rerender) {
                   ...currentGoal,
                   saved: currentGoal.saved + topupAmt
                 });
-                store.addExpense({
-                  amount: topupAmt,
-                  category: 'Tabungan Dana Cadangan',
-                  date: today(),
-                  tag: 'planned',
-                  note: 'Menabung untuk ' + currentGoal.name,
-                  at: Date.now()
-                });
+                awardSeeds(store, 1, 'Menambah tabungan');
               }
               sheet.close();
-              rerender();
+              AnswerSheet.show({
+                type: 'neutral',
+                title: 'Selesai',
+                message: `Tabungan ${esc(currentGoal.name)} bertambah ${idr(topupAmt)}.`,
+                buttonText: 'Selesai',
+                onContinue: () => {
+                  rerender();
+                }
+              });
             };
           }
         }, 50);
@@ -238,7 +267,18 @@ export function bindMoney(container, store, navigate, rerender) {
     urgeRow.onclick = () => {
       playTapSound();
       triggerHapticTap();
-      sessionRunner.start(createUrgeFlow(store.d.faithPerspective, () => rerender()));
+      sessionRunner.start(createUrgeFlow(store.d.faithPerspective, () => {
+        awardSeeds(store, 1, 'Jeda belanja sadar');
+        AnswerSheet.show({
+          type: 'neutral',
+          title: 'Selesai',
+          message: 'Latihan jeda sadar telah selesai.',
+          buttonText: 'Selesai',
+          onContinue: () => {
+            rerender();
+          }
+        });
+      }));
     };
   }
 
@@ -248,7 +288,18 @@ export function bindMoney(container, store, navigate, rerender) {
     planRow.onclick = () => {
       playTapSound();
       triggerHapticTap();
-      sessionRunner.start(createPlanFlow(() => rerender()));
+      sessionRunner.start(createPlanFlow(() => {
+        awardSeeds(store, 1, 'Rencana jika-maka');
+        AnswerSheet.show({
+          type: 'neutral',
+          title: 'Selesai',
+          message: 'Rencana jika-maka telah tersimpan.',
+          buttonText: 'Selesai',
+          onContinue: () => {
+            rerender();
+          }
+        });
+      }));
     };
   }
 
@@ -257,7 +308,18 @@ export function bindMoney(container, store, navigate, rerender) {
     addPlanBtn.onclick = () => {
       playTapSound();
       triggerHapticTap();
-      sessionRunner.start(createPlanFlow(() => rerender()));
+      sessionRunner.start(createPlanFlow(() => {
+        awardSeeds(store, 1, 'Rencana jika-maka');
+        AnswerSheet.show({
+          type: 'neutral',
+          title: 'Selesai',
+          message: 'Rencana jika-maka telah tersimpan.',
+          buttonText: 'Selesai',
+          onContinue: () => {
+            rerender();
+          }
+        });
+      }));
     };
   }
 }

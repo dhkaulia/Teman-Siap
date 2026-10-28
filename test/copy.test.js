@@ -83,7 +83,16 @@ describe('Central Copy Engine (/js/copy.js)', () => {
   });
 
   it('strictly forbids all banned words across all JavaScript files in public/', () => {
-    const bannedWords = ['buruan', 'kehilangan', 'gagal', 'bodoh'];
+    const strictBannedWords = [
+      'buruan',
+      'kehilangan',
+      'gagal',
+      'bodoh',
+      'mengorbankan',
+      'jangan sampai',
+      'harus',
+      'wajib'
+    ];
 
     function scanDir(dir) {
       const files = fs.readdirSync(dir, { withFileTypes: true });
@@ -92,20 +101,41 @@ describe('Central Copy Engine (/js/copy.js)', () => {
         if (file.isDirectory()) {
           scanDir(fullPath);
         } else if (file.name.endsWith('.js')) {
-          const content = fs.readFileSync(fullPath, 'utf8').toLowerCase();
-          for (const word of bannedWords) {
-            // Regex to match exact word boundary
-            const regex = new RegExp(`\\b${word}\\b`, 'i');
-            assert.equal(
-              regex.test(content),
-              false,
-              `Banned word "${word}" found in file: ${path.relative(PUBLIC_JS_DIR, fullPath)}`
-            );
+          const content = fs.readFileSync(fullPath, 'utf8');
+          const lines = content.split('\n');
+
+          // 1. Strict banned words & phrases (forbidden everywhere)
+          for (const phrase of strictBannedWords) {
+            const regex = new RegExp(`\\b${phrase}\\b`, 'i');
+            for (let i = 0; i < lines.length; i++) {
+              const line = lines[i];
+              assert.equal(
+                regex.test(line),
+                false,
+                `Banned word/phrase "${phrase}" found in ${path.relative(PUBLIC_JS_DIR, fullPath)}:${i + 1} -> ${line.trim()}`
+              );
+            }
+          }
+
+          // 2. "menyesal" is forbidden EXCEPT inside wrong-answer options ({ ... isCorrect: false })
+          const menyesalRegex = /\bmenyesal\b/i;
+          for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            if (menyesalRegex.test(line)) {
+              // Check if this line or adjacent 2 lines contains isCorrect: false
+              const context = [lines[i - 1] || '', line, lines[i + 1] || ''].join(' ');
+              const isWrongAnswerOption = /isCorrect:\s*false/i.test(context);
+              assert.ok(
+                isWrongAnswerOption,
+                `Banned word "menyesal" found outside wrong-answer options in ${path.relative(PUBLIC_JS_DIR, fullPath)}:${i + 1} -> ${line.trim()}`
+              );
+            }
           }
         }
       }
     }
 
     scanDir(PUBLIC_JS_DIR);
+    scanDir(path.resolve(__dirname, '..', 'public'));
   });
 });

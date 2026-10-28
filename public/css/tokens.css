@@ -94,8 +94,15 @@
   /* 4. High-Contrast Typography Inks */
   --ink-primary: #12211F;
   --ink-secondary: #485D5A;
-  --ink-muted: #627673;
+  --ink-muted: #556865; /* >= 5.4:1 on canvas (#F4F6F5) and >= 5.9:1 on card (#FFFFFF) */
   --ink-on-color: #FFFFFF;
+
+  /* Theme-adaptive Inks for Accent Fills */
+  --on-teal: #FFFFFF;
+  --on-saffron: #FFFFFF;
+  --on-plum: #FFFFFF;
+  --on-tunas: #FFFFFF;
+  --on-coral: #FFFFFF;
   
   /* Safety / Non-judgmental boundary */
   --danger: #5E3573;
@@ -197,6 +204,13 @@
     --ink-muted: #829591;     /* > 5.1:1 on surface-1 */
     --ink-on-color: #0A1C1A;  /* Dark text on light accent fills */
     --ink-dark-btn: #0A1C1A;
+
+    /* Theme-adaptive Inks for Accent Fills */
+    --on-teal: #0A1C1A;
+    --on-saffron: #0A1C1A;
+    --on-plum: #0A1C1A;
+    --on-tunas: #0A1C1A;
+    --on-coral: #0A1C1A;
     
     /* Desaturated & Lightened Accent Fills for Dark Mode */
     --teal: #6CD0C6;
@@ -267,6 +281,12 @@ body.theme-dark {
   --ink-muted: #829591;
   --ink-on-color: #0A1C1A;
   --ink-dark-btn: #0A1C1A;
+
+  --on-teal: #0A1C1A;
+  --on-saffron: #0A1C1A;
+  --on-plum: #0A1C1A;
+  --on-tunas: #0A1C1A;
+  --on-coral: #0A1C1A;
 
   --teal: #6CD0C6;
   --teal-light: #15312E;
@@ -347,7 +367,13 @@ body.theme-light {
   --border-card: #DFE5E3;
   --ink-primary: #12211F;
   --ink-secondary: #485D5A;
-  --ink-muted: #627673;
+  --ink-muted: #556865;
+  --ink-on-color: #FFFFFF;
+  --on-teal: #FFFFFF;
+  --on-saffron: #FFFFFF;
+  --on-plum: #FFFFFF;
+  --on-tunas: #FFFFFF;
+  --on-coral: #FFFFFF;
   --danger: #5E3573;
   --danger-light: #F4EDF6;
   --danger-border: #DCD0E1;
@@ -393,7 +419,7 @@ button.primary,
 button.btn-primary {
   min-height: 56px;
   background-color: var(--teal);
-  color: #FFFFFF;
+  color: var(--on-teal);
   border-color: var(--teal-dark);
   box-shadow: 0 var(--btn-shadow-offset) 0 var(--teal-shadow);
 }
@@ -460,7 +486,7 @@ body.theme-dark button.is-disabled {
 button.btn-saffron,
 button.saffron-btn {
   background-color: var(--saffron);
-  color: #FFFFFF;
+  color: var(--on-saffron);
   border-color: var(--saffron-dark);
   box-shadow: 0 var(--btn-shadow-offset) 0 var(--saffron-shadow);
 }
@@ -472,7 +498,7 @@ button.saffron-btn:active {
 button.btn-plum,
 button.plum-btn {
   background-color: var(--plum);
-  color: #FFFFFF;
+  color: var(--on-plum);
   border-color: var(--plum-dark);
   box-shadow: 0 var(--btn-shadow-offset) 0 var(--plum-shadow);
 }
@@ -483,7 +509,7 @@ button.plum-btn:active {
 
 button.btn-tunas {
   background-color: var(--tunas);
-  color: #FFFFFF;
+  color: var(--on-tunas);
   border-color: var(--tunas-dark);
   box-shadow: 0 var(--btn-shadow-offset) 0 var(--tunas-shadow);
 }
@@ -493,7 +519,7 @@ button.btn-tunas:active {
 
 button.btn-coral {
   background-color: var(--coral);
-  color: #FFFFFF;
+  color: var(--on-coral);
   border-color: var(--coral-dark);
   box-shadow: 0 var(--btn-shadow-offset) 0 var(--coral-shadow);
 }

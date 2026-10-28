@@ -953,10 +953,13 @@ export function buildSummaryStep(lesson, onDone, store) {
       `;
     },
     bindCustom: (container) => {
-      // Trigger Confetti Celebration (max once per session)
-      triggerCelebration({ sessionId: lesson.id });
-      playSuccessSound();
-      triggerHapticSuccess();
+      // Trigger Confetti Celebration (max once per session, never for money tasks/lessons)
+      const isMoneyLesson = lesson.id && (lesson.id.includes('money') || lesson.category === 'uang');
+      if (!isMoneyLesson) {
+        triggerCelebration({ sessionId: lesson.id });
+        playSuccessSound();
+        triggerHapticSuccess();
+      }
 
       // Animate weekly counter tick up by 1 without percentage score
       const badgeEl = container.querySelector('#lessonWeeklyBadge');

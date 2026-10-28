@@ -189,8 +189,8 @@ export const CONTENT = {
       id: 'c-spend',
       title: 'Ruang Uang Pribadi Tanpa Rasa Bersalah',
       subtitle: 'Menjaga kemandirian dan rasa saling percaya dalam pengeluaran harian.',
-      prompt: 'Apakah menurutmu kita perlu punya "uang jajan pribadi" masing-masing yang bebas digunakan tanpa harus izin untuk setiap rupiahnya? Berapa porsi yang terasa adil?',
-      helperA: 'Contoh: "Aku merasa butuh sedikit kebebasan belanja hobi tanpa rasa bersalah atau harus selalu melapor..."',
+      prompt: 'Apakah menurutmu kita perlu punya "uang jajan pribadi" masing-masing yang bebas digunakan tanpa perlu izin untuk setiap rupiahnya? Berapa porsi yang terasa adil?',
+      helperA: 'Contoh: "Aku merasa butuh sedikit kebebasan belanja hobi tanpa rasa bersalah atau perlu selalu melapor..."',
       helperB: 'Contoh: "Setuju, asalkan pos tabungan bersama dan tagihan rumah sudah disisihkan terlebih dahulu..."',
       gottmanTip: 'Transparansi tidak sama dengan hilangnya privasi. Kesepakatan yang jelas justru mencegah rasa saling curiga.',
       clinicalDetail: 'Menyelaraskan nilai otonomi dan kebersamaan (Autonomy vs. Connectedness) dalam psikologi relasi.'

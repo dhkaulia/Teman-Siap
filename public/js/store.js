@@ -222,7 +222,7 @@ export function migrate(savedData, targetVersion = CURRENT_STORE_VERSION) {
   return migrated;
 }
 
-class Store {
+export class Store {
   constructor() {
     this._state = null;
     this._listeners = new Set();

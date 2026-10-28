@@ -15,6 +15,7 @@ import { Bubble } from '../ui/bubble.js';
 import { renderMascot } from '../ui/mascot.js';
 import { awardSeeds } from '../rewards.js';
 import { esc } from '../ui/utils.js';
+import { renderIcon } from '../ui/icons.js';
 
 /**
  * Technical Architecture & Data Model for Remote Partner Sync ("Segera Hadir")
@@ -88,7 +89,7 @@ export function visibleTo(conversationData, participant) {
 
   const pA = conversationData.participants.A || { answer: null, shared: false };
   const pB = conversationData.participants.B || { answer: null, shared: false };
-  const bothShared = Boolean(pA.shared && pB.shared);
+  const bothShared = Boolean(pA.shared === true && pB.shared === true);
 
   if (participant === 'A') {
     return {
@@ -137,9 +138,9 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
 
   function renderSafetyTrigger() {
     return `
-      <div class="safety-exit-row">
+      <div class="safety-exit-row mt-2">
         <button type="button" class="safety-trigger-link" data-safety-exit="true" aria-label="Hentikan latihan jika terasa tidak nyaman">
-          🛡️ Ini terasa tidak nyaman
+          ${renderIcon('shield')} Ini terasa tidak nyaman
         </button>
       </div>
     `;
@@ -184,23 +185,19 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
           return `
             <div class="card card-border-plum mb-3">
               <div class="card-title-row">
-                <span class="card-tag plum">Satu Ponsel Bergantian</span>
+                <span class="card-tag plum">Satu Ponsel</span>
                 <span class="text-xs mute">~5 Menit</span>
               </div>
               <h2 class="mt-2 mb-1">${esc(convo.title)}</h2>
-              <p class="mute mb-3">${esc(convo.subtitle)}</p>
 
               <div class="mb-3">
                 ${tipBubbleHTML}
               </div>
 
               <div class="convo-intro-explanation mb-4">
-                <div class="font-bold text-sm mb-1 text-ink-primary">Bagaimana alur ini berjalan:</div>
                 <ol class="step-rule-list">
-                  <li><b>Partner A</b> mengisi jawaban refleksi secara rahasia.</li>
-                  <li>Ponsel diserahkan ke <b>Partner B</b> (jawaban Partner A tidak terlihat sama sekali).</li>
-                  <li><b>Partner B</b> mengisi refleksinya sendiri.</li>
-                  <li>Jawaban hanya dibuka jika <b>kalian berdua sama-sama memilih untuk membagikannya</b>.</li>
+                  <li>Isi refleksi bergantian di satu ponsel.</li>
+                  <li>Jawaban dirahasiakan kecuali berdua setuju berbagi.</li>
                 </ol>
               </div>
 
@@ -230,52 +227,56 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
         hideFooter: true,
         title: `Refleksi ${nameA}`,
         renderCustom(answers) {
-          const textVal = answers.answerA || '';
-          const isShared = answers.sharedA !== false; // default share true
+          const textVal = answers.answerA || answers.partnerA?.answerA || '';
+          const sharedAVal = (answers.sharedA !== undefined) ? answers.sharedA : answers.partnerA?.sharedA;
+          const hasChoice = sharedAVal === true || sharedAVal === false;
+          const isShareSelected = sharedAVal === true;
+          const isPrivateSelected = sharedAVal === false;
+          const showNotice = Boolean(answers._refreshedNotice);
 
           return `
             <div class="card card-border-plum mb-3">
+              ${showNotice ? `
+                <div class="calm-notice-box mb-3">
+                  ${renderIcon('info')}
+                  <div>Sesi dimulai ulang demi menjaga privasi jawabanmu.</div>
+                </div>
+              ` : ''}
               <div class="turn-banner mb-3">
                 <span>👤</span>
                 <span>Giliran: <b>${esc(nameA)}</b></span>
               </div>
-              <div class="card-title-row">
-                <span class="card-tag plum">${esc(nameA)}</span>
-                <span class="text-xs mute">Privat</span>
-              </div>
-              <h2 class="mt-1 mb-1">Pertanyaan Refleksi</h2>
               <div class="convo-prompt-box mb-2">
                 ${esc(convo.prompt)}
               </div>
-              ${convo.helperA ? `<p class="mute text-xs mb-3">💡 ${esc(convo.helperA)}</p>` : ''}
 
-              <label for="partnerAText">Tuliskan refleksimu (${esc(nameA)}):</label>
-              <textarea id="partnerAText" placeholder="Tuliskan isi hatimu secara jujur tanpa khawatir dihakimi...">${esc(textVal)}</textarea>
+              <textarea id="partnerAText" aria-label="Tuliskan refleksimu (${esc(nameA)})" placeholder="Tuliskan refleksimu di sini...">${esc(textVal)}</textarea>
 
-              <div class="sharing-choice-box mb-4">
-                <div class="font-bold text-sm mb-2 text-ink-primary">Pilihan Berbagi:</div>
+              <div class="sharing-choice-box mb-3">
                 <div class="choice-tiles-vertical" role="radiogroup" aria-label="Pilihan Berbagi Jawaban ${esc(nameA)}">
-                  <button type="button" class="choice-tile ${isShared ? 'selected' : ''}" id="tileShareA" role="radio" aria-checked="${isShared}">
+                  <button type="button" class="choice-tile ${isShareSelected ? 'selected' : ''}" id="tileShareA" role="radio" aria-checked="${isShareSelected}">
                     <span class="tile-icon" aria-hidden="true">🤝</span>
                     <div class="tile-col">
-                      <div class="tile-label">Bagikan ke Ruang Bersama</div>
-                      <div class="tile-hint">Hanya terbuka jika ${esc(nameB)} juga setuju berbagi.</div>
+                      <div class="tile-label">Bagikan</div>
+                      <div class="tile-hint">Jika berdua setuju.</div>
                     </div>
                   </button>
 
-                  <button type="button" class="choice-tile ${!isShared ? 'selected' : ''}" id="tilePrivateA" role="radio" aria-checked="${!isShared}">
+                  <button type="button" class="choice-tile ${isPrivateSelected ? 'selected' : ''}" id="tilePrivateA" role="radio" aria-checked="${isPrivateSelected}">
                     <span class="tile-icon" aria-hidden="true">🔒</span>
                     <div class="tile-col">
-                      <div class="tile-label">Simpan untuk Saya Saja</div>
-                      <div class="tile-hint">Jawaban tetap rahasia untukmu, tidak akan ditampilkan ke pasangan.</div>
+                      <div class="tile-label">Simpan pribadi</div>
+                      <div class="tile-hint">Rahasia untukmu saja.</div>
                     </div>
                   </button>
                 </div>
               </div>
 
+              <div class="mute text-xs mb-3 text-center">Di satu ponsel, jawaban pribadi hanya seaman ponselnya.</div>
+
               <div class="sticky-bottom-action">
-                <button type="button" class="plum-btn w-full" id="submitPartnerABtn">
-                  Lanjut ke Serahkan Ponsel ke ${esc(nameB)} →
+                <button type="button" class="plum-btn w-full" id="submitPartnerABtn" ${!hasChoice ? 'disabled' : ''}>
+                  Lanjut →
                 </button>
               </div>
 
@@ -289,17 +290,21 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
           const tilePrivate = container.querySelector('#tilePrivateA');
           const submitBtn = container.querySelector('#submitPartnerABtn');
 
-          let sharedVal = answers.sharedA !== false;
+          let initialChoice = (answers.sharedA !== undefined) ? answers.sharedA : answers.partnerA?.sharedA;
+          let sharedVal = (initialChoice === true || initialChoice === false) ? initialChoice : null;
 
           const updateSelection = (shared) => {
             sharedVal = shared;
             if (tileShare) {
-              tileShare.classList.toggle('selected', sharedVal);
-              tileShare.setAttribute('aria-checked', String(sharedVal));
+              tileShare.classList.toggle('selected', sharedVal === true);
+              tileShare.setAttribute('aria-checked', String(sharedVal === true));
             }
             if (tilePrivate) {
-              tilePrivate.classList.toggle('selected', !sharedVal);
-              tilePrivate.setAttribute('aria-checked', String(!sharedVal));
+              tilePrivate.classList.toggle('selected', sharedVal === false);
+              tilePrivate.setAttribute('aria-checked', String(sharedVal === false));
+            }
+            if (submitBtn) {
+              submitBtn.disabled = sharedVal === null;
             }
           };
 
@@ -308,7 +313,11 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
 
           if (submitBtn) {
             submitBtn.onclick = () => {
+              if (sharedVal === null) return;
               const text = textarea ? textarea.value.trim() : '';
+              delete answers._refreshedNotice;
+              answers.answerA = text;
+              answers.sharedA = sharedVal;
               runner.setAnswer({
                 answerA: text,
                 sharedA: sharedVal
@@ -339,12 +348,11 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
                 📱 ➔ 🤝
               </div>
               <h2 class="text-xl font-bold mb-2">Serahkan Ponsel ke ${esc(nameB)}</h2>
-              <p class="mute text-sm mb-4">
-                Jawaban ${esc(nameA)} telah tersimpan aman dan dirahasiakan.<br>
-                Beri ruang bagi ${esc(nameB)} untuk membaca dan menjawab secara mandiri.
+              <p class="mute text-sm mb-3">
+                Jawaban ${esc(nameA)} tersimpan aman. Beri ruang bagi ${esc(nameB)} menjawab mandiri.
               </p>
 
-              <div class="handover-countdown-box mb-4">
+              <div class="handover-countdown-box mb-3">
                 <span class="text-xs mute" id="handoverTimerText">Tombol aktif dalam 3 detik...</span>
               </div>
 
@@ -377,7 +385,7 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
               readyBtn.textContent = `Saya ${nameB}, Siap Mulai →`;
               readyBtn.classList.remove('secondary');
               readyBtn.classList.add('plum-btn');
-              if (timerText) timerText.textContent = `Silakan sentuh tombol di bawah jika kamu ${nameB}.`;
+              if (timerText) timerText.textContent = `Silakan sentuh tombol untuk mulai.`;
             }
           }, 1000);
 
@@ -401,52 +409,56 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
         title: `Refleksi ${nameB}`,
         renderCustom(answers) {
           // Note: answers.answerA is deliberately OMITTED from this entire template string!
-          const textVal = answers.answerB || '';
-          const isShared = answers.sharedB !== false; // default share true
+          const textVal = answers.answerB || answers.partnerB?.answerB || '';
+          const sharedBVal = (answers.sharedB !== undefined) ? answers.sharedB : answers.partnerB?.sharedB;
+          const hasChoice = sharedBVal === true || sharedBVal === false;
+          const isShareSelected = sharedBVal === true;
+          const isPrivateSelected = sharedBVal === false;
+          const showNotice = Boolean(answers._refreshedNotice);
 
           return `
             <div class="card card-border-plum mb-3">
+              ${showNotice ? `
+                <div class="calm-notice-box mb-3">
+                  ${renderIcon('info')}
+                  <div>Sesi dimulai ulang demi menjaga privasi jawabanmu.</div>
+                </div>
+              ` : ''}
               <div class="turn-banner mb-3">
                 <span>👤</span>
                 <span>Giliran: <b>${esc(nameB)}</b></span>
               </div>
-              <div class="card-title-row">
-                <span class="card-tag saffron">${esc(nameB)}</span>
-                <span class="text-xs mute">Privat</span>
-              </div>
-              <h2 class="mt-1 mb-1">Pertanyaan Refleksi</h2>
               <div class="convo-prompt-box mb-2">
                 ${esc(convo.prompt)}
               </div>
-              ${convo.helperB ? `<p class="mute text-xs mb-3">💡 ${esc(convo.helperB)}</p>` : ''}
 
-              <label for="partnerBText">Tuliskan refleksimu (${esc(nameB)}):</label>
-              <textarea id="partnerBText" placeholder="Tuliskan isi hatimu secara jujur tanpa khawatir dihakimi...">${esc(textVal)}</textarea>
+              <textarea id="partnerBText" aria-label="Tuliskan refleksimu (${esc(nameB)})" placeholder="Tuliskan refleksimu di sini...">${esc(textVal)}</textarea>
 
-              <div class="sharing-choice-box mb-4">
-                <div class="font-bold text-sm mb-2 text-ink-primary">Pilihan Berbagi:</div>
+              <div class="sharing-choice-box mb-3">
                 <div class="choice-tiles-vertical" role="radiogroup" aria-label="Pilihan Berbagi Jawaban ${esc(nameB)}">
-                  <button type="button" class="choice-tile ${isShared ? 'selected' : ''}" id="tileShareB" role="radio" aria-checked="${isShared}">
+                  <button type="button" class="choice-tile ${isShareSelected ? 'selected' : ''}" id="tileShareB" role="radio" aria-checked="${isShareSelected}">
                     <span class="tile-icon" aria-hidden="true">🤝</span>
                     <div class="tile-col">
-                      <div class="tile-label">Bagikan ke Ruang Bersama</div>
-                      <div class="tile-hint">Hanya terbuka jika ${esc(nameA)} juga setuju berbagi.</div>
+                      <div class="tile-label">Bagikan</div>
+                      <div class="tile-hint">Jika berdua setuju.</div>
                     </div>
                   </button>
 
-                  <button type="button" class="choice-tile ${!isShared ? 'selected' : ''}" id="tilePrivateB" role="radio" aria-checked="${!isShared}">
+                  <button type="button" class="choice-tile ${isPrivateSelected ? 'selected' : ''}" id="tilePrivateB" role="radio" aria-checked="${isPrivateSelected}">
                     <span class="tile-icon" aria-hidden="true">🔒</span>
                     <div class="tile-col">
-                      <div class="tile-label">Simpan untuk Saya Saja</div>
-                      <div class="tile-hint">Jawaban tetap rahasia untukmu, tidak akan ditampilkan ke pasangan.</div>
+                      <div class="tile-label">Simpan pribadi</div>
+                      <div class="tile-hint">Rahasia untukmu saja.</div>
                     </div>
                   </button>
                 </div>
               </div>
 
+              <div class="mute text-xs mb-3 text-center">Di satu ponsel, jawaban pribadi hanya seaman ponselnya.</div>
+
               <div class="sticky-bottom-action">
-                <button type="button" class="plum-btn w-full" id="submitPartnerBBtn">
-                  Lanjut ke Hasil Penyingkapan →
+                <button type="button" class="plum-btn w-full" id="submitPartnerBBtn" ${!hasChoice ? 'disabled' : ''}>
+                  Lanjut →
                 </button>
               </div>
 
@@ -460,17 +472,21 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
           const tilePrivate = container.querySelector('#tilePrivateB');
           const submitBtn = container.querySelector('#submitPartnerBBtn');
 
-          let sharedVal = answers.sharedB !== false;
+          let initialChoice = (answers.sharedB !== undefined) ? answers.sharedB : answers.partnerB?.sharedB;
+          let sharedVal = (initialChoice === true || initialChoice === false) ? initialChoice : null;
 
           const updateSelection = (shared) => {
             sharedVal = shared;
             if (tileShare) {
-              tileShare.classList.toggle('selected', sharedVal);
-              tileShare.setAttribute('aria-checked', String(sharedVal));
+              tileShare.classList.toggle('selected', sharedVal === true);
+              tileShare.setAttribute('aria-checked', String(sharedVal === true));
             }
             if (tilePrivate) {
-              tilePrivate.classList.toggle('selected', !sharedVal);
-              tilePrivate.setAttribute('aria-checked', String(!sharedVal));
+              tilePrivate.classList.toggle('selected', sharedVal === false);
+              tilePrivate.setAttribute('aria-checked', String(sharedVal === false));
+            }
+            if (submitBtn) {
+              submitBtn.disabled = sharedVal === null;
             }
           };
 
@@ -479,7 +495,11 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
 
           if (submitBtn) {
             submitBtn.onclick = () => {
+              if (sharedVal === null) return;
               const text = textarea ? textarea.value.trim() : '';
+              delete answers._refreshedNotice;
+              answers.answerB = text;
+              answers.sharedB = sharedVal;
               runner.setAnswer({
                 answerB: text,
                 sharedB: sharedVal
@@ -503,7 +523,9 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
         hideFooter: true,
         title: 'Hasil Refleksi',
         renderCustom(answers) {
-          const bothShared = Boolean(answers.sharedA && answers.sharedB);
+          const sharedA = (answers.sharedA !== undefined) ? answers.sharedA : answers.partnerA?.sharedA;
+          const sharedB = (answers.sharedB !== undefined) ? answers.sharedB : answers.partnerB?.sharedB;
+          const bothShared = sharedA === true && sharedB === true;
 
           if (bothShared) {
             return `
@@ -512,12 +534,11 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
                   ${renderMascot('cheer', 56, { inlineStyle: false, label: 'Tunas Gembira' })}
                 </div>
                 <div class="card-title-row">
-                  <span class="card-tag tunas">🤝 Ruang Temu Terbuka</span>
-                  <span class="text-xs mute">Keduanya Setuju</span>
+                  <span class="card-tag tunas">Ruang Temu Terbuka</span>
                 </div>
-                <h2 class="mt-1 mb-1">Jawaban Siap Dibuka Berdua</h2>
-                <p class="mute text-sm mb-3">
-                  Kalian berdua memilih untuk saling berbagi. Duduklah berdampingan, lalu buka kartu satu per satu dengan tenang.
+                <h2 class="mt-1 mb-1">Jawaban Siap Dibuka</h2>
+                <p class="mute text-xs mb-3">
+                  Buka kartu satu per satu:
                 </p>
 
                 <div class="flip-cards-grid mb-3">
@@ -526,8 +547,8 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
                     <div class="flip-card-inner">
                       <div class="flip-card-front">
                         <span class="flip-icon" aria-hidden="true">🃏</span>
-                        <div class="flip-title">Jawaban ${esc(nameA)}</div>
-                        <p class="flip-hint">Ketuk untuk membuka kartu</p>
+                        <div class="flip-title">${esc(nameA)}</div>
+                        <p class="flip-hint">Buka</p>
                       </div>
                       <div class="flip-card-back">
                         <div class="flip-header">
@@ -543,8 +564,8 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
                     <div class="flip-card-inner">
                       <div class="flip-card-front">
                         <span class="flip-icon" aria-hidden="true">🃏</span>
-                        <div class="flip-title">Jawaban ${esc(nameB)}</div>
-                        <p class="flip-hint">Ketuk untuk membuka kartu</p>
+                        <div class="flip-title">${esc(nameB)}</div>
+                        <p class="flip-hint">Buka</p>
                       </div>
                       <div class="flip-card-back">
                         <div class="flip-header">
@@ -556,13 +577,13 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
                   </div>
                 </div>
 
-                <div class="neutral-guidance-box mb-3">
-                  💡 <b>Pengingat Gottman:</b> Dengarkan untuk memahami dunia batin pasanganmu, bukan untuk membantah atau mencari pemenang.
+                <div class="neutral-guidance-box mb-3 text-xs">
+                  💡 Dengarkan untuk saling memahami.
                 </div>
 
                 <div class="sticky-bottom-action">
                   <button type="button" class="plum-btn w-full" id="revealNextBtn">
-                    Lanjut ke Pertanyaan Diskusi →
+                    Lanjut ke Diskusi →
                   </button>
                 </div>
 
@@ -578,20 +599,17 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
               <div class="text-3xl mb-2" aria-hidden="true">🔒</div>
               <h2 class="text-lg font-bold mb-1">Satu jawaban tetap pribadi. Itu tidak apa-apa.</h2>
               <p class="mute text-sm mb-3">
-                Menjaga batas kenyamanan dan rasa aman adalah bagian penting dari hubungan yang sehat.
-                Jawaban yang disimpan untuk diri sendiri tetap dirahasiakan sepenuhnya.
+                Ruang aman tetap terjaga. Jawaban pribadi dirahasiakan.
               </p>
 
-              <div class="neutral-guidance-box mb-4 text-left">
-                Kalian tetap dapat melanjutkan ke pertanyaan diskusi bersama untuk melatih komunikasi terbuka secara santai.
-              </div>
+              <div class="mute text-xs mb-3 text-center">Di satu ponsel, jawaban pribadi hanya seaman ponselnya.</div>
 
               <div class="flex flex-col gap-2">
                 <button type="button" class="plum-btn w-full" id="revealContinueDiscussionBtn">
-                  Lanjut ke Pertanyaan Diskusi →
+                  Lanjut ke Diskusi →
                 </button>
                 <button type="button" class="secondary w-full" id="revealFinishEarlyBtn">
-                  Selesai untuk Hari Ini
+                  Selesai Hari Ini
                 </button>
               </div>
 
@@ -600,7 +618,9 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
           `;
         },
         bind(container, answers, runner) {
-          const bothShared = Boolean(answers.sharedA && answers.sharedB);
+          const sharedA = (answers.sharedA !== undefined) ? answers.sharedA : answers.partnerA?.sharedA;
+          const sharedB = (answers.sharedB !== undefined) ? answers.sharedB : answers.partnerB?.sharedB;
+          const bothShared = sharedA === true && sharedB === true;
 
           if (bothShared) {
             const cardA = container.querySelector('#flipCardA');
@@ -611,8 +631,9 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
 
             if (cardA) {
               const flipA = () => {
-                if (contentA && answers.answerA) {
-                  contentA.textContent = answers.answerA || '(Tidak ada catatan)';
+                const ansA = answers.answerA || answers.partnerA?.answerA;
+                if (contentA && ansA) {
+                  contentA.textContent = ansA;
                 }
                 cardA.classList.add('flipped');
                 cardA.setAttribute('aria-expanded', 'true');
@@ -628,8 +649,9 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
 
             if (cardB) {
               const flipB = () => {
-                if (contentB && answers.answerB) {
-                  contentB.textContent = answers.answerB || '(Tidak ada catatan)';
+                const ansB = answers.answerB || answers.partnerB?.answerB;
+                if (contentB && ansB) {
+                  contentB.textContent = ansB;
                 }
                 cardB.classList.add('flipped');
                 cardB.setAttribute('aria-expanded', 'true');
@@ -651,8 +673,7 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
             if (continueBtn) continueBtn.onclick = () => runner.next();
             if (finishEarlyBtn) {
               finishEarlyBtn.onclick = () => {
-                // Save privately without discussion agreement
-                runner.next(); // advances to discuss step or completes
+                runner.next();
               };
             }
           }
@@ -669,7 +690,7 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
         id: 'discuss',
         type: 'custom',
         hideFooter: true,
-        title: 'Pertanyaan Diskusi Berdua',
+        title: 'Diskusi Berdua',
         renderCustom(answers) {
           return `
             <div class="card card-border-plum mb-3">
@@ -677,39 +698,32 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
                 <span class="card-tag plum">Langkah 6 dari 6</span>
                 <span class="discuss-counter" id="discussCounter">1 dari ${discussQuestions.length}</span>
               </div>
-              <h2 class="mt-1 mb-1">Pertanyaan Diskusi Bersama</h2>
-              <p class="mute text-xs mb-3">Ambil waktu sejenak untuk saling mendengarkan:</p>
+              <h2 class="mt-1 mb-1">Diskusi Berdua</h2>
 
               <!-- Carousel / Stepper of Discussion Questions -->
               <div class="discuss-question-card mb-3">
-                <div class="discuss-q-icon" aria-hidden="true">💬</div>
                 <div class="discuss-q-text" id="discussQuestionText">${esc(discussQuestions[0])}</div>
               </div>
 
-              <div class="discuss-nav-row mb-4">
+              <div class="discuss-nav-row mb-3">
                 <button type="button" class="secondary btn-action-sm" id="discussPrevQBtn" disabled>
-                  ← Pertanyaan Sebelumnya
+                  ← Sebelumnya
                 </button>
                 <button type="button" class="secondary btn-action-sm" id="discussNextQBtn">
-                  Pertanyaan Selanjutnya →
+                  Selanjutnya →
                 </button>
               </div>
 
               <!-- Shared next step and review date -->
-              <div class="joint-commitment-box mb-4">
-                <div class="font-bold text-sm mb-1 text-ink-primary">Langkah Bersama (Opsional)</div>
-                <p class="mute text-xs mb-2">Jika ada kesimpulan atau jalan tengah kecil yang ingin kalian sepakati:</p>
-
-                <label for="convoNextStepInput">Satu komitmen atau langkah kecil:</label>
-                <input type="text" id="convoNextStepInput" placeholder="Misal: Buat pos tabungan khusus Rp 500 rb/bulan" value="${esc(answers.nextStep || '')}">
-
-                <label for="convoReviewDateInput">Tanggal evaluasi santai berdua (opsional):</label>
-                <input type="date" id="convoReviewDateInput" value="${esc(answers.reviewDate || '')}">
+              <div class="joint-commitment-box mb-3">
+                <label for="convoNextStepInput" class="font-bold text-xs block mb-1">Langkah bersama (opsional):</label>
+                <input type="text" id="convoNextStepInput" placeholder="Misal: Pos tabungan baru" value="${esc(answers.nextStep || '')}">
+                <input type="date" id="convoReviewDateInput" class="mt-2" value="${esc(answers.reviewDate || '')}" aria-label="Tanggal evaluasi santai berdua">
               </div>
 
               <div class="sticky-bottom-action">
                 <button type="button" class="plum-btn w-full" id="completeCoupleConvoBtn">
-                  Simpan & Selesaikan Sesi
+                  Simpan & Selesai
                 </button>
               </div>
 
@@ -771,18 +785,23 @@ export function createCoupleFlow(convo, store, onComplete = null, onSafetyExit =
     // -------------------------------------------------------------
     onComplete(answers, storeInstance) {
       const activeStore = storeInstance || store;
+      const ansA = answers.answerA || answers.partnerA?.answerA || '';
+      const shA = (answers.sharedA !== undefined) ? answers.sharedA : answers.partnerA?.sharedA;
+      const ansB = answers.answerB || answers.partnerB?.answerB || '';
+      const shB = (answers.sharedB !== undefined) ? answers.sharedB : answers.partnerB?.sharedB;
+
       const convoData = {
         convoId,
         completedAt: Date.now(),
         participants: {
           A: {
-            answer: answers.answerA || '',
-            shared: Boolean(answers.sharedA),
+            answer: ansA,
+            shared: shA === true,
             updatedAt: Date.now()
           },
           B: {
-            answer: answers.answerB || '',
-            shared: Boolean(answers.sharedB),
+            answer: ansB,
+            shared: shB === true,
             updatedAt: Date.now()
           }
         },
