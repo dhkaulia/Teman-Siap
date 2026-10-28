@@ -1254,6 +1254,7 @@ body.theme-dark .urge-reframe-card {
 }
 
 .path-weekly-pill,
+.path-seeds-pill,
 .path-mascot-pill {
   display: inline-flex;
   align-items: center;
@@ -1265,6 +1266,12 @@ body.theme-dark .urge-reframe-card {
   font-size: 0.76rem;
   color: var(--ink-primary);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.path-pill-text {
+  white-space: nowrap;
 }
 
 .path-mascot-avatar {
@@ -2105,13 +2112,13 @@ body.theme-dark .urge-reframe-card {
 .path-seeds-pill {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: 6px;
   background-color: var(--tunas-light, #E8F5E9);
   color: var(--tunas-dark, #1B5E20);
-  border: 1px solid var(--tunas, #4CAF50);
-  border-radius: var(--radius-full);
-  padding: 4px 12px;
-  font-size: 0.85rem;
+  border: 1.5px solid var(--tunas, #4CAF50);
+  border-radius: var(--radius-pill);
+  padding: 4px 10px;
+  font-size: 0.76rem;
   font-weight: 700;
   white-space: nowrap;
 }

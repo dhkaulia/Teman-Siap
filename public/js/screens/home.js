@@ -113,20 +113,22 @@ export function renderHome(store) {
         ${enableRitme ? `
           <div class="path-weekly-pill" role="status" aria-label="Latihan minggu ini: ${weeklyCount} kali">
             <span class="path-pill-icon" aria-hidden="true">${renderIcon('sprout')}</span>
-            <span class="path-pill-text">${COPY.home.weeklyBadge} <b>${weeklyCount} kali</b></span>
+            <span class="sr-only">${COPY.home.weeklyBadge} </span>
+            <span class="path-pill-text"><b>${weeklyCount} kali</b></span>
           </div>
         ` : ''}
         ${enableRewards ? `
           <div class="path-seeds-pill" aria-label="Benih terkumpul: ${seeds} benih">
             <span class="path-pill-icon" aria-hidden="true">${renderIcon('sprout')}</span>
-            <span class="path-pill-text"><b>${seeds}</b> ${COPY.home.seedsBadge}</span>
+            <span class="path-pill-text"><b>${seeds}</b> benih</span>
           </div>
         ` : ''}
         <div class="path-mascot-pill" aria-label="Pertumbuhan Tunas: ${esc(mascotStage.name)}">
           <span class="path-mascot-avatar" aria-hidden="true">
             ${renderMascot('idle', 26, { stage: mascotStage.id, inlineStyle: false })}
           </span>
-          <span class="path-pill-text">${COPY.home.tunasBadge} <b>${esc(mascotStage.name)}</b></span>
+          <span class="sr-only">${COPY.home.tunasBadge} </span>
+          <span class="path-pill-text"><b>${esc(mascotStage.name)}</b></span>
         </div>
       </div>
     </header>
