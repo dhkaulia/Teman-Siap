@@ -11,6 +11,7 @@ import { Wave } from '../public/js/ui/wave.js';
 import { Keypad } from '../public/js/ui/keypad.js';
 import { BottomSheet } from '../public/js/ui/bottomSheet.js';
 import { Bubble } from '../public/js/ui/bubble.js';
+import { ICONS, renderIcon } from '../public/js/ui/icons.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -114,5 +115,15 @@ describe('Bubble Component Logic', () => {
     assert.ok(html.includes('Mari berhenti sejenak.'));
     assert.ok(html.includes('data-action-id="act-1"'));
     assert.ok(html.includes('role="article"'));
+  });
+});
+
+describe('Icons SVG Redesign: Sprout Icon', () => {
+  it('renders sprout icon with curved stem and 2 distinct leaves without baseline', () => {
+    const sproutSvg = renderIcon('sprout');
+    assert.ok(sproutSvg.includes('<svg'), 'Sprout must be a valid SVG string');
+    assert.equal(sproutSvg.includes('M7 20h10'), false, 'Sprout must NOT have horizontal baseline');
+    assert.ok(sproutSvg.includes('fill="currentColor"'), 'Sprout leaves must use fill="currentColor"');
+    assert.ok(sproutSvg.includes('M9 21c0-6 2.5-10 6-14'), 'Sprout must have organic curved stem');
   });
 });
