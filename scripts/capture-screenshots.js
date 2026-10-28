@@ -11,11 +11,26 @@ async function capture() {
   const page = await context.newPage();
 
   // 1. Kita light & dark
-  await page.goto('http://127.0.0.1:3000/?onboarded=1&tab=us&theme=light');
-  await page.screenshot({ path: path.join(ARTIFACT_DIR, 'kita-chips-360px-light.png') });
-
-  await page.goto('http://127.0.0.1:3000/?onboarded=1&tab=us&theme=dark');
-  await page.screenshot({ path: path.join(ARTIFACT_DIR, 'kita-chips-360px-dark.png') });
+  for (const theme of ['light', 'dark']) {
+    await page.goto(`http://127.0.0.1:3000/?onboarded=1&tab=us&theme=${theme}`, { waitUntil: 'networkidle' });
+    const check = await page.evaluate(() => {
+      const chipA = document.querySelector('.plant-partner-a .partner-turn-chip');
+      const plantA = document.querySelector('.plant-partner-a .plant-svg');
+      if (!chipA || !plantA) return null;
+      const rectChip = chipA.getBoundingClientRect();
+      const rectPlant = plantA.getBoundingClientRect();
+      const style = window.getComputedStyle(chipA);
+      const srEl = document.querySelector('.sr-only');
+      const srRect = srEl ? srEl.getBoundingClientRect() : null;
+      return {
+        gap: rectChip.top - rectPlant.bottom,
+        borderRadius: style.borderRadius,
+        srOnlyClipped: srRect ? (srRect.width <= 1 && srRect.height <= 1) : false
+      };
+    });
+    console.log(`[Kita ${theme}] gap: ${check?.gap}px, radius: ${check?.borderRadius}, srOnlyClipped: ${check?.srOnlyClipped}`);
+    await page.screenshot({ path: path.join(ARTIFACT_DIR, `kita-chips-360px-${theme}.png`) });
+  }
 
   // 2. Saya light & dark
   await page.goto('http://127.0.0.1:3000/?onboarded=1&tab=me&theme=light');
